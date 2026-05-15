@@ -1,17 +1,25 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { ProjectDTO } from '../../application/dtos/ProjectDTO'
+import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
+
+// =============================================================================
+// useProjects
+// Client-side project fetching — use server loaders when possible.
+// Falls back to this hook for client-only interactions.
+// =============================================================================
 export function useProjects() {
   const [projects, setProjects] = useState<ProjectDTO[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading,  setLoading]  = useState(true)
+  const [error,    setError]    = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(${process.env.NEXT_PUBLIC_API_URL}/projects?published=true)
+    window.fetch(`${API_URL}/projects`)
       .then((r) => r.json())
       .then((data: ProjectDTO[]) => { setProjects(data); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch(() => { setError('Failed to load projects'); setLoading(false) })
   }, [])
 
-  return { projects, loading }
+  return { projects, loading, error }
 }

@@ -1,17 +1,25 @@
 import { Project } from '../../domain/entities/Project'
+import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
 
-export interface RawProject {
-  id: number; name: string; description: string; slug: string
-  techStack: string[]; isPublished: boolean; isOpenSource: boolean
-  createdAt: string; updatedAt: string
-}
-
+// =============================================================================
+// ProjectMapper
+// Converts raw API response → domain entity.
+// =============================================================================
 export class ProjectMapper {
-  static toDomain(raw: RawProject): Project {
+  static toDomain(dto: ProjectDTO): Project {
     return new Project(
-      raw.id, raw.name, raw.description, raw.slug,
-      raw.techStack, raw.isPublished, raw.isOpenSource,
-      new Date(raw.createdAt), new Date(raw.updatedAt),
+      dto.id,
+      dto.name,
+      dto.description,
+      dto.slug,
+      dto.techStack,
+      dto.repoUrl,
+      dto.liveUrl,
+      dto.thumbnailUrl,
+      dto.isPublished,
+      dto.isOpenSource,
+      new Date(dto.createdAt),
+      new Date(dto.updatedAt),
     )
   }
 }

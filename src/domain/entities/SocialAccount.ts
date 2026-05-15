@@ -3,7 +3,6 @@ export class SocialAccount {
     public readonly id: number,
     public readonly name: string,
     public readonly url: string,
-    public readonly imageUrl: string,
-    public readonly isPublic: boolean,
+    public readonly imageUrl: string | null,
   ) {}
 }

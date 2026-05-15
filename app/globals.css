@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
+/* ============================================================
+    ALWAYS DARK — no light mode toggle, this site is always dark
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core palette */
+  --bg-base:        #010d18;
+  --bg-surface:     #011627;
+  --bg-elevated:    #0d2137;
+  --bg-tab-bar:     #01111d;
+  --bg-tab-active:  #011627;
+  --bg-tab-inactive:#01111d;
+  --bg-sidebar:     #011221;
+  --bg-statusbar:   #010d18;
+
+  /* Text */
+  --text-primary:   #d6deeb;
+  --text-secondary: #7fdbca;
+  --text-muted:     #4b6479;
+  --text-comment:   #637777;
+  --text-keyword:   #c792ea;
+  --text-string:    #ecc48d;
+  --text-operator:  #7fdbca;
+  --text-const:     #82aaff;
+
+  /* Accents */
+  --accent-amber:   #e5a00d;
+  --accent-teal:    #00c2b3;
+  --accent-blue:    #3b9edd;
+  --border-subtle:  #0d2b40;
+  --border-muted:   #1d3a50;
+
+  /* Glow */
+  --glow-teal:      rgba(0, 194, 179, 0.08);
+  --glow-teal-mid:  rgba(0, 194, 179, 0.04);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================================
+    RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  overflow: hidden;
 }
+
+#__next,
+main {
+  height: 100%;
+}
+
+/* ============================================================
+    SCROLLBAR — slim, themed
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-muted);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-teal);
+}
+
+/* ============================================================
+    SELECTION
+   ============================================================ */
+::selection {
+  background: rgba(0, 194, 179, 0.2);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+    TEAL RADIAL ATMOSPHERE — applied via .glow-bg class on a wrapper
+   ============================================================ */
+.glow-bg {
+  position: relative;
+  background-color: var(--bg-surface);
+}
+
+.glow-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 72% 20%, rgba(0, 194, 179, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 5%,  rgba(0, 120, 200, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+    UTILITIES
+   ============================================================ */
+.font-code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.text-comment  { color: var(--text-comment); }
+.text-keyword  { color: var(--text-keyword); }
+.text-string   { color: var(--text-string); }
+.text-operator { color: var(--text-operator); }
+.text-const    { color: var(--text-const); }

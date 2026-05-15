@@ -1,18 +1,30 @@
-import { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
-
+import type { ButtonHTMLAttributes } from 'react'
+// =============================================================================
+// Button — Atom
+// VS Code-inspired — minimal, sharp corners, subtle hover states.
+// =============================================================================
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost'
+  variant?: 'primary' | 'ghost' | 'danger'
+  size?:    'sm' | 'md'
 }
 
-export function Button({ variant = 'primary', className, children, ...props }: Props) {
+export function Button({
+  variant  = 'primary',
+  size     = 'md',
+  className,
+  children,
+  ...props
+}: Props) {
   return (
     <button
       className={cn(
-        'px-4 py-2 rounded-md text-sm font-medium transition-colors',
-        variant === 'primary' && 'bg-primary text-primary-foreground hover:bg-primary/90',
-        variant === 'secondary' && 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        variant === 'ghost' && 'hover:bg-accent hover:text-accent-foreground',
+        'inline-flex items-center justify-center font-mono text-xs transition-colors focus:outline-none disabled:opacity-50',
+        size === 'sm' && 'px-3 py-1',
+        size === 'md' && 'px-4 py-2',
+        variant === 'primary' && 'bg-[#0e639c] text-white hover:bg-[#1177bb]',
+        variant === 'ghost'   && 'text-[#cccccc] hover:bg-[#2a2d2e]',
+        variant === 'danger'  && 'text-[#f48771] hover:bg-[#2a2d2e]',
         className,
       )}
       {...props}
