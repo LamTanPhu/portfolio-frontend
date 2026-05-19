@@ -3,10 +3,7 @@ import { NavTab } from '../atoms/NavTab'
 
 // =============================================================================
 // TabBar — Organism
-// Owner name is a static non-clickable label on the far left (like the
-// VS Code "michael-weaver" branding tab).
-// _contact-me is pushed to the far right.
-// Active tab gets an amber bottom border.
+// Owner name static label far left, _contact-me pushed far right.
 // =============================================================================
 
 export interface Tab {
@@ -21,7 +18,6 @@ interface Props {
   ownerName: string
 }
 
-// Split tabs: everything except contact goes left, contact goes right
 const CONTACT_ID = 'contact'
 
 export function TabBar({ tabs, activeId, ownerName }: Props) {
@@ -29,13 +25,11 @@ export function TabBar({ tabs, activeId, ownerName }: Props) {
   const rightTabs = tabs.filter((t) => t.id === CONTACT_ID)
 
   return (
-    <div
-      className="flex items-stretch border-b border-[var(--border-subtle)] bg-[var(--bg-tab-bar)] shrink-0"
-      style={{ minHeight: '40px' }}
-    >
-      {/* Owner name — static branding, not a link */}
-      <div className="flex items-center px-5 border-r border-[var(--border-subtle)]">
-        <span className="font-mono text-xs text-[var(--text-muted)] tracking-wide whitespace-nowrap">
+    <div className="flex items-stretch min-h-10 shrink-0 border-b border-(--border-subtle) bg-(--bg-tab-bar)">
+
+      {/* Owner name — static branding */}
+      <div className="flex items-center px-5 border-r border-(--border-muted)">
+        <span className="font-mono text-xs text-(--text-muted) tracking-wide whitespace-nowrap">
           {ownerName}
         </span>
       </div>
@@ -43,19 +37,19 @@ export function TabBar({ tabs, activeId, ownerName }: Props) {
       {/* Left nav tabs */}
       <div className="flex items-stretch overflow-x-auto">
         {leftTabs.map((tab) => (
-          <a key={tab.id} href={tab.href} className="flex items-stretch">
+          <a key={tab.id} href={tab.href} title={tab.label} className="flex items-stretch">
             <NavTab label={tab.label} isActive={tab.id === activeId} />
           </a>
         ))}
       </div>
 
       {/* Spacer */}
-      <div className="flex-1 border-b border-[var(--border-subtle)]" />
+      <div className="flex-1" />
 
-      {/* Right — contact tab pushed far right */}
-      <div className="flex items-stretch border-l border-[var(--border-subtle)]">
+      {/* Contact tab — far right */}
+      <div className="flex items-stretch border-l border-(--border-muted)">
         {rightTabs.map((tab) => (
-          <a key={tab.id} href={tab.href} className="flex items-stretch">
+          <a key={tab.id} href={tab.href} title={tab.label} className="flex items-stretch">
             <NavTab label={tab.label} isActive={tab.id === activeId} />
           </a>
         ))}

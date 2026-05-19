@@ -8,7 +8,7 @@ export function NowPlaying() {
   }
   return (
     <a href={track.songUrl} target="_blank" rel="noopener noreferrer"
-       className="font-mono text-[11px] text-[#858585] hover:text-[#cccccc] transition-colors">
+        className="font-mono text-[11px] text-[#858585] hover:text-[#cccccc] transition-colors">
       ♪ {track.title} — {track.artist}
     </a>
   )

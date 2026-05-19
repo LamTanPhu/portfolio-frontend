@@ -2,8 +2,8 @@ import { cn } from '@/lib/utils'
 
 // =============================================================================
 // NavTab — Atom
-// Width is driven by label length + fixed 24px padding each side.
-// Inline styles used for padding to bypass Tailwind JIT issues.
+// Width is driven by label length + fixed padding each side.
+// Uses Tailwind v4 CSS variable shorthand: bg-(--var) not bg-[var(--var)]
 // =============================================================================
 
 interface Props {
@@ -16,29 +16,25 @@ export function NavTab({ label, isActive, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      style={{
-        paddingLeft:     '24px',
-        paddingRight:    '24px',
-        paddingTop:      '10px',
-        paddingBottom:   '10px',
-        width:           'max-content',
-        borderRight:     '1px solid var(--border-muted)',
-        fontFamily:      'inherit',
-        fontSize:        '13px',
-        letterSpacing:   '0.03em',
-        whiteSpace:      'nowrap',
-        position:        'relative',
-        transition:      'background-color 150ms, color 150ms',
-        backgroundColor: isActive ? 'var(--bg-tab-active)'  : 'var(--bg-tab-inactive)',
-        color:           isActive ? 'var(--text-primary)'   : 'var(--text-muted)',
-      }}
       className={cn(
-        'font-mono',
-        'hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]',
-        isActive && [
-          'after:absolute after:bottom-0 after:left-0 after:right-0',
-          'after:h-[2px] after:bg-[var(--accent-amber)]',
-        ],
+        // Layout & typography
+        'relative font-mono text-[13px] tracking-wide whitespace-nowrap',
+        'w-max px-6 py-2.5',
+        // Border
+        'border-r border-(--border-muted)',
+        // Transitions
+        'transition-colors duration-150',
+        // Hover
+        'hover:bg-(--bg-elevated) hover:text-(--text-primary)',
+        // Active vs inactive
+        isActive
+          ? [
+              'bg-(--bg-tab-active) text-(--text-primary)',
+              // Amber bottom indicator
+              'after:absolute after:bottom-0 after:left-0 after:right-0',
+              'after:h-0.5 after:bg-(--accent-amber)',
+            ]
+          : 'bg-(--bg-tab-inactive) text-(--text-muted)',
       )}
     >
       {label}
