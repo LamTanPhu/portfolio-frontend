@@ -3,7 +3,7 @@ import { NavTab } from '../atoms/NavTab'
 
 // =============================================================================
 // TabBar — Organism
-// Owner name static label far left, _contact-me pushed far right.
+// Owner name prominent far left, _contact-me pushed far right.
 // =============================================================================
 
 export interface Tab {
@@ -27,9 +27,9 @@ export function TabBar({ tabs, activeId, ownerName }: Props) {
   return (
     <div className="flex items-stretch min-h-10 shrink-0 border-b border-(--border-subtle) bg-(--bg-tab-bar)">
 
-      {/* Owner name — static branding */}
-      <div className="flex items-center px-5 border-r border-(--border-muted)">
-        <span className="font-mono text-xs text-(--text-muted) tracking-wide whitespace-nowrap">
+      {/* Owner name — wide, prominent, not a footnote */}
+      <div className="flex items-center px-10 min-w-52 border-r border-(--border-muted)">
+        <span className="font-mono text-sm text-(--text-primary) tracking-widest whitespace-nowrap">
           {ownerName}
         </span>
       </div>

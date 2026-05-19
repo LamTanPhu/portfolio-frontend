@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-    ALWAYS DARK — no light mode toggle, this site is always dark
+   ALWAYS DARK — no light mode toggle, this site is always dark
    ============================================================ */
 
 :root {
@@ -38,7 +38,7 @@
 }
 
 /* ============================================================
-    RESET & BASE
+   RESET & BASE
    ============================================================ */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -66,7 +66,7 @@ main {
 }
 
 /* ============================================================
-    SCROLLBAR — slim, themed
+   SCROLLBAR — slim, themed
    ============================================================ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -84,7 +84,7 @@ main {
 }
 
 /* ============================================================
-    SELECTION
+   SELECTION
    ============================================================ */
 ::selection {
   background: rgba(0, 194, 179, 0.2);
@@ -92,7 +92,7 @@ main {
 }
 
 /* ============================================================
-    TEAL RADIAL ATMOSPHERE — applied via .glow-bg class on a wrapper
+   TEAL RADIAL ATMOSPHERE — applied via .glow-bg class on a wrapper
    ============================================================ */
 .glow-bg {
   position: relative;
@@ -116,7 +116,47 @@ main {
 }
 
 /* ============================================================
-    UTILITIES
+   NAV TAB — defined here so padding is never dropped by JIT
+   ============================================================ */
+.nav-tab {
+  position:         relative;
+  display:          flex;
+  align-items:      center;
+  padding:          10px 40px;
+  font-family:      'JetBrains Mono', 'Fira Code', monospace;
+  font-size:        13px;
+  letter-spacing:   0.03em;
+  white-space:      nowrap;
+  width:            max-content;
+  border-right:     1px solid var(--border-muted);
+  transition:       background-color 150ms, color 150ms;
+  cursor:           pointer;
+  background-color: var(--bg-tab-inactive);
+  color:            var(--text-muted);
+}
+
+.nav-tab:hover {
+  background-color: var(--bg-elevated);
+  color:            var(--text-primary);
+}
+
+.nav-tab--active {
+  background-color: var(--bg-tab-active);
+  color:            var(--text-primary);
+}
+
+.nav-tab--active::after {
+  content:          '';
+  position:         absolute;
+  bottom:           0;
+  left:             0;
+  right:            0;
+  height:           3px;
+  background-color: var(--accent-amber);
+}
+
+/* ============================================================
+   UTILITIES
    ============================================================ */
 .font-code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
