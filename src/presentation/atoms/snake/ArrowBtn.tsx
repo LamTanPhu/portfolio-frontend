@@ -1,6 +1,6 @@
 // =============================================================================
 // ArrowBtn — Atom (snake-specific)
-// Single arrow key display button. Purely presentational.
+// Larger, rounder arrow key button. Tactile feel.
 // =============================================================================
 
 interface Props {
@@ -9,17 +9,19 @@ interface Props {
 
 export function ArrowBtn({ label }: Props) {
     return (
-        <div
-            className="
-                font-mono text-[10px]
-                flex items-center justify-center
-                w-6 h-6
-                border border-(--border-muted)
-                bg-[rgba(1,13,24,0.6)]
-                text-(--text-muted)
-                "
-            >
-                {label}
+        <div className="
+            flex items-center justify-center
+            w-10 h-10 rounded-lg
+            font-mono text-sm
+            text-(--text-primary)
+            bg-[rgba(0,194,179,0.08)]
+            border border-(--border-muted)
+            hover:bg-[rgba(0,194,179,0.15)]
+            hover:border-(--accent-teal)
+            transition-colors duration-150
+            select-none cursor-default
+            ">
+            {label}
         </div>
     )
 }

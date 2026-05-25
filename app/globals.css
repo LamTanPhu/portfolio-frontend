@@ -156,12 +156,29 @@ main {
 }
 
 /* ============================================================
-   UTILITIES
+    UTILITIES
    ============================================================ */
+
 .font-code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 13px;
   line-height: 1.6;
+}
+
+/* Sidebar dot colors — used instead of inline styles */
+.dot-red   { background-color: #ff5f57; }
+.dot-blue  { background-color: #4fc3f7; }
+.dot-teal  { background-color: #00c2b3; }
+.dot-amber { background-color: #e5a00d; }
+.dot-grey  { background-color: #637777; }
+.dot-green { background-color: #28c840; }
+
+.sidebar-dot {
+  width:            8px;
+  height:           8px;
+  border-radius:    2px;
+  flex-shrink:      0;
+  background-color: var(--dot-color, var(--border-muted));
 }
 
 .text-comment  { color: var(--text-comment); }

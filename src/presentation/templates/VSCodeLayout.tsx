@@ -1,12 +1,14 @@
-import { Sidebar }   from '../organisms/Sidebar'
-import { TabBar }    from '../organisms/TabBar'
-import { StatusBar } from '../organisms/StatusBar'
-import type { Tab }  from '../organisms/TabBar'
-import type { ReactNode } from 'react'
+import { Sidebar }             from '../organisms/Sidebar'
+import { TabBar }              from '../organisms/TabBar'
+import { StatusBar }           from '../organisms/StatusBar'
+import type { Tab }            from '../organisms/TabBar'
+import type { SidebarItem }    from '../organisms/Sidebar'
+import type { ReactNode }      from 'react'
 
 // =============================================================================
 // VSCodeLayout — Template
 // Shell for every page. TabBar top, StatusBar bottom.
+// Each page passes its own sidebarItems — layout stays dumb.
 // showSidebar defaults to true — home passes false.
 // =============================================================================
 
@@ -18,27 +20,19 @@ const TABS: Tab[] = [
   { id: 'contact',  label: '_contact-me', href: '/contact'  },
 ]
 
-const SIDEBAR_ITEMS = [
-  {
-    label: 'personal-info',
-    href: '#',
-    children: [
-      { label: 'bio',       href: '/about'           },
-      { label: 'interests', href: '/about#interests' },
-    ],
-  },
-  { label: 'projects', href: '/projects' },
-  { label: 'blog',     href: '/blog'     },
-  { label: 'contact',  href: '/contact'  },
-]
-
 interface Props {
-  children:     ReactNode
-  activeTab:    string
-  showSidebar?: boolean
+  children:      ReactNode
+  activeTab:     string
+  showSidebar?:  boolean
+  sidebarItems?: SidebarItem[]
 }
 
-export function VSCodeLayout({ children, activeTab, showSidebar = true }: Props) {
+export function VSCodeLayout({
+  children,
+  activeTab,
+  showSidebar  = true,
+  sidebarItems = [],
+}: Props) {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-(--bg-surface) text-(--text-primary)">
 
@@ -46,7 +40,7 @@ export function VSCodeLayout({ children, activeTab, showSidebar = true }: Props)
 
       <div className="flex flex-1 overflow-hidden">
         {showSidebar && (
-          <Sidebar ownerName="lam-tan-phu" items={SIDEBAR_ITEMS} />
+          <Sidebar ownerName="lam-tan-phu" items={sidebarItems} />
         )}
         <main className="flex-1 overflow-y-auto glow-bg">
           {children}

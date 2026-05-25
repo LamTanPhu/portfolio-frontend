@@ -1,15 +1,12 @@
 'use client'
 import { useEffect, useRef, useCallback, useReducer } from 'react'
-import { GameActions } from '../molecules/snake/GameActions'
 import { GameCanvas } from '../molecules/snake/GameCanvas'
 import { GameSidebar } from '../molecules/snake/GameSidebar'
 
-
 // =============================================================================
 // SnakeGame — Organism
-// Owns all game state and logic via useReducer.
-// Composes GameCanvas, GameSidebar, GameActions.
-// Canvas drawing happens here via ref — keeps draw logic co-located with state.
+// Glassy card container. No footer bar — buttons live inside canvas/sidebar.
+// Screws are purely decorative, padded well away from all content.
 // =============================================================================
 
 const COLS       = 14
@@ -84,12 +81,9 @@ function reducer(s: State, a: Action): State {
       const newEaten = ate ? s.eaten + 1 : s.eaten
       return {
         ...s,
-        snake:   newSnake,
-        dir,
-        nextDir: dir,
-        food:    newFood,
-        eaten:   newEaten,
-        phase:   newFood.length === 0 ? 'won' : 'playing',
+        snake: newSnake, dir, nextDir: dir,
+        food:  newFood,  eaten: newEaten,
+        phase: newFood.length === 0 ? 'won' : 'playing',
       }
     }
     default: return s
@@ -98,6 +92,14 @@ function reducer(s: State, a: Action): State {
 
 interface Props {
   onSkip?: () => void
+}
+
+function Screw() {
+  return (
+    <div className="w-3 h-3 rounded-full border border-(--border-muted) bg-[rgba(0,194,179,0.06)] flex items-center justify-center">
+      <div className="w-1 h-px bg-(--border-muted) rotate-45" />
+    </div>
+  )
 }
 
 export function SnakeGame({ onSkip }: Props) {
@@ -141,8 +143,8 @@ export function SnakeGame({ onSkip }: Props) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Grid lines
-    ctx.strokeStyle = 'rgba(13, 43, 64, 0.6)'
+    // Grid
+    ctx.strokeStyle = 'rgba(13, 43, 64, 0.5)'
     ctx.lineWidth   = 0.5
     for (let x = 0; x <= COLS; x++) {
       ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, ROWS * CELL); ctx.stroke()
@@ -151,66 +153,59 @@ export function SnakeGame({ onSkip }: Props) {
       ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(COLS * CELL, y * CELL); ctx.stroke()
     }
 
-    // Food dots
+    // Food — glowing dots
     state.food.forEach(f => {
+      const cx = f.x * CELL + CELL / 2
+      const cy = f.y * CELL + CELL / 2
+      const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 6)
+      grd.addColorStop(0, '#00c2b3')
+      grd.addColorStop(1, 'rgba(0,194,179,0)')
+      ctx.fillStyle = grd
+      ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill()
       ctx.fillStyle = '#00c2b3'
-      ctx.beginPath()
-      ctx.arc(f.x * CELL + CELL / 2, f.y * CELL + CELL / 2, 4, 0, Math.PI * 2)
-      ctx.fill()
+      ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill()
     })
 
-    // Snake body
+    // Snake — rounded segments
     state.snake.forEach((p, i) => {
       ctx.fillStyle = i === 0 ? '#7fdbca' : '#00c2b3'
-      const pad = i === 0 ? 2 : 3
-      ctx.fillRect(p.x * CELL + pad, p.y * CELL + pad, CELL - pad * 2, CELL - pad * 2)
+      const pad = 2
+      ctx.beginPath()
+      ctx.roundRect(p.x * CELL + pad, p.y * CELL + pad, CELL - pad * 2, CELL - pad * 2, i === 0 ? 4 : 3)
+      ctx.fill()
     })
-
-    // End-state overlay
-    if (state.phase === 'won' || state.phase === 'lost') {
-      ctx.fillStyle = 'rgba(1, 13, 24, 0.75)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-      ctx.fillStyle = state.phase === 'won' ? '#00c2b3' : '#e5a00d'
-      ctx.font      = 'bold 14px JetBrains Mono, monospace'
-      ctx.textAlign = 'center'
-      ctx.fillText(
-        state.phase === 'won' ? 'WELL DONE!' : 'GAME OVER',
-        canvas.width / 2,
-        canvas.height / 2,
-      )
-    }
   }, [state])
 
   return (
-    <article
-      className="
-        flex flex-col
-        border border-(--border-muted)
-        bg-[rgba(1,22,39,0.85)]
-        backdrop-blur-sm
-        shadow-[0_0_40px_rgba(0,194,179,0.08)]
-        rounded-sm
-      "
-    >
-      {/* Game area: canvas + sidebar */}
-      <div className="flex">
+    <article className="
+      relative flex flex-col
+      rounded-2xl
+      border border-(--border-muted)
+      bg-[rgba(1,22,39,0.85)]
+      backdrop-blur-md
+      shadow-[0_0_60px_rgba(0,194,179,0.1),inset_0_1px_0_rgba(255,255,255,0.05)]
+    ">
+      {/* Screws — decorative only, z-0 so they never fight with content */}
+      <div className="absolute top-3 left-3 z-0 pointer-events-none"><Screw /></div>
+      <div className="absolute top-3 right-3 z-0 pointer-events-none"><Screw /></div>
+      <div className="absolute bottom-3 left-3 z-0 pointer-events-none"><Screw /></div>
+      <div className="absolute bottom-3 right-3 z-0 pointer-events-none"><Screw /></div>
+
+      {/* Game area — padding keeps content clear of screws */}
+      <div className="flex gap-0 p-6 relative z-10">
         <GameCanvas
           canvasRef={canvasRef}
           width={COLS * CELL}
           height={ROWS * CELL}
-          isIdle={state.phase === 'idle'}
+          phase={state.phase}
+          onStart={() => dispatch({ type: 'START' })}
+          onReset={() => dispatch({ type: 'RESET' })}
         />
-        <GameSidebar eaten={state.eaten} />
+        <GameSidebar
+          eaten={state.eaten}
+          onSkip={onSkip}
+        />
       </div>
-
-      {/* Action buttons */}
-      <GameActions
-        phase={state.phase}
-        eaten={state.eaten}
-        onStart={() => dispatch({ type: 'START' })}
-        onReset={() => dispatch({ type: 'RESET' })}
-        onSkip={onSkip}
-      />
     </article>
   )
 }
