@@ -4,7 +4,7 @@ import { VSCodeLayout }   from '../templates/VSCodeLayout'
 import { BlogCard }       from '../molecules/BlogCard'
 import { BlogPreview }    from '../molecules/BlogPreview'
 import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
-import { BlogSidebar } from '../organisms/BlogSidebar'
+import { BlogSidebar } from '../organisms/BlogSideBar'
 
 // =============================================================================
 // BlogPage — Page
