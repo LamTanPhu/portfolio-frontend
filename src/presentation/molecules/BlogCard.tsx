@@ -1,16 +1,50 @@
-import type { BlogDTO } from '../../application/dtos/BlogDTO'
-import { Badge } from '../atoms/Badge'
+import { BlogTag } from '../atoms/BlogTag'
 
-interface Props { blog: BlogDTO }
+// =============================================================================
+// BlogCard — Molecule
+// Compact post list item — file browser style.
+// Title, date, tags. No excerpt here, that lives in the preview panel.
+// =============================================================================
 
-export function BlogCard({ blog }: Props) {
+interface Props {
+  title:      string
+  slug:       string
+  date:       string
+  tags:       string[]
+  isSelected: boolean
+  onClick:    () => void
+}
+
+export function BlogCard({ title, date, tags, isSelected, onClick }: Props) {
   return (
-    <a href={`/blog/${blog.slug}`} className="block border border-[#3c3c3c] bg-[#1e1e1e] p-4 hover:border-[#007acc] transition-colors">
-      <h3 className="font-mono text-sm text-[#cccccc] mb-1">{blog.title}</h3>
-      {blog.excerpt && <p className="font-mono text-[11px] text-[#858585] mb-3 line-clamp-2">{blog.excerpt}</p>}
-      <div className="flex flex-wrap gap-1">
-        {blog.tags.map(tag => <Badge key={tag} label={tag} />)}
+    <button
+      onClick={onClick}
+      className={[
+        'w-full text-left flex flex-col gap-2 px-4 py-3',
+        'border-b border-(--border-subtle)',
+        'transition-colors duration-100',
+        isSelected
+          ? 'bg-(--bg-elevated) border-l-2 border-l-(--accent-teal)'
+          : 'hover:bg-(--bg-elevated) border-l-2 border-l-transparent',
+      ].join(' ')}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <span className={[
+          'font-mono text-sm leading-snug',
+          isSelected ? 'text-(--text-primary)' : 'text-(--text-muted)',
+        ].join(' ')}>
+          {title}
+        </span>
+        <time className="font-mono text-[11px] text-(--text-muted) shrink-0 mt-0.5">
+          {date}
+        </time>
       </div>
-    </a>
+
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((tag) => (
+          <BlogTag key={tag} label={tag} />
+        ))}
+      </div>
+    </button>
   )
 }

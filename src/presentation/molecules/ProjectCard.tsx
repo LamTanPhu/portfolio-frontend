@@ -1,23 +1,83 @@
-import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
-import { Badge } from '../atoms/Badge'
+// =============================================================================
+// ProjectCard — Molecule
+// Image thumbnail top, title + slug comment, description, view-project button.
+// Matches Figma project card layout.
+// =============================================================================
 
-interface Props { project: ProjectDTO }
+interface Props {
+  index:       number
+  name:        string
+  slug:        string
+  description: string
+  techStack:   string[]
+  thumbnailUrl: string | null
+  liveUrl:     string | null
+  repoUrl:     string | null
+}
 
-export function ProjectCard({ project }: Props) {
+export function ProjectCard({
+  index,
+  name,
+  slug,
+  description,
+  thumbnailUrl,
+  liveUrl,
+  repoUrl,
+}: Props) {
+  const href = liveUrl ?? repoUrl ?? '#'
+
   return (
-    <div className="border border-[#3c3c3c] bg-[#1e1e1e] p-4 hover:border-[#007acc] transition-colors">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-mono text-sm text-[#cccccc]">{project.name}</h3>
-        {project.isOpenSource && <span className="font-mono text-[10px] text-[#608b4e]">open-source</span>}
+    <article className="flex flex-col rounded-lg border border-(--border-muted) bg-[rgba(1,13,24,0.6)] overflow-hidden hover:border-(--accent-teal) transition-colors duration-200">
+
+      {/* Thumbnail */}
+      <div className="relative h-44 bg-(--bg-elevated) overflow-hidden">
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="font-mono text-xs text-(--text-muted)">no preview</span>
+          </div>
+        )}
       </div>
-      {project.description && <p className="font-mono text-[11px] text-[#858585] mb-3 line-clamp-2">{project.description}</p>}
-      <div className="flex flex-wrap gap-1 mb-3">
-        {project.techStack.map(tech => <Badge key={tech} label={tech} />)}
+
+      {/* Body */}
+      <div className="flex flex-col gap-3 p-5">
+
+        {/* Title */}
+        <header>
+          <p className="font-mono text-xs text-(--text-muted) mb-1">
+            Project {index}
+          </p>
+          <h3 className="font-mono text-sm">
+            <span className="text-(--accent-teal)">Project {index}</span>
+            <span className="text-(--text-muted)"> // </span>
+            <span className="text-(--text-primary)">_{slug}</span>
+          </h3>
+        </header>
+
+        {/* Description */}
+        <p className="font-mono text-xs text-(--text-muted) leading-relaxed line-clamp-3">
+          {description}
+        </p>
+
+        {/* View project button */}
+        <footer className="mt-1">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`View ${name}`}
+            className="inline-block font-mono text-xs px-4 py-2 border border-(--border-muted) text-(--text-muted) hover:text-(--text-primary) hover:border-(--accent-teal) transition-colors duration-150"
+          >
+            view-project
+          </a>
+        </footer>
+
       </div>
-      <div className="flex gap-3">
-        {project.repoUrl && <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[11px] text-[#569cd6] hover:underline">repo</a>}
-        {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[11px] text-[#569cd6] hover:underline">live</a>}
-      </div>
-    </div>
+    </article>
   )
 }
