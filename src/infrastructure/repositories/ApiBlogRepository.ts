@@ -1,23 +1,26 @@
 import type { IBlogReadRepository } from '../../domain/repositories/blog/IBlogReadRepository'
-import { Blog } from '../../domain/entities/Blog'
+import { Blog, BlogSummary } from '../../domain/entities/Blog'
 import { BlogMapper } from '../mappers/BlogMapper'
-import type { BlogDTO } from '../../application/dtos/BlogDTO'
+import type { BlogSummaryDTO, BlogDetailDTO } from '../../application/dtos/BlogDTO'
 import { get } from '../api/httpClient'
 
 // =============================================================================
 // ApiBlogRepository
 // Implements IBlogReadRepository using the backend REST API.
+//
+// findPublished → GET /api/blogs   → BlogSummaryDTO[] (no content)
+// findBySlug   → GET /api/blogs/:slug → BlogDetailDTO (with content)
 // =============================================================================
 export class ApiBlogRepository implements IBlogReadRepository {
-  async findPublished(): Promise<Blog[]> {
-    const dtos = await get<BlogDTO[]>('/blogs')
-    return dtos.map(BlogMapper.toDomain)
+  async findPublished(): Promise<BlogSummary[]> {
+    const dtos = await get<BlogSummaryDTO[]>('/blogs')
+    return dtos.map(BlogMapper.toSummary)
   }
 
   async findBySlug(slug: string): Promise<Blog | null> {
     try {
-      const dto = await get<BlogDTO>(`/blogs/${slug}`)
-      return BlogMapper.toDomain(dto)
+      const dto = await get<BlogDetailDTO>(`/blogs/${slug}`)
+      return BlogMapper.toDetail(dto)
     } catch {
       return null
     }

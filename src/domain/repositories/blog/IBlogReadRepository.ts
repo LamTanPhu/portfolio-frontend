@@ -1,5 +1,5 @@
-import type { Blog } from '../../entities/Blog'
+import type { Blog, BlogSummary } from '../../entities/Blog'
 export interface IBlogReadRepository {
-  findPublished(): Promise<Blog[]>
+  findPublished(): Promise<BlogSummary[]>
   findBySlug(slug: string): Promise<Blog | null>
 }
