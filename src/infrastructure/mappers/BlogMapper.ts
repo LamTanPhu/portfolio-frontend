@@ -1,14 +1,15 @@
-import { Blog, BlogSummary } from '../../domain/entities/Blog'
-import type { BlogSummaryDTO, BlogDetailDTO } from '../../application/dtos/BlogDTO'
+import { Blog }               from '../../domain/entities/Blog'
+import { BlogSummary }        from '../../domain/entities/Blog'
+import type { BlogSummaryDTO } from '../../application/dtos/blog/BlogSummaryDTO'
+import type { BlogDetailDTO }  from '../../application/dtos/blog/BlogDetailDTO'
 
 // =============================================================================
 // BlogMapper
-// Converts raw API responses → domain entities.
-// toSummary: used for list views (GET /api/blogs)
-// toDetail:  used for single post views (GET /api/blogs/:slug)
+// toDomainSummary — BlogSummaryDTO → BlogSummary (list view, no content)
+// toDomain        — BlogDetailDTO  → Blog        (detail view, full content)
 // =============================================================================
 export class BlogMapper {
-  static toSummary(dto: BlogSummaryDTO): BlogSummary {
+  static toDomainSummary(dto: BlogSummaryDTO): BlogSummary {
     return new BlogSummary(
       dto.id,
       dto.title,
@@ -21,7 +22,7 @@ export class BlogMapper {
     )
   }
 
-  static toDetail(dto: BlogDetailDTO): Blog {
+  static toDomain(dto: BlogDetailDTO): Blog {
     return new Blog(
       dto.id,
       dto.title,
