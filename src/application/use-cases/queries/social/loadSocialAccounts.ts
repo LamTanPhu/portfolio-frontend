@@ -1,4 +1,5 @@
-import { ApiSocialAccountRepository }      from '../../../../infrastructure/repositories/ApiSocialAccountRepository'
+import { HttpApiClient }                    from '../../../../infrastructure/api/HttpApiClient'
+import { ApiSocialAccountRepository }       from '../../../../infrastructure/repositories/ApiSocialAccountRepository'
 import { GetPublishedSocialAccountsQuery }  from './GetPublishedSocialAccountsQuery'
 import type { SocialAccountDTO }            from '../../../dtos/SocialAccountDTO'
 
@@ -8,7 +9,8 @@ import type { SocialAccountDTO }            from '../../../dtos/SocialAccountDTO
 // Composition root: wires infrastructure repository to application query.
 // =============================================================================
 export async function loadSocialAccounts(): Promise<SocialAccountDTO[]> {
-  const repo  = new ApiSocialAccountRepository()
-  const query = new GetPublishedSocialAccountsQuery(repo)
+  const client = new HttpApiClient()
+  const repo   = new ApiSocialAccountRepository(client)
+  const query  = new GetPublishedSocialAccountsQuery(repo)
   return query.execute()
 }

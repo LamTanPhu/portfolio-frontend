@@ -4,11 +4,16 @@ import type { Blog, BlogSummary }   from '../../domain/entities/Blog'
 import { BlogMapper }               from '../mappers/BlogMapper'
 import type { BlogSummaryDTO }      from '../../application/dtos/blog/BlogSummaryDTO'
 import type { BlogDetailDTO }       from '../../application/dtos/blog/BlogDetailDTO'
+import { ApiError }                 from '../api/httpClient'
 
 // =============================================================================
 // ApiBlogRepository
 // findPublished — GET /blogs       → BlogSummaryDTO[] → BlogSummary[]
 // findBySlug    — GET /blogs/:slug → BlogDetailDTO    → Blog
+//
+// findBySlug only treats a genuine 404 as "not found" (returns null). Any
+// other failure (network error, 500, etc.) rethrows — a real outage must
+// never be silently presented to the user as "this post doesn't exist."
 // =============================================================================
 export class ApiBlogRepository implements IBlogReadRepository {
   constructor(private readonly client: IApiClient) {}
@@ -22,8 +27,9 @@ export class ApiBlogRepository implements IBlogReadRepository {
     try {
       const dto = await this.client.get<BlogDetailDTO>(`/blogs/${slug}`)
       return BlogMapper.toDomain(dto)
-    } catch {
-      return null
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null
+      throw err
     }
   }
 }
