@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
   },
 
   /**
+   * Acknowledges that Turbopack (the `next dev` default since Next 16) and the
+   * `webpack` config below intentionally coexist. Turbopack never reads the
+   * webpack config — it only applies when `next build --webpack` runs, which
+   * is how `npm run build` is defined in package.json. This empty object's
+   * only purpose is to tell Next "yes, this is on purpose," silencing the
+   * "Turbopack + webpack config, is this a mistake?" warning at dev startup.
+   */
+  turbopack: {},
+
+  /**
    * Custom webpack configuration with JavaScript obfuscation.
    * Obfuscation is applied only to client-side bundles in production builds.
    * This configuration balances strong reverse-engineering protection with acceptable

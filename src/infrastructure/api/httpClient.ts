@@ -2,8 +2,9 @@
 // httpClient
 // Typed HTTP client — wraps fetch with error handling and revalidation.
 // =============================================================================
+import { API_URL } from '@/lib/constants'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
+const BASE_URL = API_URL
 
 export class ApiError extends Error {
   constructor(

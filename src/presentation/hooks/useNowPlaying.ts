@@ -1,8 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import type { TrackDTO } from '../../application/dtos/TrackDTO'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
+import { API_URL } from '@/lib/constants'
 
 // =============================================================================
 // useNowPlaying
