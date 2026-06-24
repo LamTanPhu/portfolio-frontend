@@ -4,52 +4,23 @@ import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
 import { ProjectCard } from '../molecules/ProjectCard'
 import { ProjectsSidebar } from '../organisms/ProjectsSidebar'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
+import type { ProjectDTO } from '@/src/application/dtos/ProjectDTO'
 
 // =============================================================================
 // ProjectsPage — Page
 // Filter state lives here — coordinates sidebar checkboxes, active filter tab,
 // and project grid. Union filter: show projects matching ANY selected tech.
+//
+// `projects` is fetched server-side in app/projects/page.tsx (via loadProjects())
+// and passed in as a prop. This component only owns filter/UI state — it never
+// fetches data itself.
 // =============================================================================
 
-interface Project {
-    id:           number
-    name:         string
-    slug:         string
-    description:  string
-    techStack:    string[]
-    thumbnailUrl: string | null
-    liveUrl:      string | null
-    repoUrl:      string | null
+interface Props {
+    projects: ProjectDTO[]
 }
 
-const MOCK_PROJECTS: Project[] = [
-    {
-        id: 1, name: 'ui-animations', slug: 'ui-animations',
-        description: 'A collection of smooth UI animations and micro-interactions built with React and Tailwind.',
-        techStack: ['React', 'TypeScript', 'Tailwind'],
-        thumbnailUrl: null, liveUrl: null, repoUrl: 'https://github.com',
-    },
-    {
-        id: 2, name: 'tetris-game', slug: 'tetris-game',
-        description: 'Classic Tetris implemented in Vue with a modern dark UI and local high score tracking.',
-        techStack: ['Vue', 'TypeScript', 'CSS'],
-        thumbnailUrl: null, liveUrl: null, repoUrl: 'https://github.com',
-    },
-    {
-        id: 3, name: 'nimbus', slug: 'nimbus',
-        description: 'A minimal weather dashboard built with Next.js and the OpenWeather API.',
-        techStack: ['Next.js', 'TypeScript', 'Tailwind'],
-        thumbnailUrl: null, liveUrl: 'https://example.com', repoUrl: 'https://github.com',
-    },
-    {
-        id: 4, name: 'portfolio', slug: 'portfolio',
-        description: 'This very portfolio — VS Code themed, built with Next.js and clean architecture.',
-        techStack: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'PostgreSQL'],
-        thumbnailUrl: null, liveUrl: null, repoUrl: 'https://github.com',
-    },
-]
-
-export function ProjectsPage() {
+export function ProjectsPage({ projects }: Props) {
     const [selected, setSelected] = useState<string[]>([])
 
     function handleToggle(label: string) {
@@ -64,8 +35,8 @@ export function ProjectsPage() {
 
     // Union filter — show projects that include ANY selected tech
     const filtered = selected.length === 0
-        ? MOCK_PROJECTS
-        : MOCK_PROJECTS.filter((p) =>
+        ? projects
+        : projects.filter((p) =>
             p.techStack.some((t) => selected.includes(t))
         )
 
@@ -87,7 +58,9 @@ export function ProjectsPage() {
                     {filtered.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
                         <p className="font-mono text-sm text-(--text-muted)">
-                        // no projects match the selected filters
+                        {projects.length === 0
+                            ? '// no projects published yet'
+                            : '// no projects match the selected filters'}
                         </p>
                     </div>
                     ) : (
