@@ -5,12 +5,17 @@ import { BlogCard }       from '../molecules/BlogCard'
 import { BlogPreview }    from '../molecules/BlogPreview'
 import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
 import { BlogSidebar } from '../organisms/BlogSidebar'
+import type { BlogSummaryDTO } from '@/src/application/dtos/blog/BlogSummaryDTO'
 
 // =============================================================================
 // BlogPage — Page
 // Three column layout: tag filters | post list | post preview.
 // Clicking a post loads its preview on the right without navigating.
 // Full post lives at /blog/[slug].
+//
+// `posts` is fetched server-side in app/blog/page.tsx (via loadBlogs()) and
+// passed in as a prop. This component only owns filter/selection UI state —
+// it never fetches data itself.
 // =============================================================================
 
 interface Post {
@@ -23,46 +28,42 @@ interface Post {
     readingTime: string
 }
 
-const MOCK_POSTS: Post[] = [
-    {
-        id: 1,
-        title:       'Clean Architecture in Next.js',
-        slug:        'clean-architecture-nextjs',
-        date:        '2025-01-10',
-        readingTime: '8 min read',
-        tags:        ['architecture', 'nextjs', 'typescript'],
-        excerpt:     'How to structure a Next.js project with domain, application,\nand infrastructure layers that scale without turning into spaghetti.\nWe explore the dependency rule, repository pattern, and\nhow to keep your presentation layer dumb.',
-    },
-    {
-        id: 2,
-        title:       'Tailwind v4 — What Actually Changed',
-        slug:        'tailwind-v4-changes',
-        date:        '2025-02-03',
-        readingTime: '5 min read',
-        tags:        ['css', 'tailwind'],
-        excerpt:     'CSS variable shorthand, no more JIT surprises, and why\nyou should move component styles to globals.css.\nA practical migration guide from v3 to v4 with real examples\nfrom a production codebase.',
-    },
-    {
-        id: 3,
-        title:       'Building a VS Code Themed Portfolio',
-        slug:        'vscode-portfolio',
-        date:        '2025-03-15',
-        readingTime: '6 min read',
-        tags:        ['design', 'react', 'css'],
-        excerpt:     'The design decisions behind a developer portfolio that looks\nlike your editor. Why monospace fonts, dark navy, and amber\naccents work together — and how to build a layout system\nthat feels intentional rather than accidental.',
-    },
-    {
-        id: 4,
-        title:       'TypeScript Patterns I Actually Use',
-        slug:        'typescript-patterns',
-        date:        '2025-04-20',
-        readingTime: '7 min read',
-        tags:        ['typescript', 'architecture'],
-        excerpt:     'Discriminated unions, const assertions, template literal types,\nand a few other patterns that show up in real codebases.\nNot a tour of every TypeScript feature — just the ones\nthat actually solve problems I keep running into.',
-    },
-]
+// BlogSummaryDTO carries no reading-time field (list view has no content),
+// so it's estimated from the excerpt as a rough placeholder — the real
+// figure (based on full content) is computed on the detail page.
+function estimateReadingTime(text: string | null): string {
+    const words   = (text ?? '').trim().split(/\s+/).filter(Boolean).length
+    const minutes = Math.max(1, Math.round(words / 200))
+    return `~${minutes} min read`
+}
 
-export function BlogPage() {
+function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('en-US', {
+        year:  'numeric',
+        month: 'short',
+        day:   'numeric',
+    })
+}
+
+function toPost(dto: BlogSummaryDTO): Post {
+    return {
+        id:          dto.id,
+        title:       dto.title,
+        slug:        dto.slug,
+        date:        formatDate(dto.publishedAt ?? dto.createdAt),
+        excerpt:     dto.excerpt ?? '',
+        tags:        dto.tags,
+        readingTime: estimateReadingTime(dto.excerpt),
+    }
+}
+
+interface Props {
+    posts: BlogSummaryDTO[]
+}
+
+export function BlogPage({ posts }: Props) {
+    const allPosts = posts.map(toPost)
+
     const [selectedTags,    setSelectedTags]    = useState<string[]>([])
     const [selectedPost,    setSelectedPost]    = useState<Post | null>(null)
 
@@ -80,8 +81,8 @@ export function BlogPage() {
 
     // Union filter — posts matching ANY selected tag
     const filtered = selectedTags.length === 0
-        ? MOCK_POSTS
-        : MOCK_POSTS.filter((p) =>
+        ? allPosts
+        : allPosts.filter((p) =>
             p.tags.some((t) => selectedTags.includes(t))
         )
 
@@ -109,7 +110,7 @@ export function BlogPage() {
             {/* Post count */}
             <div className="px-4 py-2 border-b border-(--border-subtle) shrink-0">
                 <span className="font-mono text-[11px] text-(--text-muted)">
-                // {filtered.length} post{filtered.length !== 1 ? 's' : ''}
+                {`// ${filtered.length} post${filtered.length !== 1 ? 's' : ''}`}
                 </span>
             </div>
 
@@ -118,7 +119,9 @@ export function BlogPage() {
                 {filtered.length === 0 ? (
                 <div className="flex items-center justify-center flex-1 p-4">
                     <p className="font-mono text-xs text-(--text-muted) text-center">
-                    // no posts match<br />selected tags
+                    {allPosts.length === 0
+                        ? '// no posts published yet'
+                        : <>{'// no posts match'}<br />selected tags</>}
                     </p>
                 </div>
                 ) : (

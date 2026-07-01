@@ -2,7 +2,13 @@
 // ProjectCard — Molecule
 // Image thumbnail top, title + slug comment, description, view-project button.
 // Matches Figma project card layout.
+//
+// Thumbnail + title link to the internal /projects/[slug] detail page.
+// The "view-project" footer button stays external (liveUrl/repoUrl) — same
+// pattern as before, just scoped to that one button instead of the whole card.
 // =============================================================================
+
+import Link from 'next/link'
 
 interface Props {
   index:       number
@@ -30,7 +36,7 @@ export function ProjectCard({
     <article className="flex flex-col rounded-lg border border-(--border-muted) bg-[rgba(1,13,24,0.6)] overflow-hidden hover:border-(--accent-teal) transition-colors duration-200">
 
       {/* Thumbnail */}
-      <div className="relative h-44 bg-(--bg-elevated) overflow-hidden">
+      <Link href={`/projects/${slug}`} className="relative h-44 bg-(--bg-elevated) overflow-hidden block">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
@@ -42,7 +48,7 @@ export function ProjectCard({
             <span className="font-mono text-xs text-(--text-muted)">no preview</span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Body */}
       <div className="flex flex-col gap-3 p-5">
@@ -53,9 +59,11 @@ export function ProjectCard({
             Project {index}
           </p>
           <h3 className="font-mono text-sm">
-            <span className="text-(--accent-teal)">Project {index}</span>
-            <span className="text-(--text-muted)"> // </span>
-            <span className="text-(--text-primary)">_{slug}</span>
+            <Link href={`/projects/${slug}`} className="hover:opacity-80 transition-opacity">
+              <span className="text-(--accent-teal)">Project {index}</span>
+              <span className="text-(--text-muted)">{' // '}</span>
+              <span className="text-(--text-primary)">_{slug}</span>
+            </Link>
           </h3>
         </header>
 
