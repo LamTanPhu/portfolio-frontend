@@ -5,6 +5,7 @@ import { ContactForm }      from '../molecules/ContactForm'
 import { LiveCodePreview }  from '../molecules/LiveCodePreview'
 import type { SidebarItem } from '../organisms/Sidebar'
 import { ContactSuccess } from '../molecules/ContactSuccess'
+import { submitContactAction } from '@/app/contact/action'
 
 // =============================================================================
 // ContactPage — Page
@@ -35,9 +36,10 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
 ]
 
 interface FormErrors {
-    name?:    string
-    email?:   string
-    message?: string
+    name?:      string
+    email?:     string
+    message?:   string
+    turnstile?: string
 }
 
 function validateEmail(email: string): boolean {
@@ -45,19 +47,21 @@ function validateEmail(email: string): boolean {
 }
 
 export function ContactPage() {
-    const [name,       setName]       = useState('')
-    const [email,      setEmail]      = useState('')
-    const [message,    setMessage]    = useState('')
-    const [errors,     setErrors]     = useState<FormErrors>({})
-    const [submitting, setSubmitting] = useState(false)
-    const [submitted,  setSubmitted]  = useState(false)
+    const [name,            setName]            = useState('')
+    const [email,           setEmail]           = useState('')
+    const [message,         setMessage]         = useState('')
+    const [turnstileToken,  setTurnstileToken]  = useState<string | null>(null)
+    const [errors,          setErrors]          = useState<FormErrors>({})
+    const [submitting,      setSubmitting]      = useState(false)
+    const [submitted,       setSubmitted]       = useState(false)
 
     function validate(): boolean {
         const newErrors: FormErrors = {}
-        if (!name.trim())               newErrors.name    = 'Name is required'
-        if (!email.trim())              newErrors.email   = 'Email is required'
-        else if (!validateEmail(email)) newErrors.email   = 'Wrong email address'
-        if (!message.trim())            newErrors.message = 'Message is required'
+        if (!name.trim())               newErrors.name      = 'Name is required'
+        if (!email.trim())              newErrors.email     = 'Email is required'
+        else if (!validateEmail(email)) newErrors.email     = 'Wrong email address'
+        if (!message.trim())            newErrors.message   = 'Message is required'
+        if (!turnstileToken)            newErrors.turnstile = 'Please complete the verification'
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -66,13 +70,30 @@ export function ContactPage() {
         if (!validate()) return
         setSubmitting(true)
         try {
-        // TODO: wire to real API when backend is ready
-        await new Promise((r) => setTimeout(r, 800))
-        setSubmitted(true)
+            const result = await submitContactAction({
+                name,
+                email,
+                message,
+                turnstileToken: turnstileToken!,
+            })
+
+            if (result.success) {
+                setSubmitted(true)
+            } else {
+                // We don't know which field the backend's message maps to
+                // (400s can be name/email/message length violations, 429 is
+                // rate limiting, 5xx is a server failure) — surface it as a
+                // form-level message rather than guessing a field.
+                setErrors({ message: result.error })
+                // A rejected/expired token can't be reused — force a fresh
+                // challenge on retry.
+                setTurnstileToken(null)
+            }
         } catch {
-        setErrors({ message: 'Failed to send message. Please try again.' })
+            setErrors({ message: 'Could not reach the server. Please check your connection and try again.' })
+            setTurnstileToken(null)
         } finally {
-        setSubmitting(false)
+            setSubmitting(false)
         }
     }
 
@@ -80,6 +101,7 @@ export function ContactPage() {
         setName('')
         setEmail('')
         setMessage('')
+        setTurnstileToken(null)
         setErrors({})
         setSubmitted(false)
     }
@@ -112,9 +134,15 @@ export function ContactPage() {
                 message={message}
                 errors={errors}
                 submitting={submitting}
+                hasTurnstileToken={Boolean(turnstileToken)}
                 onNameChange={handleNameChange}
                 onEmailChange={handleEmailChange}
                 onMessageChange={handleMessageChange}
+                onTurnstileSuccess={(token) => {
+                    setTurnstileToken(token)
+                    if (errors.turnstile) setErrors((e) => ({ ...e, turnstile: undefined }))
+                }}
+                onTurnstileExpire={() => setTurnstileToken(null)}
                 onSubmit={handleSubmit}
                 />
             )}

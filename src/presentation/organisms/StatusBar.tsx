@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { NowPlaying }    from '../atoms/NowPlaying'
+import { NowPlaying } from '../atoms/NowPlaying'
 
 // =============================================================================
 // StatusBar — Organism
@@ -9,10 +9,11 @@ import { NowPlaying }    from '../atoms/NowPlaying'
 // Right: GitHub handle
 // =============================================================================
 
-interface SocialLink {
-  label: string
-  href:  string
-  icon:  ReactNode
+export interface SocialLink {
+  label:    string
+  href:     string
+  icon?:    ReactNode
+  imageUrl?: string | null
 }
 
 interface Props {
@@ -66,7 +67,11 @@ export function StatusBar({
               title={s.label}
               className="flex items-center justify-center w-6 h-6 text-(--text-muted) border border-(--border-muted) hover:text-(--text-primary) hover:border-(--accent-teal) transition-colors duration-150"
             >
-              {s.icon}
+              {s.icon ?? (s.imageUrl
+                ? // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.imageUrl} alt="" className="w-3.5 h-3.5 object-contain" />
+                : <span className="font-mono text-[10px]">{s.label.slice(0, 1).toUpperCase()}</span>
+              )}
             </a>
           ))}
         </div>

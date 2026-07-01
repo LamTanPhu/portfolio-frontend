@@ -5,11 +5,20 @@ import { ActivityBar }      from '../organisms/about/ActivityBar'
 import { AboutSidebar }     from '../organisms/about/AboutSideBar'
 import type { ActivityPanel } from '../organisms/about/ActivityBar'
 import type { ReactNode }   from 'react'
+import type { SkillDTO }         from '@/src/application/dtos/SkillDTO'
+import type { EducationDTO }     from '@/src/application/dtos/EducationDTO'
+import type { JobDTO }           from '@/src/application/dtos/JobDTO'
+import type { CertificationDTO } from '@/src/application/dtos/CertificationDTO'
 
 // =============================================================================
 // AboutPage — Page
 // Has its own activity bar + switchable sidebar — does not use VSCodeLayout
 // sidebar. Layout sidebar is hidden, about-specific sidebar renders instead.
+//
+// skills/education/jobs/certifications are fetched server-side in
+// app/about/page.tsx and passed in as props — same pattern as ProjectsPage.
+// Bio text and code snippets below stay static; there's no backend model for
+// them yet.
 // =============================================================================
 
 const BIO_LINES = [
@@ -62,7 +71,14 @@ const SNIPPETS: Snippet[] = [
   },
 ]
 
-export function AboutPage() {
+interface Props {
+  skills:         SkillDTO[]
+  education:      EducationDTO[]
+  jobs:           JobDTO[]
+  certifications: CertificationDTO[]
+}
+
+export function AboutPage({ skills, education, jobs, certifications }: Props) {
   const [activePanel, setActivePanel] = useState<ActivityPanel>('personal')
 
   return (
@@ -73,7 +89,13 @@ export function AboutPage() {
         <ActivityBar active={activePanel} onChange={setActivePanel} />
 
         {/* Switchable sidebar */}
-        <AboutSidebar active={activePanel} />
+        <AboutSidebar
+          active={activePanel}
+          skills={skills}
+          education={education}
+          jobs={jobs}
+          certifications={certifications}
+        />
 
         {/* ── Editor panel ─────────────────────────────────── */}
         <section className="w-[45%] flex flex-col border-r border-(--border-muted) overflow-hidden bg-[rgba(1,13,24,0.4)]">

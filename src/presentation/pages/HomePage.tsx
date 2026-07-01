@@ -1,16 +1,35 @@
 import { SnakeGame } from '../organisms/SnakeGame';
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 import type { ReactNode } from 'react'
+import type { SocialAccountDTO } from '@/src/application/dtos/SocialAccountDTO'
+import type { SocialLink } from '../organisms/StatusBar'
 
 // =============================================================================
 // HomePage — Page
 // Left:  developer.ts identity panel
 // Right: Snake game
+//
+// `socialAccounts` is fetched server-side in app/page.tsx (via
+// loadSocialAccounts()) and mapped into StatusBar's footer links. Spotify
+// now-playing needs no wiring here — NowPlaying already polls the backend
+// directly and renders in every page's StatusBar.
 // =============================================================================
 
-export function HomePage() {
+function toSocialLink(account: SocialAccountDTO): SocialLink {
+  return { label: account.name, href: account.url, imageUrl: account.imageUrl }
+}
+
+interface Props {
+  socialAccounts: SocialAccountDTO[]
+}
+
+export function HomePage({ socialAccounts }: Props) {
+  const socials = socialAccounts.length > 0
+    ? socialAccounts.map(toSocialLink)
+    : undefined // falls back to StatusBar's own defaults
+
   return (
-    <VSCodeLayout activeTab="hello" showSidebar={false}>
+    <VSCodeLayout activeTab="hello" showSidebar={false} socials={socials}>
       <div className="flex items-center justify-center h-full px-8 md:px-16 lg:px-24">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 w-full max-w-6xl">
 

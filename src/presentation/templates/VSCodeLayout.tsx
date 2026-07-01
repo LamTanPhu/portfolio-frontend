@@ -3,6 +3,7 @@ import { TabBar }              from '../organisms/TabBar'
 import { StatusBar }           from '../organisms/StatusBar'
 import type { Tab }            from '../organisms/TabBar'
 import type { SidebarItem }    from '../organisms/Sidebar'
+import type { SocialLink }     from '../organisms/StatusBar'
 import type { ReactNode }      from 'react'
 
 // =============================================================================
@@ -10,6 +11,8 @@ import type { ReactNode }      from 'react'
 // Shell for every page. TabBar top, StatusBar bottom.
 // Each page passes its own sidebarItems — layout stays dumb.
 // showSidebar defaults to true — home passes false.
+// socials is optional — StatusBar falls back to its own defaults when the
+// caller doesn't have real data to hand yet (only Home fetches it today).
 // =============================================================================
 
 const TABS: Tab[] = [
@@ -25,6 +28,7 @@ interface Props {
   activeTab:     string
   showSidebar?:  boolean
   sidebarItems?: SidebarItem[]
+  socials?:      SocialLink[]
 }
 
 export function VSCodeLayout({
@@ -32,6 +36,7 @@ export function VSCodeLayout({
   activeTab,
   showSidebar  = true,
   sidebarItems = [],
+  socials,
 }: Props) {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-(--bg-surface) text-(--text-primary)">
@@ -47,7 +52,7 @@ export function VSCodeLayout({
         </main>
       </div>
 
-      <StatusBar />
+      <StatusBar {...(socials ? { socials } : {})} />
     </div>
   )
 }
