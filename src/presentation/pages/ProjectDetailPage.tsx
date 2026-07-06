@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 import { Badge }        from '../atoms/Badge'
+import { ProjectViewTracker } from '../organisms/ProjectViewTracker'
+import { SITE_URL }     from '@/lib/constants'
 import type { ProjectDTO } from '@/src/application/dtos/ProjectDTO'
 
 // =============================================================================
@@ -10,6 +12,28 @@ import type { ProjectDTO } from '@/src/application/dtos/ProjectDTO'
 // passed in as a prop.
 // =============================================================================
 
+// schema.org/SoftwareSourceCode — more specific than generic CreativeWork
+// given every project here is a software project. codeRepository is only
+// set when repoUrl exists (private/closed-source projects still get a
+// valid schema, just without that field).
+function buildJsonLd(project: ProjectDTO) {
+    return {
+        '@context':       'https://schema.org',
+        '@type':          'SoftwareSourceCode',
+        name:             project.name,
+        description:      project.description,
+        url:              `${SITE_URL}/projects/${project.slug}`,
+        codeRepository:   project.repoUrl ?? undefined,
+        programmingLanguage: project.techStack,
+        dateCreated:      project.createdAt,
+        dateModified:     project.updatedAt,
+        author: {
+            '@type': 'Person',
+            name:    'Lam Tan Phu',
+        },
+    }
+}
+
 interface Props {
     project: ProjectDTO
 }
@@ -17,6 +41,11 @@ interface Props {
 export function ProjectDetailPage({ project }: Props) {
     return (
         <VSCodeLayout activeTab="projects" showSidebar={false}>
+            <ProjectViewTracker projectId={project.id} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(project)) }}
+            />
             <div className="flex flex-col h-full overflow-y-auto glow-bg">
                 <article className="flex flex-col w-full max-w-3xl mx-auto p-8">
 

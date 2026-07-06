@@ -64,6 +64,10 @@ interface Props {
 export function BlogPage({ posts }: Props) {
     const allPosts = posts.map(toPost)
 
+    // Unique tags actually in use, alphabetical — replaces the old
+    // hardcoded filter list so it can't drift from real post data.
+    const allTags = Array.from(new Set(allPosts.flatMap((p) => p.tags))).sort()
+
     const [selectedTags,    setSelectedTags]    = useState<string[]>([])
     const [selectedPost,    setSelectedPost]    = useState<Post | null>(null)
 
@@ -96,7 +100,7 @@ export function BlogPage({ posts }: Props) {
         <div className="flex h-full overflow-hidden">
 
             {/* Tag filter sidebar */}
-            <BlogSidebar selected={selectedTags} onChange={handleTagToggle} />
+            <BlogSidebar tags={allTags} selected={selectedTags} onChange={handleTagToggle} />
 
             {/* Post list */}
             <div className="flex flex-col w-72 shrink-0 border-r border-(--border-muted) overflow-hidden">

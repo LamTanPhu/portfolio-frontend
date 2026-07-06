@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 import { BlogTag }      from '../atoms/BlogTag'
+import { SITE_URL }     from '@/lib/constants'
 import type { BlogDetailDTO } from '@/src/application/dtos/blog/BlogDetailDTO'
 
 // =============================================================================
@@ -23,6 +24,27 @@ function formatDate(iso: string): string {
     })
 }
 
+// schema.org/BlogPosting — lets search engines show author, publish date,
+// and tags directly in results instead of guessing from page text.
+function buildJsonLd(post: BlogDetailDTO) {
+    const url = `${SITE_URL}/blog/${post.slug}`
+    return {
+        '@context':      'https://schema.org',
+        '@type':         'BlogPosting',
+        headline:        post.title,
+        description:     post.excerpt ?? undefined,
+        url,
+        mainEntityOfPage: url,
+        datePublished:   post.publishedAt ?? post.createdAt,
+        dateModified:    post.updatedAt,
+        keywords:        post.tags.length > 0 ? post.tags.join(', ') : undefined,
+        author: {
+            '@type': 'Person',
+            name:    'Lam Tan Phu',
+        },
+    }
+}
+
 interface Props {
     post: BlogDetailDTO
 }
@@ -33,6 +55,10 @@ export function BlogPostPage({ post }: Props) {
 
     return (
         <VSCodeLayout activeTab="blog" showSidebar={false}>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(post)) }}
+            />
             <div className="flex flex-col h-full overflow-y-auto glow-bg">
                 <article className="flex flex-col w-full max-w-3xl mx-auto p-8">
 

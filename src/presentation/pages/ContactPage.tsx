@@ -6,34 +6,38 @@ import { LiveCodePreview }  from '../molecules/LiveCodePreview'
 import type { SidebarItem } from '../organisms/Sidebar'
 import { ContactSuccess } from '../molecules/ContactSuccess'
 import { submitContactAction } from '@/app/contact/action'
+import type { SocialAccountDTO } from '@/src/application/dtos/SocialAccountDTO'
 
 // =============================================================================
 // ContactPage — Page
 // Two panel layout: form left, live code preview right.
 // Owns all form state, validation, and success state.
-// Sidebar: contacts + find-me-also-in sections.
+// Sidebar: contacts + find-me-also-in sections, built from real /social data.
 // =============================================================================
 
-const SIDEBAR_ITEMS: SidebarItem[] = [
-    {
-        label: 'contacts',
-        href:  '#',
-        children: [
-        { label: 'lam@example.com', href: 'mailto:lam@example.com', icon: '✉' },
-        { label: '+84 000 000 000', href: 'tel:+84000000000',       icon: '📞' },
-        ],
-    },
-    {
-        label: 'find-me-also-in',
-        href:  '#',
-        children: [
-        { label: 'GitHub',    href: 'https://github.com',    icon: '↗', external: true },
-        { label: 'LinkedIn',  href: 'https://linkedin.com',  icon: '↗', external: true },
-        { label: 'dev.to',    href: 'https://dev.to',        icon: '↗', external: true },
-        { label: 'Instagram', href: 'https://instagram.com', icon: '↗', external: true },
-        ],
-    },
-]
+// Social accounts are a generic name+url pair on the backend — there's no
+// separate "email"/"phone" field. Convention: mailto:/tel: URLs are personal
+// contact methods, everything else is a social profile link. This lets the
+// admin manage both from the same Social CRUD without a schema change.
+function toSidebarItems(accounts: SocialAccountDTO[]): SidebarItem[] {
+    const contacts: SidebarItem[] = []
+    const socials:  SidebarItem[] = []
+
+    for (const account of accounts) {
+        if (account.url.startsWith('mailto:')) {
+            contacts.push({ label: account.url.slice('mailto:'.length), href: account.url, icon: '✉' })
+        } else if (account.url.startsWith('tel:')) {
+            contacts.push({ label: account.url.slice('tel:'.length), href: account.url, icon: '📞' })
+        } else {
+            socials.push({ label: account.name, href: account.url, icon: '↗', external: true })
+        }
+    }
+
+    const items: SidebarItem[] = []
+    if (contacts.length > 0) items.push({ label: 'contacts',         href: '#', children: contacts })
+    if (socials.length  > 0) items.push({ label: 'find-me-also-in',  href: '#', children: socials })
+    return items
+}
 
 interface FormErrors {
     name?:      string
@@ -46,7 +50,13 @@ function validateEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-export function ContactPage() {
+interface Props {
+    socialAccounts: SocialAccountDTO[]
+}
+
+export function ContactPage({ socialAccounts }: Props) {
+    const sidebarItems = toSidebarItems(socialAccounts)
+
     const [name,            setName]            = useState('')
     const [email,           setEmail]           = useState('')
     const [message,         setMessage]         = useState('')
@@ -120,7 +130,7 @@ export function ContactPage() {
     }
 
     return (
-        <VSCodeLayout activeTab="contact" sidebarItems={SIDEBAR_ITEMS}>
+        <VSCodeLayout activeTab="contact" sidebarItems={sidebarItems}>
         <div className="flex h-full overflow-hidden">
 
             {/* ── Left — form panel ────────────────────────────── */}

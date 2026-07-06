@@ -6,11 +6,12 @@ import { BlogFilterList } from '../molecules/BlogFilterList'
 // =============================================================================
 
 interface Props {
+    tags:     string[]
     selected: string[]
     onChange: (tag: string) => void
 }
 
-export function BlogSidebar({ selected, onChange }: Props) {
+export function BlogSidebar({ tags, selected, onChange }: Props) {
     return (
         <aside className="w-48 shrink-0 flex flex-col border-r border-(--border-muted) bg-(--bg-sidebar) overflow-y-auto">
 
@@ -19,7 +20,7 @@ export function BlogSidebar({ selected, onChange }: Props) {
             <span className="font-mono text-sm text-(--text-primary)">blog</span>
         </header>
 
-        <BlogFilterList selected={selected} onChange={onChange} />
+        <BlogFilterList tags={tags} selected={selected} onChange={onChange} />
 
         </aside>
     )

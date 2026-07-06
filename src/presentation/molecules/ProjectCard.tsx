@@ -9,6 +9,7 @@
 // =============================================================================
 
 import Link from 'next/link'
+import { Badge } from '../atoms/Badge'
 
 interface Props {
   index:       number
@@ -26,6 +27,7 @@ export function ProjectCard({
   name,
   slug,
   description,
+  techStack,
   thumbnailUrl,
   liveUrl,
   repoUrl,
@@ -71,6 +73,15 @@ export function ProjectCard({
         <p className="font-mono text-xs text-(--text-muted) leading-relaxed line-clamp-3">
           {description}
         </p>
+
+        {/* Tech stack */}
+        {techStack.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {techStack.map((tech) => (
+              <Badge key={tech} label={tech} />
+            ))}
+          </div>
+        )}
 
         {/* View project button */}
         <footer className="mt-1">
