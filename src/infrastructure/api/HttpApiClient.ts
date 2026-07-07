@@ -1,4 +1,4 @@
-import type { IApiClient } from '../../application/ports/IApiClient'
+import type { IApiClient, PostOptions } from '../../application/ports/IApiClient'
 import { get, post }       from './httpClient'
 
 // =============================================================================
@@ -11,7 +11,7 @@ export class HttpApiClient implements IApiClient {
         return get<T>(path, revalidate)
     }
 
-    async post<T>(path: string, body: unknown): Promise<T> {
-        return post<T>(path, body)
+    async post<T>(path: string, body: unknown, options?: PostOptions): Promise<T> {
+        return post<T>(path, body, options)
     }
 }
