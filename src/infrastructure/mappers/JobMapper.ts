@@ -1,5 +1,5 @@
+import type { JobDTO } from '../../application/dtos/job/JobDTO'
 import { Job } from '../../domain/entities/Job'
-import type { JobDTO } from '../../application/dtos/JobDTO'
 
 // =============================================================================
 // JobMapper

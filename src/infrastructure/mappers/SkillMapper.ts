@@ -1,6 +1,6 @@
-import { Skill } from '../../domain/entities/Skill'
-import type { SkillDTO } from '../../application/dtos/SkillDTO'
+import type { SkillDTO } from '../../application/dtos/skill/SkillDTO'
 import type { SkillCategory } from '../../domain/entities/Skill'
+import { Skill } from '../../domain/entities/Skill'
 import { ValidationError } from '../../domain/errors/ValidationError'
 
 // =============================================================================

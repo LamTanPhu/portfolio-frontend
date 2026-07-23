@@ -1,7 +1,7 @@
 'use client'
-import { useEffect, useState } from 'react'
-import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
 import { API_URL } from '@/lib/constants'
+import { useEffect, useState } from 'react'
+import type { ProjectDTO } from '../../application/dtos/project/ProjectDTO'
 
 // =============================================================================
 // useProjects

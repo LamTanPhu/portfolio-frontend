@@ -1,5 +1,5 @@
 import type { ISocialAccountReadRepository } from '../../../../domain/repositories/social/ISocialAccountReadRepository'
-import type { SocialAccountDTO } from '../../../dtos/SocialAccountDTO'
+import type { SocialAccountDTO } from '../../../dtos/socialAccount/SocialAccountDTO'
 
 // =============================================================================
 // GetPublishedSocialAccountsQuery

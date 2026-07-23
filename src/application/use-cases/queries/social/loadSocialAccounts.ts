@@ -1,7 +1,7 @@
-import { HttpApiClient }                    from '../../../../infrastructure/api/HttpApiClient'
-import { ApiSocialAccountRepository }       from '../../../../infrastructure/repositories/ApiSocialAccountRepository'
-import { GetPublishedSocialAccountsQuery }  from './GetPublishedSocialAccountsQuery'
-import type { SocialAccountDTO }            from '../../../dtos/SocialAccountDTO'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
+import { ApiSocialAccountRepository } from '../../../../infrastructure/repositories/ApiSocialAccountRepository'
+import type { SocialAccountDTO } from '../../../dtos/socialAccount/SocialAccountDTO'
+import { GetPublishedSocialAccountsQuery } from './GetPublishedSocialAccountsQuery'
 
 // =============================================================================
 // loadSocialAccounts

@@ -1,6 +1,6 @@
-import { HttpApiClient }    from '../../../../infrastructure/api/HttpApiClient'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
 import { ApiJobRepository } from '../../../../infrastructure/repositories/ApiJobRepository'
-import type { JobDTO }      from '../../../dtos/JobDTO'
+import type { JobDTO } from '../../../dtos/job/JobDTO'
 import { GetJobsQuery } from './GetJobsQuery'
 
 // =============================================================================

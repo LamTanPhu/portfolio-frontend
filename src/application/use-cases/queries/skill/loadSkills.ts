@@ -1,7 +1,7 @@
-import { HttpApiClient }            from '../../../../infrastructure/api/HttpApiClient'
-import { ApiSkillRepository }       from '../../../../infrastructure/repositories/ApiSkillRepository'
-import { GetPublishedSkillsQuery }  from './GetPublishedSkillsQuery'
-import type { SkillDTO }            from '../../../dtos/SkillDTO'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
+import { ApiSkillRepository } from '../../../../infrastructure/repositories/ApiSkillRepository'
+import type { SkillDTO } from '../../../dtos/skill/SkillDTO'
+import { GetPublishedSkillsQuery } from './GetPublishedSkillsQuery'
 
 // =============================================================================
 // loadSkills

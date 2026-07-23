@@ -1,7 +1,7 @@
-import { HttpApiClient }          from '../../../../infrastructure/api/HttpApiClient'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
 import { ApiEducationRepository } from '../../../../infrastructure/repositories/ApiEducationRepository'
-import { GetEducationQuery }      from './GetEducationQuery'
-import type { EducationDTO }      from '../../../dtos/EducationDTO'
+import type { EducationDTO } from '../../../dtos/education/EducationDTO'
+import { GetEducationQuery } from './GetEducationQuery'
 
 // =============================================================================
 // loadEducation

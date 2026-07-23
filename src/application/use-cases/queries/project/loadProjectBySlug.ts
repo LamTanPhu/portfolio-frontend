@@ -1,7 +1,7 @@
-import { HttpApiClient }         from '../../../../infrastructure/api/HttpApiClient'
-import { ApiProjectRepository }  from '../../../../infrastructure/repositories/ApiProjectRepository'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
+import { ApiProjectRepository } from '../../../../infrastructure/repositories/ApiProjectRepository'
+import type { ProjectDTO } from '../../../dtos/project/ProjectDTO'
 import { GetProjectBySlugQuery } from './GetProjectBySlugQuery'
-import type { ProjectDTO }       from '../../../dtos/ProjectDTO'
 
 // =============================================================================
 // loadProjectBySlug

@@ -1,8 +1,8 @@
+import type { CertificationDTO } from '../../application/dtos/certification/CertificationDTO'
+import type { IApiClient } from '../../application/ports/IApiClient'
+import type { Certification } from '../../domain/entities/Certification'
 import type { ICertificationReadRepository } from '../../domain/repositories/certification/ICertificationReadRepository'
-import type { Certification }    from '../../domain/entities/Certification'
-import { CertificationMapper }   from '../mappers/CertificationMapper'
-import type { CertificationDTO } from '../../application/dtos/CertificationDTO'
-import type { IApiClient }       from '../../application/ports/IApiClient'
+import { CertificationMapper } from '../mappers/CertificationMapper'
 
 // =============================================================================
 // ApiCertificationRepository

@@ -1,5 +1,5 @@
 import type { IEducationReadRepository } from '../../../../domain/repositories/education/IEducationReadRepository'
-import type { EducationDTO } from '../../../dtos/EducationDTO'
+import type { EducationDTO } from '../../../dtos/education/EducationDTO'
 
 // =============================================================================
 // GetEducationQuery

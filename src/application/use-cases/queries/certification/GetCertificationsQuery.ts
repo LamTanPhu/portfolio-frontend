@@ -1,5 +1,5 @@
 import type { ICertificationReadRepository } from '../../../../domain/repositories/certification/ICertificationReadRepository'
-import type { CertificationDTO } from '../../../dtos/CertificationDTO'
+import type { CertificationDTO } from '../../../dtos/certification/CertificationDTO'
 
 // =============================================================================
 // GetCertificationsQuery

@@ -1,5 +1,5 @@
 import type { IJobReadRepository } from '../../../../domain/repositories/job/IJobReadRepository'
-import type { JobDTO } from '../../../dtos/JobDTO'
+import type { JobDTO } from '../../../dtos/job/JobDTO'
 
 // =============================================================================
 // GetJobsQuery

@@ -1,4 +1,4 @@
-import type { IApiClient, PostOptions } from '../../application/ports/IApiClient'
+import type { IApiClient, PostOptions, RequestOptions } from '../../application/ports/IApiClient'
 import { get, post }       from './httpClient'
 
 // =============================================================================
@@ -7,6 +7,12 @@ import { get, post }       from './httpClient'
 // Passes revalidate through so callers retain ISR cache control.
 // =============================================================================
 export class HttpApiClient implements IApiClient {
+    patch<T>(path: string, body: unknown, options?: RequestOptions): Promise<T> {
+        throw new Error('Method not implemented.')
+    }
+    delete<T>(path: string, options?: RequestOptions): Promise<T> {
+        throw new Error('Method not implemented.')
+    }
     async get<T>(path: string, revalidate = 60): Promise<T> {
         return get<T>(path, revalidate)
     }

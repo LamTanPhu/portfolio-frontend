@@ -1,8 +1,8 @@
+import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO';
+import type { ReactNode } from 'react';
 import { SnakeGame } from '../organisms/SnakeGame';
-import { VSCodeLayout } from '../templates/VSCodeLayout'
-import type { ReactNode } from 'react'
-import type { SocialAccountDTO } from '@/src/application/dtos/SocialAccountDTO'
-import type { SocialLink } from '../organisms/StatusBar'
+import type { SocialLink } from '../organisms/StatusBar';
+import { VSCodeLayout } from '../templates/VSCodeLayout';
 
 // =============================================================================
 // HomePage — Page

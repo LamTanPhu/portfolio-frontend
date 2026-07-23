@@ -1,5 +1,5 @@
+import type { ProjectDTO } from '../../application/dtos/project/ProjectDTO'
 import { Project } from '../../domain/entities/Project'
-import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
 
 // =============================================================================
 // ProjectMapper

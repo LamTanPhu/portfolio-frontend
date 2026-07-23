@@ -1,8 +1,8 @@
+import type { EducationDTO } from '../../application/dtos/education/EducationDTO'
+import type { IApiClient } from '../../application/ports/IApiClient'
+import type { Education } from '../../domain/entities/Education'
 import type { IEducationReadRepository } from '../../domain/repositories/education/IEducationReadRepository'
-import type { Education }    from '../../domain/entities/Education'
-import { EducationMapper }   from '../mappers/EducationMapper'
-import type { EducationDTO } from '../../application/dtos/EducationDTO'
-import type { IApiClient }   from '../../application/ports/IApiClient'
+import { EducationMapper } from '../mappers/EducationMapper'
 
 // =============================================================================
 // ApiEducationRepository

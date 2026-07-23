@@ -5,15 +5,20 @@
 // revalidate controls Next.js ISR cache duration (seconds). Default: 60.
 // =============================================================================
 
-export interface PostOptions {
+export interface RequestOptions {
   // Sends/receives cookies — required for /auth/* (httpOnly refresh cookie).
   withCredentials?: boolean
   // Attaches `Authorization: Bearer <token>` — required for endpoints behind
-  // JwtAuthGuard (e.g. logout, and all future admin CRUD calls).
+  // JwtAuthGuard (logout, and all admin CRUD/read calls).
   accessToken?: string
 }
 
+// Kept as an alias — existing call sites import PostOptions specifically.
+export type PostOptions = RequestOptions
+
 export interface IApiClient {
-  get<T>(path: string, revalidate?: number): Promise<T>
-  post<T>(path: string, body: unknown, options?: PostOptions): Promise<T>
+  get<T>(path: string, revalidate?: number, options?: RequestOptions): Promise<T>
+  post<T>(path: string, body: unknown, options?: RequestOptions): Promise<T>
+  patch<T>(path: string, body: unknown, options?: RequestOptions): Promise<T>
+  delete<T>(path: string, options?: RequestOptions): Promise<T>
 }

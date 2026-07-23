@@ -1,10 +1,10 @@
 'use client'
+import type { ProjectDTO } from '@/src/application/dtos/project/ProjectDTO'
 import { useState } from 'react'
 import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
 import { ProjectCard } from '../molecules/ProjectCard'
 import { ProjectsSidebar } from '../organisms/ProjectsSidebar'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
-import type { ProjectDTO } from '@/src/application/dtos/ProjectDTO'
 
 // =============================================================================
 // ProjectsPage — Page

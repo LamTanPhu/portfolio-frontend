@@ -1,6 +1,6 @@
 import { ApiCertificationRepository } from '@/src/infrastructure/repositories/ApiCertificationRepository'
-import { HttpApiClient }             from '../../../../infrastructure/api/HttpApiClient'
-import type { CertificationDTO }     from '../../../dtos/CertificationDTO'
+import { HttpApiClient } from '../../../../infrastructure/api/HttpApiClient'
+import type { CertificationDTO } from '../../../dtos/certification/CertificationDTO'
 import { GetCertificationsQuery } from './GetCertificationsQuery'
 
 // =============================================================================

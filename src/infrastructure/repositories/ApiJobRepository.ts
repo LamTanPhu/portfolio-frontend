@@ -1,8 +1,8 @@
+import type { JobDTO } from '../../application/dtos/job/JobDTO'
+import type { IApiClient } from '../../application/ports/IApiClient'
+import type { Job } from '../../domain/entities/Job'
 import type { IJobReadRepository } from '../../domain/repositories/job/IJobReadRepository'
-import type { Job }          from '../../domain/entities/Job'
-import { JobMapper }         from '../mappers/JobMapper'
-import type { JobDTO }       from '../../application/dtos/JobDTO'
-import type { IApiClient }   from '../../application/ports/IApiClient'
+import { JobMapper } from '../mappers/JobMapper'
 
 // =============================================================================
 // ApiJobRepository

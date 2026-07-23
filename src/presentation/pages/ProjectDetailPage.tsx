@@ -1,9 +1,9 @@
+import { SITE_URL } from '@/lib/constants'
+import type { ProjectDTO } from '@/src/application/dtos/project/ProjectDTO'
 import Link from 'next/link'
-import { VSCodeLayout } from '../templates/VSCodeLayout'
-import { Badge }        from '../atoms/Badge'
+import { Badge } from '../atoms/Badge'
 import { ProjectViewTracker } from '../organisms/ProjectViewTracker'
-import { SITE_URL }     from '@/lib/constants'
-import type { ProjectDTO } from '@/src/application/dtos/ProjectDTO'
+import { VSCodeLayout } from '../templates/VSCodeLayout'
 
 // =============================================================================
 // ProjectDetailPage — Page

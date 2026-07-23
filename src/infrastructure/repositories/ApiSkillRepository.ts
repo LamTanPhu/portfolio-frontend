@@ -1,4 +1,4 @@
-import type { SkillDTO } from '../../application/dtos/SkillDTO'
+import type { SkillDTO } from '../../application/dtos/skill/SkillDTO'
 import type { IApiClient } from '../../application/ports/IApiClient'
 import { Skill } from '../../domain/entities/Skill'
 import type { ISkillReadRepository } from '../../domain/repositories/skill/ISkillReadRepository'

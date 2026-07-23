@@ -1,5 +1,5 @@
 import type { ISkillReadRepository } from '../../../../domain/repositories/skill/ISkillReadRepository'
-import type { SkillDTO } from '../../../dtos/SkillDTO'
+import type { SkillDTO } from '../../../dtos/skill/SkillDTO'
 
 // =============================================================================
 // GetPublishedSkillsQuery

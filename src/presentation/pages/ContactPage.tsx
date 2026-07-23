@@ -1,12 +1,12 @@
 'use client'
-import { useState }         from 'react'
-import { VSCodeLayout }     from '../templates/VSCodeLayout'
-import { ContactForm }      from '../molecules/ContactForm'
-import { LiveCodePreview }  from '../molecules/LiveCodePreview'
-import type { SidebarItem } from '../organisms/Sidebar'
-import { ContactSuccess } from '../molecules/ContactSuccess'
 import { submitContactAction } from '@/app/contact/action'
-import type { SocialAccountDTO } from '@/src/application/dtos/SocialAccountDTO'
+import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
+import { useState } from 'react'
+import { ContactForm } from '../molecules/ContactForm'
+import { ContactSuccess } from '../molecules/ContactSuccess'
+import { LiveCodePreview } from '../molecules/LiveCodePreview'
+import type { SidebarItem } from '../organisms/Sidebar'
+import { VSCodeLayout } from '../templates/VSCodeLayout'
 
 // =============================================================================
 // ContactPage — Page

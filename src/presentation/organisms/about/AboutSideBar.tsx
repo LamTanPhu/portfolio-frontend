@@ -1,8 +1,8 @@
-import type { ActivityPanel }    from './ActivityBar'
-import type { SkillDTO }         from '@/src/application/dtos/SkillDTO'
-import type { EducationDTO }     from '@/src/application/dtos/EducationDTO'
-import type { JobDTO }           from '@/src/application/dtos/JobDTO'
-import type { CertificationDTO } from '@/src/application/dtos/CertificationDTO'
+import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
+import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
+import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
+import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
+import type { ActivityPanel } from './ActivityBar'
 
 // =============================================================================
 // AboutSidebar — Organism (about-page specific)

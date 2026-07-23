@@ -1,9 +1,9 @@
-import type { IProjectReadRepository } from '../../domain/repositories/project/IProjectReadRepository'
-import { Project } from '../../domain/entities/Project'
-import { ProjectMapper } from '../mappers/ProjectMapper'
-import type { ProjectDTO } from '../../application/dtos/ProjectDTO'
+import type { ProjectDTO } from '../../application/dtos/project/ProjectDTO'
 import type { IApiClient } from '../../application/ports/IApiClient'
+import { Project } from '../../domain/entities/Project'
+import type { IProjectReadRepository } from '../../domain/repositories/project/IProjectReadRepository'
 import { ApiError } from '../api/httpClient'
+import { ProjectMapper } from '../mappers/ProjectMapper'
 
 // =============================================================================
 // ApiProjectRepository

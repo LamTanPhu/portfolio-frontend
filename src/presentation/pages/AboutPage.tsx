@@ -1,14 +1,13 @@
 'use client'
-import { useState }         from 'react'
-import { VSCodeLayout }     from '../templates/VSCodeLayout'
-import { ActivityBar }      from '../organisms/about/ActivityBar'
-import { AboutSidebar }     from '../organisms/about/AboutSideBar'
+import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
+import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
+import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
+import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
+import { useState } from 'react'
+import { AboutSidebar } from '../organisms/about/AboutSideBar'
 import type { ActivityPanel } from '../organisms/about/ActivityBar'
-import type { ReactNode }   from 'react'
-import type { SkillDTO }         from '@/src/application/dtos/SkillDTO'
-import type { EducationDTO }     from '@/src/application/dtos/EducationDTO'
-import type { JobDTO }           from '@/src/application/dtos/JobDTO'
-import type { CertificationDTO } from '@/src/application/dtos/CertificationDTO'
+import { ActivityBar } from '../organisms/about/ActivityBar'
+import { VSCodeLayout } from '../templates/VSCodeLayout'
 
 // =============================================================================
 // AboutPage — Page

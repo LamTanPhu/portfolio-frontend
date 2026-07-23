@@ -1,4 +1,4 @@
-import type { SocialAccountDTO } from '../../application/dtos/SocialAccountDTO'
+import type { SocialAccountDTO } from '../../application/dtos/socialAccount/SocialAccountDTO'
 import { SocialAccount } from '../../domain/entities/SocialAccount'
 
 // =============================================================================

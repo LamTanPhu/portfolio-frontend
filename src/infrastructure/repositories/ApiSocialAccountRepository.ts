@@ -1,8 +1,8 @@
+import type { SocialAccountDTO } from '../../application/dtos/socialAccount/SocialAccountDTO'
+import type { IApiClient } from '../../application/ports/IApiClient'
+import { SocialAccount } from '../../domain/entities/SocialAccount'
 import type { ISocialAccountReadRepository } from '../../domain/repositories/social/ISocialAccountReadRepository'
-import { SocialAccount }       from '../../domain/entities/SocialAccount'
 import { SocialAccountMapper } from '../mappers/SocialAccountMapper'
-import type { SocialAccountDTO } from '../../application/dtos/SocialAccountDTO'
-import type { IApiClient }     from '../../application/ports/IApiClient'
 
 // =============================================================================
 // ApiSocialAccountRepository

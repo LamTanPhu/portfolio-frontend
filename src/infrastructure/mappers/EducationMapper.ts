@@ -1,5 +1,5 @@
+import type { EducationDTO } from '../../application/dtos/education/EducationDTO'
 import { Education } from '../../domain/entities/Education'
-import type { EducationDTO } from '../../application/dtos/EducationDTO'
 
 // =============================================================================
 // EducationMapper

@@ -1,5 +1,5 @@
+import type { CertificationDTO } from '../../application/dtos/certification/CertificationDTO'
 import { Certification } from '../../domain/entities/Certification'
-import type { CertificationDTO } from '../../application/dtos/CertificationDTO'
 
 // =============================================================================
 // CertificationMapper

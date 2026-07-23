@@ -1,5 +1,5 @@
 import type { IProjectReadRepository } from '../../../../domain/repositories/project/IProjectReadRepository'
-import type { ProjectDTO } from '../../../dtos/ProjectDTO'
+import type { ProjectDTO } from '../../../dtos/project/ProjectDTO'
 
 // =============================================================================
 // GetProjectBySlugQuery
