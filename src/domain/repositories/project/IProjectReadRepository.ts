@@ -1,5 +1,5 @@
-import type { Project } from '../../entities/Project'
+import type { Project, ProjectSummary } from '../../entities/Project'
 export interface IProjectReadRepository {
-  findPublished(): Promise<Project[]>
+  findPublished(): Promise<ProjectSummary[]>
   findBySlug(slug: string): Promise<Project | null>
 }

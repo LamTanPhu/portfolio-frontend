@@ -1,32 +1,17 @@
-export interface ProjectDTO {
-  id: number; name: string; description: string; slug: string;
-  techStack: string[]; repoUrl: string | null; liveUrl: string | null;
-  thumbnailUrl: string | null; isPublished: boolean; isOpenSource: boolean;
-  createdAt: string; updatedAt: string;
-}
+import type { ProjectSummaryDTO } from './ProjectSummaryDTO'
 
 // =============================================================================
-// Write-side request DTOs — mirror backend CreateProjectDto / UpdateProjectDto
-// exactly. slug is server-generated from name — never sent by the client.
+// ProjectDTO
+// Returned from GET /projects/:slug — single-item queries only. Extends
+// ProjectSummaryDTO with description, which the list endpoint omits.
+//
+// Previously this was the *only* project DTO and was also used (wrongly) to
+// type the GET /projects list response — the type claimed description was
+// always a string, but the backend's list endpoint never sends it. Split to
+// match the backend's honest ProjectSummaryDTO/ProjectDTO distinction
+// (see backend src/application/dtos/ProjectDTO.ts) — same fix already
+// applied on the Blog side (BlogSummaryDTO/BlogDetailDTO).
 // =============================================================================
-export interface CreateProjectRequestDTO {
-  name:          string
-  description:   string
-  techStack:     string[]
-  isOpenSource:  boolean
-  isPublished?:  boolean
-  repoUrl?:      string | null
-  liveUrl?:      string | null
-  thumbnailUrl?: string | null
-}
-
-export interface UpdateProjectRequestDTO {
-  name?:         string
-  description?:  string
-  techStack?:    string[]
-  isOpenSource?: boolean
-  isPublished?:  boolean
-  repoUrl?:      string | null
-  liveUrl?:      string | null
-  thumbnailUrl?: string | null
+export interface ProjectDTO extends ProjectSummaryDTO {
+  description: string
 }

@@ -1,19 +1,19 @@
 import type { IProjectReadRepository } from '../../../../domain/repositories/project/IProjectReadRepository'
-import type { ProjectDTO } from '../../../dtos/project/ProjectDTO'
+import type { ProjectSummaryDTO } from '../../../dtos/project/ProjectSummaryDTO'
 
 // =============================================================================
 // GetPublishedProjectsQuery
-// Returns all published projects for public display.
+// Returns published project summaries for list view (no description — use
+// GetProjectBySlugQuery for the full single-item view).
 // =============================================================================
 export class GetPublishedProjectsQuery {
   constructor(private readonly repo: IProjectReadRepository) {}
 
-  async execute(): Promise<ProjectDTO[]> {
+  async execute(): Promise<ProjectSummaryDTO[]> {
     const projects = await this.repo.findPublished()
     return projects.map((p) => ({
       id:           p.id,
       name:         p.name,
-      description:  p.description,
       slug:         p.slug,
       techStack:    p.techStack,
       repoUrl:      p.repoUrl,
