@@ -2,6 +2,7 @@ import { SITE_URL } from '@/lib/constants'
 import type { ProjectDTO } from '@/src/application/dtos/project/ProjectDTO'
 import Link from 'next/link'
 import { Badge } from '../atoms/Badge'
+import Image from 'next/image'
 import { ProjectViewTracker } from '../organisms/ProjectViewTracker'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 
@@ -57,11 +58,13 @@ export function ProjectDetailPage({ project }: Props) {
                     </Link>
 
                     {project.thumbnailUrl && (
-                        <div className="w-full h-64 rounded-lg overflow-hidden border border-(--border-muted) mb-6">
-                            <img
+                        <div className="relative w-full h-64 rounded-lg overflow-hidden border border-(--border-muted) mb-6">
+                            <Image
                                 src={project.thumbnailUrl}
                                 alt={project.name}
-                                className="w-full h-full object-cover"
+                                fill
+                                unoptimized
+                                className="object-cover"
                             />
                         </div>
                     )}

@@ -80,7 +80,7 @@ export function HomePage({ socialAccounts }: Props) {
             {/* GitHub link */}
             <div className="flex flex-col gap-1 mt-2">
               <p className="font-mono text-sm text-(--text-comment)">
-                // find my profile on Github:
+                {'// find my profile on Github:'}
               </p>
               <p className="font-mono text-sm">
                 <Kw>const </Kw>

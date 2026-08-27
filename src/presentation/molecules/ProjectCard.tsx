@@ -9,6 +9,7 @@
 // =============================================================================
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Badge } from '../atoms/Badge'
 
 interface Props {
@@ -38,10 +39,12 @@ export function ProjectCard({
       {/* Thumbnail */}
       <Link href={`/projects/${slug}`} className="relative h-44 bg-(--bg-elevated) overflow-hidden block">
         {thumbnailUrl ? (
-          <img
+          <Image
             src={thumbnailUrl}
             alt={name}
-            className="w-full h-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

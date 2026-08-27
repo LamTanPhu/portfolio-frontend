@@ -130,7 +130,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
         {/* ── Snippet showcase ─────────────────────────────── */}
         <section className="flex-1 flex flex-col gap-5 p-6 overflow-y-auto">
           <p className="font-mono text-xs text-(--text-comment) shrink-0">
-            // Code snippet showcase:
+            {'// Code snippet showcase:'}
           </p>
           {SNIPPETS.map((snippet) => (
             <SnippetCard key={snippet.id} snippet={snippet} />

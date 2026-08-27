@@ -24,7 +24,7 @@ export function BlogPreview({ post }: Props) {
         return (
             <div className="flex items-center justify-center h-full">
                 <p className="font-mono text-sm text-(--text-muted)">
-                // select a post to preview
+                    {'// select a post to preview'}
                 </p>
             </div>
         )
@@ -52,7 +52,7 @@ export function BlogPreview({ post }: Props) {
 
         {/* Excerpt as JSDoc comment block */}
         <div className="flex flex-col gap-0 font-mono text-sm text-(--text-comment) leading-7 flex-1">
-            <span>/**</span>
+            <span>{'/**'}</span>
             {post.excerpt.split('\n').map((line, i) => (
             <span key={i}> * {line}</span>
             ))}

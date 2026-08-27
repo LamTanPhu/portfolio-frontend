@@ -23,8 +23,9 @@ export function GameSidebar({ eaten, onSkip }: Props) {
         {/* Top — controls */}
         <section className="flex flex-col gap-3">
             <div>
-            <p className="font-mono text-[11px] text-(--text-comment)">// use keyboard</p>
-            <p className="font-mono text-[11px] text-(--text-comment)">// arrows to play</p>
+            <p className="font-mono text-[11px] text-(--text-comment)">{'// use keyboard'}</p>
+
+            <p className="font-mono text-[11px] text-(--text-comment)">{'// arrows to play'}</p>
             </div>
 
             {/* Arrow cluster card */}
@@ -48,7 +49,7 @@ export function GameSidebar({ eaten, onSkip }: Props) {
             </button>
 
             <div>
-            <p className="font-mono text-[11px] text-(--text-comment) mb-2">// food left</p>
+            <p className="font-mono text-[11px] text-(--text-comment) mb-2">{('// food left')}</p>
             <div className="flex flex-wrap gap-2 max-w-30">
                 {Array.from({ length: FOOD_COUNT }).map((_, i) => (
                 <FoodDot key={i} lit={i < FOOD_COUNT - eaten} />

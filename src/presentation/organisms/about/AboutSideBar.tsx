@@ -179,7 +179,7 @@ export function AboutSidebar({ active, skills, education, jobs, certifications }
                 {/* Children */}
                 {group.children.length === 0 ? (
                     <p className="pl-7 pr-2 py-1 font-mono text-[12px] text-(--text-muted)">
-                        // none yet
+                        {'// none yet'}
                     </p>
                 ) : (
                     group.children.map((child) => (
