@@ -1,6 +1,7 @@
 import type { ProjectDTO } from '../../application/dtos/project/ProjectDTO'
+import type { ProjectSummaryDTO } from '../../application/dtos/project/ProjectSummaryDTO'
 import type { IApiClient } from '../../application/ports/IApiClient'
-import { Project } from '../../domain/entities/Project'
+import { Project, ProjectSummary } from '../../domain/entities/Project'
 import type { IProjectReadRepository } from '../../domain/repositories/project/IProjectReadRepository'
 import { ApiError } from '../api/httpClient'
 import { ProjectMapper } from '../mappers/ProjectMapper'
@@ -9,6 +10,9 @@ import { ProjectMapper } from '../mappers/ProjectMapper'
 // ApiProjectRepository
 // Implements IProjectReadRepository using the backend REST API.
 //
+// findPublished — GET /projects       → ProjectSummaryDTO[] → ProjectSummary[]
+// findBySlug    — GET /projects/:slug → ProjectDTO           → Project
+//
 // findBySlug only treats a genuine 404 as "not found" (returns null). Any
 // other failure (network error, 500, etc.) rethrows — a real outage must
 // never be silently presented to the user as "this project doesn't exist."
@@ -16,9 +20,9 @@ import { ProjectMapper } from '../mappers/ProjectMapper'
 export class ApiProjectRepository implements IProjectReadRepository {
   constructor(private readonly client: IApiClient) {}
 
-  async findPublished(): Promise<Project[]> {
-    const dtos = await this.client.get<ProjectDTO[]>('/projects')
-    return dtos.map(ProjectMapper.toDomain)
+  async findPublished(): Promise<ProjectSummary[]> {
+    const dtos = await this.client.get<ProjectSummaryDTO[]>('/projects')
+    return dtos.map(ProjectMapper.toDomainSummary)
   }
 
   async findBySlug(slug: string): Promise<Project | null> {

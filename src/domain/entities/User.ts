@@ -5,7 +5,9 @@ export class User {
     public readonly lastname: string,
     public readonly email: string,
     public readonly aboutme: string | null,
+    public readonly lastLogin: Date | null,
   ) {}
+
   get fullName(): string {
     return `${this.firstname} ${this.lastname}`
   }

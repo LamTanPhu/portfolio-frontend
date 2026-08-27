@@ -1,5 +1,5 @@
 'use client'
-import type { ProjectDTO } from '@/src/application/dtos/project/ProjectDTO'
+import type { ProjectSummaryDTO } from '@/src/application/dtos/project/ProjectSummaryDTO'
 import { useState } from 'react'
 import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
 import { ProjectCard } from '../molecules/ProjectCard'
@@ -17,7 +17,7 @@ import { VSCodeLayout } from '../templates/VSCodeLayout'
 // =============================================================================
 
 interface Props {
-    projects: ProjectDTO[]
+    projects: ProjectSummaryDTO[]
 }
 
 export function ProjectsPage({ projects }: Props) {
@@ -71,7 +71,6 @@ export function ProjectsPage({ projects }: Props) {
                             index={i + 1}
                             name={project.name}
                             slug={project.slug}
-                            description={project.description}
                             techStack={project.techStack}
                             thumbnailUrl={project.thumbnailUrl}
                             liveUrl={project.liveUrl}

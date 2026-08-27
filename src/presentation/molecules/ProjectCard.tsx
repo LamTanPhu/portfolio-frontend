@@ -15,7 +15,6 @@ interface Props {
   index:       number
   name:        string
   slug:        string
-  description: string
   techStack:   string[]
   thumbnailUrl: string | null
   liveUrl:     string | null
@@ -26,7 +25,6 @@ export function ProjectCard({
   index,
   name,
   slug,
-  description,
   techStack,
   thumbnailUrl,
   liveUrl,
@@ -68,11 +66,6 @@ export function ProjectCard({
             </Link>
           </h3>
         </header>
-
-        {/* Description */}
-        <p className="font-mono text-xs text-(--text-muted) leading-relaxed line-clamp-3">
-          {description}
-        </p>
 
         {/* Tech stack */}
         {techStack.length > 0 && (
