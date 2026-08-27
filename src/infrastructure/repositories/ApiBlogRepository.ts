@@ -32,4 +32,9 @@ export class ApiBlogRepository implements IBlogReadRepository {
       throw err
     }
   }
+
+  async findAllAdmin(accessToken: string): Promise<BlogSummary[]> {
+    const dtos = await this.client.get<BlogSummaryDTO[]>('/blogs/admin', 0, { accessToken })
+    return dtos.map(BlogMapper.toDomainSummary)
+  }
 }
