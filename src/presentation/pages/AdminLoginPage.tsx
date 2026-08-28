@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { FormField } from '../atoms/FormField'
@@ -18,7 +19,7 @@ export function AdminLoginPage() {
     const [error, setError]       = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
-    async function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault()
         setError(null)
         setSubmitting(true)

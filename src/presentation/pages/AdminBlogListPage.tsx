@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '../atoms/Button'
+import { StatusBadge } from '../atoms/StatusBadge'
 import { GetAllBlogsQuery } from '@/src/application/use-cases/queries/blog/GetAllBlogsQuery'
 import { DeleteBlogCommand } from '@/src/application/use-cases/commands/blog/DeleteBlogCommand'
 import type { BlogSummaryDTO } from '@/src/application/dtos/blog/BlogSummaryDTO'
@@ -70,13 +71,7 @@ export function AdminBlogListPage() {
                     {posts.map((post) => (
                         <div key={post.id} className="flex items-center justify-between px-4 py-3">
                             <div className="flex items-center gap-3 min-w-0">
-                                <span className={`font-mono text-[10px] px-1.5 py-0.5 shrink-0 ${
-                                    post.isPublished
-                                        ? 'text-(--accent-teal) border border-(--accent-teal)'
-                                        : 'text-(--text-muted) border border-(--border-muted)'
-                                }`}>
-                                    {post.isPublished ? 'published' : 'draft'}
-                                </span>
+                                <StatusBadge published={post.isPublished} />
                                 <span className="font-mono text-sm text-(--text-primary) truncate">
                                     {post.title}
                                 </span>

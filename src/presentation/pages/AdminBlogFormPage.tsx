@@ -1,9 +1,11 @@
 'use client'
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { FormField } from '../atoms/FormField'
 import { Button } from '../atoms/Button'
+import { Checkbox } from '../atoms/Checkbox'
 import { CreateBlogCommand } from '@/src/application/use-cases/commands/blog/CreateBlogCommand'
 import { UpdateBlogCommand } from '@/src/application/use-cases/commands/blog/UpdateBlogCommand'
 import type { BlogDetailDTO } from '@/src/application/dtos/blog/BlogDetailDTO'
@@ -33,7 +35,7 @@ export function AdminBlogFormPage(props: Props) {
     const [submitting, setSubmitting] = useState(false)
     const [error, setError]           = useState<string | null>(null)
 
-    async function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault()
         if (!accessToken) return // AdminShell guarantees authenticated status, this is just a type guard
 
@@ -78,15 +80,7 @@ export function AdminBlogFormPage(props: Props) {
                 <FormField label="tags" value={tagsInput} onChange={setTagsInput} placeholder="comma, separated, tags" />
                 <FormField label="content" as="textarea" rows={16} value={content} onChange={setContent} placeholder="markdown content..." />
 
-                <label className="flex items-center gap-2 font-mono text-sm text-(--text-muted) cursor-pointer w-fit">
-                    <input
-                        type="checkbox"
-                        checked={isPublished}
-                        onChange={(e) => setIsPublished(e.target.checked)}
-                        className="accent-(--accent-teal)"
-                    />
-                    published
-                </label>
+                <Checkbox label="published" checked={isPublished} onChange={setIsPublished} />
 
                 {error && <p className="font-mono text-xs text-red-500">{error}</p>}
 
