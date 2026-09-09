@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "clean": "rd /s /q .next",
-    "build:clean": "npm run clean && npm run build"
+    "build:clean": "npm run clean && npm run build",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",
