@@ -8,4 +8,5 @@ export interface CreateJobRequestDTO {
     startedAt:   string
     endedAt?:    string | null
     isEnded?:    boolean
+    isPublic?:   boolean
 }

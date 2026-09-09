@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { AboutSidebar } from '../organisms/about/AboutSideBar'
 import type { ActivityPanel } from '../organisms/about/ActivityBar'
 import { ActivityBar } from '../organisms/about/ActivityBar'
+import { ResumeDownloadButton } from '../atoms/ResumeDownloadButton'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 
 // =============================================================================
@@ -100,10 +101,13 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
         <section className="w-[45%] flex flex-col border-r border-(--border-muted) overflow-hidden bg-[rgba(1,13,24,0.4)]">
 
           {/* Editor tab */}
-          <header className="flex items-center shrink-0 border-b border-(--border-muted) bg-(--bg-tab-bar)">
+          <header className="flex items-center justify-between shrink-0 border-b border-(--border-muted) bg-(--bg-tab-bar)">
             <div className="flex items-center gap-2 px-5 py-2.5 border-r border-(--border-muted) bg-(--bg-tab-active)">
               <span className="font-mono text-xs text-(--text-primary)">about-me.ts</span>
               <span className="font-mono text-[10px] text-(--text-muted) ml-1">✕</span>
+            </div>
+            <div className="px-4">
+              <ResumeDownloadButton />
             </div>
           </header>
 

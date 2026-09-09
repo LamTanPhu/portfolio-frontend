@@ -1,6 +1,6 @@
 // app/admin/(protected)/page.tsx
-import { redirect } from 'next/navigation'
+import { AdminDashboardPage } from '@/src/presentation/pages/AdminDashboardPage'
 
 export default function Page() {
-    redirect('/admin/blog')
+    return <AdminDashboardPage />
 }

@@ -4,4 +4,5 @@ export interface UpdateJobRequestDTO {
     startedAt?:   string
     endedAt?:     string | null
     isEnded?:     boolean
+    isPublic?:    boolean
 }

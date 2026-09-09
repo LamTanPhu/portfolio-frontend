@@ -24,4 +24,5 @@ export interface ContactSubmission {
 
 export interface IContactWriteRepository {
     save(submission: ContactSubmission): Promise<void>
+    delete(id: number, accessToken: string): Promise<void>
 }

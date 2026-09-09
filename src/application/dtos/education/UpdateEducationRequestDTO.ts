@@ -9,4 +9,5 @@ export interface UpdateEducationRequestDTO {
     startedAt?:      string
     endedAt?:        string | null
     isCompleted?:    boolean
+    isPublic?:       boolean
 }

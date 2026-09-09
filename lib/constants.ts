@@ -1,5 +1,11 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
 
+// Resume PDF served for the "download resume" link on the About page and
+// tracked via POST /analytics/resume-download. No file ships in this repo —
+// drop the actual PDF at public/resume.pdf, or set NEXT_PUBLIC_RESUME_URL to
+// point at one hosted elsewhere (e.g. a CDN URL), before this link works.
+export const RESUME_URL = process.env.NEXT_PUBLIC_RESUME_URL ?? '/resume.pdf'
+
 // Public site origin — used for canonical URLs, Open Graph tags, and
 // sitemap.xml. No trailing slash. Falls back to localhost for dev; set
 // NEXT_PUBLIC_SITE_URL in production (e.g. https://lamtanphu.dev).

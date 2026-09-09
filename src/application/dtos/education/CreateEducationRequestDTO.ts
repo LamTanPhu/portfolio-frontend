@@ -9,4 +9,5 @@ export interface CreateEducationRequestDTO {
     startedAt:      string
     endedAt?:       string | null
     isCompleted?:   boolean
+    isPublic?:      boolean
 }
