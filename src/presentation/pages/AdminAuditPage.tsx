@@ -1,7 +1,12 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
+import { ShieldAlert } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { Button } from '../atoms/Button'
+import { EmptyState } from '../atoms/EmptyState'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
 import { GetAuditLogsQuery } from '@/src/application/use-cases/queries/audit/GetAuditLogsQuery'
 import type { AuditLogDTO } from '@/src/application/dtos/audit/AuditLogDTO'
 
@@ -13,6 +18,23 @@ function statusColor(status: number): string {
     return 'text-(--accent-teal)'
 }
 
+const METHOD_COLOR: Record<string, string> = {
+    GET:    'text-(--accent-blue) border-(--accent-blue)/30 bg-(--accent-blue)/10',
+    POST:   'text-(--accent-teal) border-(--accent-teal)/30 bg-(--accent-teal)/10',
+    PATCH:  'text-amber-400 border-amber-400/30 bg-amber-400/10',
+    PUT:    'text-amber-400 border-amber-400/30 bg-amber-400/10',
+    DELETE: 'text-red-400 border-red-400/30 bg-red-400/10',
+}
+
+function MethodPill({ method }: { method: string }) {
+    const cls = METHOD_COLOR[method] ?? 'text-(--text-muted) border-(--border-muted) bg-transparent'
+    return (
+        <span className={`font-mono text-[10px] px-1.5 py-0.5 border w-16 text-center shrink-0 ${cls}`}>
+            {method}
+        </span>
+    )
+}
+
 // =============================================================================
 // AdminAuditPage — Page
 // Recent-activity trail (create/update/delete + their status codes) — read
@@ -22,13 +44,13 @@ function statusColor(status: number): string {
 // =============================================================================
 export function AdminAuditPage() {
     const { accessToken } = useAuth()
+    const toast = useToast()
 
     const [entries, setEntries]       = useState<AuditLogDTO[]>([])
     const [total, setTotal]           = useState<number | null>(null)
     const [nextCursor, setNextCursor] = useState<number | null>(null)
     const [loading, setLoading]       = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
-    const [error, setError]           = useState<string | null>(null)
 
     const loadFirstPage = useCallback(async () => {
         if (!accessToken) return
@@ -39,10 +61,11 @@ export function AdminAuditPage() {
             setNextCursor(page.nextCursor)
             setTotal(page.total)
         } catch {
-            setError('Failed to load audit log.')
+            toast.show('Failed to load audit log.', 'error')
         } finally {
             setLoading(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accessToken])
 
     useEffect(() => {
@@ -57,7 +80,7 @@ export function AdminAuditPage() {
             setEntries((prev) => [...prev, ...page.items])
             setNextCursor(page.nextCursor)
         } catch {
-            setError('Failed to load more entries.')
+            toast.show('Failed to load more entries.', 'error')
         } finally {
             setLoadingMore(false)
         }
@@ -65,30 +88,19 @@ export function AdminAuditPage() {
 
     return (
         <div className="max-w-3xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-mono text-lg text-(--text-primary)">
-                    <span className="text-(--text-muted)">_</span>audit-log
-                </h1>
-                {total !== null && (
-                    <span className="font-mono text-xs text-(--text-muted)">{total} total</span>
-                )}
-            </div>
-
-            {error && <p className="font-mono text-xs text-red-500 mb-4">{error}</p>}
+            <AdminPageHeader icon={<ShieldAlert size={16} />} title="audit-log" count={total} />
 
             {loading ? (
-                <p className="font-mono text-sm text-(--text-muted)">loading...</p>
+                <LoadingLine />
             ) : entries.length === 0 ? (
-                <p className="font-mono text-sm text-(--text-muted)">no activity recorded yet.</p>
+                <EmptyState icon={<ShieldAlert size={28} />} message="no activity recorded yet." />
             ) : (
                 <>
                     <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                         {entries.map((entry) => (
-                            <div key={entry.id} className="flex items-center justify-between px-4 py-2.5 gap-3">
+                            <div key={entry.id} className="flex items-center justify-between px-4 py-2.5 gap-3 hover:bg-(--bg-elevated) transition-colors duration-100">
                                 <div className="flex items-center gap-3 min-w-0">
-                                    <span className="font-mono text-[11px] text-(--text-muted) w-14 shrink-0">
-                                        {entry.method}
-                                    </span>
+                                    <MethodPill method={entry.method} />
                                     <span className="font-mono text-sm text-(--text-primary) truncate">
                                         {entry.route}
                                     </span>

@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminNotFound } from '../atoms/AdminNotFound'
 import { AdminJobFormPage } from './AdminJobFormPage'
 
 interface Props {
@@ -32,20 +33,16 @@ export function AdminJobEditPage({ id }: Props) {
     }
 
     if (job === undefined) {
-        return <p className="font-mono text-sm text-(--text-muted) p-8">loading...</p>
+        return <LoadingLine />
     }
 
     if (job === null) {
         return (
-            <div className="max-w-2xl mx-auto p-8 flex flex-col gap-3">
-                <p className="font-mono text-sm text-(--text-muted)">
-                    No public job with that id — it may not exist, or it is currently
-                    marked private.
-                </p>
-                <Link href="/admin/jobs" className="font-mono text-xs text-(--accent-teal) w-fit">
-                    ← back to jobs
-                </Link>
-            </div>
+            <AdminNotFound
+                message="No public job with that id — it may not exist, or it is currently marked private."
+                backHref="/admin/jobs"
+                backLabel="back to jobs"
+            />
         )
     }
 

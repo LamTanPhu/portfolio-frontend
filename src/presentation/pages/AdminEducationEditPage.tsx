@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { loadEducation } from '@/src/application/use-cases/queries/education/loadEducation'
 import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminNotFound } from '../atoms/AdminNotFound'
 import { AdminEducationFormPage } from './AdminEducationFormPage'
 
 interface Props {
@@ -32,20 +33,16 @@ export function AdminEducationEditPage({ id }: Props) {
     }
 
     if (record === undefined) {
-        return <p className="font-mono text-sm text-(--text-muted) p-8">loading...</p>
+        return <LoadingLine />
     }
 
     if (record === null) {
         return (
-            <div className="max-w-2xl mx-auto p-8 flex flex-col gap-3">
-                <p className="font-mono text-sm text-(--text-muted)">
-                    No public education record with that id — it may not exist, or it is
-                    currently marked private.
-                </p>
-                <Link href="/admin/education" className="font-mono text-xs text-(--accent-teal) w-fit">
-                    ← back to education
-                </Link>
-            </div>
+            <AdminNotFound
+                message="No public education record with that id — it may not exist, or it is currently marked private."
+                backHref="/admin/education"
+                backLabel="back to education"
+            />
         )
     }
 

@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminNotFound } from '../atoms/AdminNotFound'
 import { AdminSkillFormPage } from './AdminSkillFormPage'
 
 // =============================================================================
@@ -17,8 +18,8 @@ interface Props {
 }
 
 export function AdminSkillEditPage({ id }: Props) {
-    const [skill, setSkill]   = useState<SkillDTO | null | undefined>(undefined)
-    const [error, setError]   = useState<string | null>(null)
+    const [skill, setSkill] = useState<SkillDTO | null | undefined>(undefined)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         let cancelled = false
@@ -39,20 +40,16 @@ export function AdminSkillEditPage({ id }: Props) {
     }
 
     if (skill === undefined) {
-        return <p className="font-mono text-sm text-(--text-muted) p-8">loading...</p>
+        return <LoadingLine />
     }
 
     if (skill === null) {
         return (
-            <div className="max-w-2xl mx-auto p-8 flex flex-col gap-3">
-                <p className="font-mono text-sm text-(--text-muted)">
-                    No public skill with that id — it may not exist, or it is currently
-                    marked private (see the note on the form about why that hides it here too).
-                </p>
-                <Link href="/admin/skills" className="font-mono text-xs text-(--accent-teal) w-fit">
-                    ← back to skills
-                </Link>
-            </div>
+            <AdminNotFound
+                message="No public skill with that id — it may not exist, or it is currently marked private (see the note on the form about why that hides it here too)."
+                backHref="/admin/skills"
+                backLabel="back to skills"
+            />
         )
     }
 

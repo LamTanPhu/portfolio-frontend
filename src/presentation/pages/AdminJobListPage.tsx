@@ -1,8 +1,16 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { Briefcase, Plus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { Button } from '../atoms/Button'
+import { EmptyState } from '../atoms/EmptyState'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminListRow } from '../molecules/AdminListRow'
+import { AdminRowActions } from '../molecules/AdminRowActions'
+import { ConfirmDialog } from '../molecules/ConfirmDialog'
 import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
 import { DeleteJobCommand } from '@/src/application/use-cases/commands/job/DeleteJobCommand'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
@@ -14,33 +22,36 @@ import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
 // =============================================================================
 export function AdminJobListPage() {
     const { accessToken } = useAuth()
+    const toast = useToast()
 
     const [jobs, setJobs]             = useState<JobDTO[] | null>(null)
-    const [error, setError]           = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const [pendingDelete, setPendingDelete] = useState<JobDTO | null>(null)
 
     const refresh = useCallback(async () => {
         try {
             setJobs(await loadJobs())
         } catch {
-            setError('Failed to load jobs.')
+            toast.show('Failed to load jobs.', 'error')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         void refresh()
     }, [refresh])
 
-    async function handleDelete(id: number, label: string) {
-        if (!accessToken) return
-        if (!window.confirm(`Delete "${label}"? This can't be undone.`)) return
-
-        setDeletingId(id)
+    async function confirmDelete() {
+        if (!accessToken || !pendingDelete) return
+        const target = pendingDelete
+        setPendingDelete(null)
+        setDeletingId(target.id)
         try {
-            await DeleteJobCommand.create().execute(id, accessToken)
-            setJobs((prev) => prev?.filter((j) => j.id !== id) ?? null)
+            await DeleteJobCommand.create().execute(target.id, accessToken)
+            setJobs((prev) => prev?.filter((j) => j.id !== target.id) ?? null)
+            toast.show(`Deleted "${target.role}".`, 'success')
         } catch {
-            setError('Failed to delete — try again.')
+            toast.show('Failed to delete — try again.', 'error')
         } finally {
             setDeletingId(null)
         }
@@ -48,53 +59,47 @@ export function AdminJobListPage() {
 
     return (
         <div className="max-w-3xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-mono text-lg text-(--text-primary)">
-                    <span className="text-(--text-muted)">_</span>jobs
-                </h1>
-                <Link href="/admin/jobs/new">
-                    <Button size="sm">+ new job</Button>
-                </Link>
-            </div>
-
-            {error && <p className="font-mono text-xs text-red-500 mb-4">{error}</p>}
+            <AdminPageHeader
+                icon={<Briefcase size={16} />}
+                title="jobs"
+                count={jobs?.length ?? null}
+                action={
+                    <Link href="/admin/jobs/new">
+                        <Button size="sm" className="flex items-center gap-1.5"><Plus size={13} /> new job</Button>
+                    </Link>
+                }
+            />
 
             {jobs === null ? (
-                <p className="font-mono text-sm text-(--text-muted)">loading...</p>
+                <LoadingLine />
             ) : jobs.length === 0 ? (
-                <p className="font-mono text-sm text-(--text-muted)">no public jobs yet.</p>
+                <EmptyState icon={<Briefcase size={28} />} message="no public jobs yet." />
             ) : (
                 <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                     {jobs.map((job) => (
-                        <div key={job.id} className="flex items-center justify-between px-4 py-3">
-                            <div className="flex flex-col min-w-0">
-                                <span className="font-mono text-sm text-(--text-primary) truncate">
-                                    {job.role}
-                                </span>
-                                <span className="font-mono text-xs text-(--text-muted) truncate">
-                                    {job.companyName}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-3 shrink-0">
-                                <Link
-                                    href={`/admin/jobs/${job.id}/edit`}
-                                    className="font-mono text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors"
-                                >
-                                    edit
-                                </Link>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    disabled={deletingId === job.id}
-                                    onClick={() => { void handleDelete(job.id, job.role) }}
-                                >
-                                    {deletingId === job.id ? '...' : 'delete'}
-                                </Button>
-                            </div>
-                        </div>
+                        <AdminListRow
+                            key={job.id}
+                            title={job.role}
+                            subtitle={job.companyName}
+                            actions={
+                                <AdminRowActions
+                                    editHref={`/admin/jobs/${job.id}/edit`}
+                                    onDelete={() => setPendingDelete(job)}
+                                    deleting={deletingId === job.id}
+                                />
+                            }
+                        />
                     ))}
                 </div>
             )}
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                title="Delete job?"
+                message={pendingDelete ? `"${pendingDelete.role}" will be permanently removed. This can't be undone.` : ''}
+                onConfirm={() => { void confirmDelete() }}
+                onCancel={() => setPendingDelete(null)}
+            />
         </div>
     )
 }

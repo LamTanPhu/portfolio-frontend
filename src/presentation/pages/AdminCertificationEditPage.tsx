@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminNotFound } from '../atoms/AdminNotFound'
 import { AdminCertificationFormPage } from './AdminCertificationFormPage'
 
 interface Props {
@@ -32,20 +33,16 @@ export function AdminCertificationEditPage({ id }: Props) {
     }
 
     if (cert === undefined) {
-        return <p className="font-mono text-sm text-(--text-muted) p-8">loading...</p>
+        return <LoadingLine />
     }
 
     if (cert === null) {
         return (
-            <div className="max-w-2xl mx-auto p-8 flex flex-col gap-3">
-                <p className="font-mono text-sm text-(--text-muted)">
-                    No published certification with that id — it may not exist, or
-                    it is currently unpublished.
-                </p>
-                <Link href="/admin/certifications" className="font-mono text-xs text-(--accent-teal) w-fit">
-                    ← back to certifications
-                </Link>
-            </div>
+            <AdminNotFound
+                message="No published certification with that id — it may not exist, or it is currently unpublished."
+                backHref="/admin/certifications"
+                backLabel="back to certifications"
+            />
         )
     }
 

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { forwardRef } from 'react'
 import type { ButtonHTMLAttributes } from 'react'
 // =============================================================================
 // Button — Atom
@@ -9,15 +10,16 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?:    'sm' | 'md'
 }
 
-export function Button({
+export const Button = forwardRef<HTMLButtonElement, Props>(function Button({
   variant  = 'primary',
   size     = 'md',
   className,
   children,
   ...props
-}: Props) {
+}, ref) {
   return (
     <button
+      ref={ref}
       className={cn(
         'inline-flex items-center justify-center font-mono text-xs transition-colors focus:outline-none disabled:opacity-50',
         size === 'sm' && 'px-3 py-1',
@@ -32,4 +34,4 @@ export function Button({
       {children}
     </button>
   )
-}
+})

@@ -2,11 +2,14 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { FolderCode } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { FormField } from '../atoms/FormField'
-import { Button } from '../atoms/Button'
 import { Checkbox } from '../atoms/Checkbox'
 import { VisibilityWarning } from '../atoms/VisibilityWarning'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminFormActions } from '../molecules/AdminFormActions'
 import { CreateProjectCommand } from '@/src/application/use-cases/commands/project/CreateProjectCommand'
 import { UpdateProjectCommand } from '@/src/application/use-cases/commands/project/UpdateProjectCommand'
 import type { ProjectDTO } from '@/src/application/dtos/project/ProjectDTO'
@@ -26,6 +29,7 @@ type Props =
 export function AdminProjectFormPage(props: Props) {
     const { accessToken } = useAuth()
     const router = useRouter()
+    const toast = useToast()
 
     const existing = props.mode === 'edit' ? props.project : null
 
@@ -70,19 +74,20 @@ export function AdminProjectFormPage(props: Props) {
             } else {
                 await UpdateProjectCommand.create().execute(props.project.id, payload, accessToken)
             }
+            toast.show(`Saved "${name}".`, 'success')
             router.push('/admin/projects')
         } catch {
-            setError('Failed to save — check the backend is reachable and try again.')
+            setError('Failed to save — check the backend is reachable.')
             setSubmitting(false)
         }
     }
 
     return (
         <div className="max-w-2xl mx-auto p-8">
-            <h1 className="font-mono text-lg text-(--text-primary) mb-6">
-                <span className="text-(--text-muted)">_</span>
-                {props.mode === 'create' ? 'new-project' : 'edit-project'}
-            </h1>
+            <AdminPageHeader
+                icon={<FolderCode size={16} />}
+                title={props.mode === 'create' ? 'new-project' : 'edit-project'}
+            />
 
             <form onSubmit={(e) => { void handleSubmit(e) }} className="flex flex-col gap-5">
                 <FormField label="name" value={name} onChange={setName} placeholder="Electric Motorcycle Rental System" />
@@ -96,16 +101,12 @@ export function AdminProjectFormPage(props: Props) {
                 <Checkbox label="published" checked={isPublished} onChange={setIsPublished} />
                 {!isPublished && <VisibilityWarning />}
 
-                {error && <p className="font-mono text-xs text-red-500">{error}</p>}
-
-                <div className="flex gap-3">
-                    <Button type="submit" disabled={submitting || name.length === 0 || description.length === 0}>
-                        {submitting ? 'saving...' : 'save'}
-                    </Button>
-                    <Button type="button" variant="ghost" onClick={() => router.push('/admin/projects')}>
-                        cancel
-                    </Button>
-                </div>
+                <AdminFormActions
+                    submitting={submitting}
+                    canSubmit={name.length > 0 && description.length > 0}
+                    error={error}
+                    onCancel={() => router.push('/admin/projects')}
+                />
             </form>
         </div>
     )

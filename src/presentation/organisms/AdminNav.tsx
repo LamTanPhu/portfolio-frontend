@@ -1,62 +1,37 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { LogOut, ExternalLink } from 'lucide-react'
 import { Button } from '../atoms/Button'
 
 // =============================================================================
 // AdminNav — Organism
-// Dumb, prop-driven — same split as TabBar/Sidebar/StatusBar: this owns the
-// markup, AdminShell (template) owns the auth logic and passes onLogout in.
+// Slim top bar — navigation itself now lives in AdminExplorer (the sidebar),
+// so this only owns identity + exit actions, mirroring the public TabBar's
+// "owner name far left, escape-hatch far right" split.
 // =============================================================================
 interface Props {
     onLogout: () => void
 }
 
-const LINKS = [
-    { href: '/admin/blog',           label: 'blog' },
-    { href: '/admin/projects',       label: 'projects' },
-    { href: '/admin/skills',         label: 'skills' },
-    { href: '/admin/education',      label: 'education' },
-    { href: '/admin/jobs',           label: 'jobs' },
-    { href: '/admin/certifications', label: 'certifications' },
-    { href: '/admin/social',         label: 'social' },
-    { href: '/admin/contact',        label: 'contact' },
-    { href: '/admin/analytics',      label: 'analytics' },
-    { href: '/admin/audit',          label: 'audit' },
-]
-
 export function AdminNav({ onLogout }: Props) {
-    const pathname = usePathname()
-
     return (
-        <header className="flex items-center justify-between px-6 py-4 border-b border-(--border-muted) shrink-0 gap-6">
-            <nav className="flex items-center gap-5 flex-wrap">
-                <Link href="/admin" className="font-mono text-sm text-(--accent-teal) shrink-0">
-                    _admin
+        <header className="flex items-center justify-between px-5 h-11 shrink-0 border-b border-(--border-muted) bg-(--bg-tab-bar)">
+            <Link href="/admin" className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-(--accent-teal)" />
+                <span className="font-mono text-sm text-(--text-primary) tracking-wide">
+                    admin<span className="text-(--text-muted)">.workspace</span>
+                </span>
+            </Link>
+            <div className="flex items-center gap-1">
+                <Link
+                    href="/"
+                    className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-elevated) transition-colors"
+                >
+                    <ExternalLink size={13} />
+                    site
                 </Link>
-                {LINKS.map((link) => {
-                    const active = pathname === link.href || pathname.startsWith(`${link.href}/`)
-                    return (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className={[
-                                'font-mono text-sm transition-colors',
-                                active
-                                    ? 'text-(--text-primary)'
-                                    : 'text-(--text-muted) hover:text-(--text-primary)',
-                            ].join(' ')}
-                        >
-                            {link.label}
-                        </Link>
-                    )
-                })}
-            </nav>
-            <div className="flex items-center gap-4 shrink-0">
-                <Link href="/" className="font-mono text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors">
-                    ← back to site
-                </Link>
-                <Button variant="ghost" size="sm" onClick={onLogout}>
+                <Button variant="ghost" size="sm" onClick={onLogout} className="flex items-center gap-1.5">
+                    <LogOut size={13} />
                     logout
                 </Button>
             </div>

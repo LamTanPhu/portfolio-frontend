@@ -2,10 +2,13 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { ScrollText } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { FormField } from '../atoms/FormField'
-import { Button } from '../atoms/Button'
 import { Checkbox } from '../atoms/Checkbox'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminFormActions } from '../molecules/AdminFormActions'
 import { CreateBlogCommand } from '@/src/application/use-cases/commands/blog/CreateBlogCommand'
 import { UpdateBlogCommand } from '@/src/application/use-cases/commands/blog/UpdateBlogCommand'
 import type { BlogDetailDTO } from '@/src/application/dtos/blog/BlogDetailDTO'
@@ -15,6 +18,9 @@ import type { BlogDetailDTO } from '@/src/application/dtos/blog/BlogDetailDTO'
 // Shared create/edit form. slug is never a field here — server-generated
 // from title on create, and unchanged (title-independent) on update, same
 // as the backend contract (CreateBlogDto/UpdateBlogDto never accept slug).
+// No VisibilityWarning here — unlike the other about-page resources, Blog
+// has a real admin listing endpoint (/blogs/admin) that shows drafts too,
+// so unpublishing a post never loses it.
 // =============================================================================
 type Props =
     | { mode: 'create' }
@@ -23,6 +29,7 @@ type Props =
 export function AdminBlogFormPage(props: Props) {
     const { accessToken } = useAuth()
     const router = useRouter()
+    const toast = useToast()
 
     const existing = props.mode === 'edit' ? props.post : null
 
@@ -60,19 +67,20 @@ export function AdminBlogFormPage(props: Props) {
                     accessToken,
                 )
             }
+            toast.show(`Saved "${title}".`, 'success')
             router.push('/admin/blog')
         } catch {
-            setError('Failed to save — check the backend is reachable and try again.')
+            setError('Failed to save — check the backend is reachable.')
             setSubmitting(false)
         }
     }
 
     return (
         <div className="max-w-2xl mx-auto p-8">
-            <h1 className="font-mono text-lg text-(--text-primary) mb-6">
-                <span className="text-(--text-muted)">_</span>
-                {props.mode === 'create' ? 'new-post' : 'edit-post'}
-            </h1>
+            <AdminPageHeader
+                icon={<ScrollText size={16} />}
+                title={props.mode === 'create' ? 'new-post' : 'edit-post'}
+            />
 
             <form onSubmit={(e) => { void handleSubmit(e) }} className="flex flex-col gap-5">
                 <FormField label="title" value={title} onChange={setTitle} />
@@ -82,16 +90,12 @@ export function AdminBlogFormPage(props: Props) {
 
                 <Checkbox label="published" checked={isPublished} onChange={setIsPublished} />
 
-                {error && <p className="font-mono text-xs text-red-500">{error}</p>}
-
-                <div className="flex gap-3">
-                    <Button type="submit" disabled={submitting || title.length === 0 || content.length === 0}>
-                        {submitting ? 'saving...' : 'save'}
-                    </Button>
-                    <Button type="button" variant="ghost" onClick={() => router.push('/admin/blog')}>
-                        cancel
-                    </Button>
-                </div>
+                <AdminFormActions
+                    submitting={submitting}
+                    canSubmit={title.length > 0 && content.length > 0}
+                    error={error}
+                    onCancel={() => router.push('/admin/blog')}
+                />
             </form>
         </div>
     )

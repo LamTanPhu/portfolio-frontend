@@ -1,9 +1,17 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { FolderCode, Plus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { Button } from '../atoms/Button'
 import { StatusBadge } from '../atoms/StatusBadge'
+import { EmptyState } from '../atoms/EmptyState'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminListRow } from '../molecules/AdminListRow'
+import { AdminRowActions } from '../molecules/AdminRowActions'
+import { ConfirmDialog } from '../molecules/ConfirmDialog'
 import { loadProjects } from '@/src/application/use-cases/queries/project/loadProjects'
 import { DeleteProjectCommand } from '@/src/application/use-cases/commands/project/DeleteProjectCommand'
 import type { ProjectSummaryDTO } from '@/src/application/dtos/project/ProjectSummaryDTO'
@@ -16,33 +24,36 @@ import type { ProjectSummaryDTO } from '@/src/application/dtos/project/ProjectSu
 // =============================================================================
 export function AdminProjectListPage() {
     const { accessToken } = useAuth()
+    const toast = useToast()
 
     const [projects, setProjects]     = useState<ProjectSummaryDTO[] | null>(null)
-    const [error, setError]           = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const [pendingDelete, setPendingDelete] = useState<ProjectSummaryDTO | null>(null)
 
     const refresh = useCallback(async () => {
         try {
             setProjects(await loadProjects())
         } catch {
-            setError('Failed to load projects.')
+            toast.show('Failed to load projects.', 'error')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         void refresh()
     }, [refresh])
 
-    async function handleDelete(id: number, name: string) {
-        if (!accessToken) return
-        if (!window.confirm(`Delete "${name}"? This can't be undone.`)) return
-
-        setDeletingId(id)
+    async function confirmDelete() {
+        if (!accessToken || !pendingDelete) return
+        const target = pendingDelete
+        setPendingDelete(null)
+        setDeletingId(target.id)
         try {
-            await DeleteProjectCommand.create().execute(id, accessToken)
-            setProjects((prev) => prev?.filter((p) => p.id !== id) ?? null)
+            await DeleteProjectCommand.create().execute(target.id, accessToken)
+            setProjects((prev) => prev?.filter((p) => p.id !== target.id) ?? null)
+            toast.show(`Deleted "${target.name}".`, 'success')
         } catch {
-            setError('Failed to delete — try again.')
+            toast.show('Failed to delete — try again.', 'error')
         } finally {
             setDeletingId(null)
         }
@@ -50,51 +61,47 @@ export function AdminProjectListPage() {
 
     return (
         <div className="max-w-3xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-mono text-lg text-(--text-primary)">
-                    <span className="text-(--text-muted)">_</span>projects
-                </h1>
-                <Link href="/admin/projects/new">
-                    <Button size="sm">+ new project</Button>
-                </Link>
-            </div>
-
-            {error && <p className="font-mono text-xs text-red-500 mb-4">{error}</p>}
+            <AdminPageHeader
+                icon={<FolderCode size={16} />}
+                title="projects"
+                count={projects?.length ?? null}
+                action={
+                    <Link href="/admin/projects/new">
+                        <Button size="sm" className="flex items-center gap-1.5"><Plus size={13} /> new project</Button>
+                    </Link>
+                }
+            />
 
             {projects === null ? (
-                <p className="font-mono text-sm text-(--text-muted)">loading...</p>
+                <LoadingLine />
             ) : projects.length === 0 ? (
-                <p className="font-mono text-sm text-(--text-muted)">no published projects yet.</p>
+                <EmptyState icon={<FolderCode size={28} />} message="no published projects yet." />
             ) : (
                 <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                     {projects.map((project) => (
-                        <div key={project.id} className="flex items-center justify-between px-4 py-3">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <StatusBadge published={project.isPublished} />
-                                <span className="font-mono text-sm text-(--text-primary) truncate">
-                                    {project.name}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-3 shrink-0">
-                                <Link
-                                    href={`/admin/projects/${project.slug}/edit`}
-                                    className="font-mono text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors"
-                                >
-                                    edit
-                                </Link>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    disabled={deletingId === project.id}
-                                    onClick={() => { void handleDelete(project.id, project.name) }}
-                                >
-                                    {deletingId === project.id ? '...' : 'delete'}
-                                </Button>
-                            </div>
-                        </div>
+                        <AdminListRow
+                            key={project.id}
+                            leading={<StatusBadge published={project.isPublished} />}
+                            title={project.name}
+                            actions={
+                                <AdminRowActions
+                                    editHref={`/admin/projects/${project.slug}/edit`}
+                                    onDelete={() => setPendingDelete(project)}
+                                    deleting={deletingId === project.id}
+                                />
+                            }
+                        />
                     ))}
                 </div>
             )}
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                title="Delete project?"
+                message={pendingDelete ? `"${pendingDelete.name}" will be permanently removed. This can't be undone.` : ''}
+                onConfirm={() => { void confirmDelete() }}
+                onCancel={() => setPendingDelete(null)}
+            />
         </div>
     )
 }

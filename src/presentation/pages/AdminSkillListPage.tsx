@@ -1,9 +1,17 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { Tags, Plus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { Button } from '../atoms/Button'
 import { Badge } from '../atoms/Badge'
+import { EmptyState } from '../atoms/EmptyState'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminListRow } from '../molecules/AdminListRow'
+import { AdminRowActions } from '../molecules/AdminRowActions'
+import { ConfirmDialog } from '../molecules/ConfirmDialog'
 import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
 import { DeleteSkillCommand } from '@/src/application/use-cases/commands/skill/DeleteSkillCommand'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
@@ -13,38 +21,40 @@ import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
 // The backend's GET /skills only ever returns public skills (there's no
 // admin "everything" route like blogs/admin) — so this list, and therefore
 // what's editable/deletable here, is limited to skills currently public.
-// See VisibilityWarning on the form for what that means for the toggle.
 // =============================================================================
 export function AdminSkillListPage() {
     const { accessToken } = useAuth()
+    const toast = useToast()
 
     const [skills, setSkills]         = useState<SkillDTO[] | null>(null)
-    const [error, setError]           = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const [pendingDelete, setPendingDelete] = useState<SkillDTO | null>(null)
 
     const refresh = useCallback(async () => {
         try {
             const result = await loadSkills()
             setSkills(result)
         } catch {
-            setError('Failed to load skills.')
+            toast.show('Failed to load skills.', 'error')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         void refresh()
     }, [refresh])
 
-    async function handleDelete(id: number, name: string) {
-        if (!accessToken) return
-        if (!window.confirm(`Delete "${name}"? This can't be undone.`)) return
-
-        setDeletingId(id)
+    async function confirmDelete() {
+        if (!accessToken || !pendingDelete) return
+        const target = pendingDelete
+        setPendingDelete(null)
+        setDeletingId(target.id)
         try {
-            await DeleteSkillCommand.create().execute(id, accessToken)
-            setSkills((prev) => prev?.filter((s) => s.id !== id) ?? null)
+            await DeleteSkillCommand.create().execute(target.id, accessToken)
+            setSkills((prev) => prev?.filter((s) => s.id !== target.id) ?? null)
+            toast.show(`Deleted "${target.name}".`, 'success')
         } catch {
-            setError('Failed to delete — try again.')
+            toast.show('Failed to delete — try again.', 'error')
         } finally {
             setDeletingId(null)
         }
@@ -52,51 +62,47 @@ export function AdminSkillListPage() {
 
     return (
         <div className="max-w-3xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-mono text-lg text-(--text-primary)">
-                    <span className="text-(--text-muted)">_</span>skills
-                </h1>
-                <Link href="/admin/skills/new">
-                    <Button size="sm">+ new skill</Button>
-                </Link>
-            </div>
-
-            {error && <p className="font-mono text-xs text-red-500 mb-4">{error}</p>}
+            <AdminPageHeader
+                icon={<Tags size={16} />}
+                title="skills"
+                count={skills?.length ?? null}
+                action={
+                    <Link href="/admin/skills/new">
+                        <Button size="sm" className="flex items-center gap-1.5"><Plus size={13} /> new skill</Button>
+                    </Link>
+                }
+            />
 
             {skills === null ? (
-                <p className="font-mono text-sm text-(--text-muted)">loading...</p>
+                <LoadingLine />
             ) : skills.length === 0 ? (
-                <p className="font-mono text-sm text-(--text-muted)">no public skills yet.</p>
+                <EmptyState icon={<Tags size={28} />} message="no public skills yet." />
             ) : (
                 <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                     {skills.map((skill) => (
-                        <div key={skill.id} className="flex items-center justify-between px-4 py-3">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <Badge label={skill.category} />
-                                <span className="font-mono text-sm text-(--text-primary) truncate">
-                                    {skill.name}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-3 shrink-0">
-                                <Link
-                                    href={`/admin/skills/${skill.id}/edit`}
-                                    className="font-mono text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors"
-                                >
-                                    edit
-                                </Link>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    disabled={deletingId === skill.id}
-                                    onClick={() => { void handleDelete(skill.id, skill.name) }}
-                                >
-                                    {deletingId === skill.id ? '...' : 'delete'}
-                                </Button>
-                            </div>
-                        </div>
+                        <AdminListRow
+                            key={skill.id}
+                            leading={<Badge label={skill.category} />}
+                            title={skill.name}
+                            actions={
+                                <AdminRowActions
+                                    editHref={`/admin/skills/${skill.id}/edit`}
+                                    onDelete={() => setPendingDelete(skill)}
+                                    deleting={deletingId === skill.id}
+                                />
+                            }
+                        />
                     ))}
                 </div>
             )}
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                title="Delete skill?"
+                message={pendingDelete ? `"${pendingDelete.name}" will be permanently removed. This can't be undone.` : ''}
+                onConfirm={() => { void confirmDelete() }}
+                onCancel={() => setPendingDelete(null)}
+            />
         </div>
     )
 }

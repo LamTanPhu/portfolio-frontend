@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
 import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminNotFound } from '../atoms/AdminNotFound'
 import { AdminSocialFormPage } from './AdminSocialFormPage'
 
 interface Props {
@@ -32,20 +33,16 @@ export function AdminSocialEditPage({ id }: Props) {
     }
 
     if (account === undefined) {
-        return <p className="font-mono text-sm text-(--text-muted) p-8">loading...</p>
+        return <LoadingLine />
     }
 
     if (account === null) {
         return (
-            <div className="max-w-2xl mx-auto p-8 flex flex-col gap-3">
-                <p className="font-mono text-sm text-(--text-muted)">
-                    No public social account with that id — it may not exist, or
-                    it is currently marked private.
-                </p>
-                <Link href="/admin/social" className="font-mono text-xs text-(--accent-teal) w-fit">
-                    ← back to social accounts
-                </Link>
-            </div>
+            <AdminNotFound
+                message="No public social account with that id — it may not exist, or it is currently marked private."
+                backHref="/admin/social"
+                backLabel="back to social accounts"
+            />
         )
     }
 

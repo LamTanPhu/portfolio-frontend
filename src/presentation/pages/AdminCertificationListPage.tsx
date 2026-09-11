@@ -1,8 +1,16 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { Award, Plus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { Button } from '../atoms/Button'
+import { EmptyState } from '../atoms/EmptyState'
+import { LoadingLine } from '../atoms/LoadingLine'
+import { AdminPageHeader } from '../molecules/AdminPageHeader'
+import { AdminListRow } from '../molecules/AdminListRow'
+import { AdminRowActions } from '../molecules/AdminRowActions'
+import { ConfirmDialog } from '../molecules/ConfirmDialog'
 import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
 import { DeleteCertificationCommand } from '@/src/application/use-cases/commands/certification/DeleteCertificationCommand'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
@@ -15,33 +23,36 @@ import type { CertificationDTO } from '@/src/application/dtos/certification/Cert
 // =============================================================================
 export function AdminCertificationListPage() {
     const { accessToken } = useAuth()
+    const toast = useToast()
 
     const [certs, setCerts]           = useState<CertificationDTO[] | null>(null)
-    const [error, setError]           = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const [pendingDelete, setPendingDelete] = useState<CertificationDTO | null>(null)
 
     const refresh = useCallback(async () => {
         try {
             setCerts(await loadCertifications())
         } catch {
-            setError('Failed to load certifications.')
+            toast.show('Failed to load certifications.', 'error')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         void refresh()
     }, [refresh])
 
-    async function handleDelete(id: number, label: string) {
-        if (!accessToken) return
-        if (!window.confirm(`Delete "${label}"? This can't be undone.`)) return
-
-        setDeletingId(id)
+    async function confirmDelete() {
+        if (!accessToken || !pendingDelete) return
+        const target = pendingDelete
+        setPendingDelete(null)
+        setDeletingId(target.id)
         try {
-            await DeleteCertificationCommand.create().execute(id, accessToken)
-            setCerts((prev) => prev?.filter((c) => c.id !== id) ?? null)
+            await DeleteCertificationCommand.create().execute(target.id, accessToken)
+            setCerts((prev) => prev?.filter((c) => c.id !== target.id) ?? null)
+            toast.show(`Deleted "${target.name}".`, 'success')
         } catch {
-            setError('Failed to delete — try again.')
+            toast.show('Failed to delete — try again.', 'error')
         } finally {
             setDeletingId(null)
         }
@@ -49,48 +60,46 @@ export function AdminCertificationListPage() {
 
     return (
         <div className="max-w-3xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-mono text-lg text-(--text-primary)">
-                    <span className="text-(--text-muted)">_</span>certifications
-                </h1>
-                <Link href="/admin/certifications/new">
-                    <Button size="sm">+ new certification</Button>
-                </Link>
-            </div>
-
-            {error && <p className="font-mono text-xs text-red-500 mb-4">{error}</p>}
+            <AdminPageHeader
+                icon={<Award size={16} />}
+                title="certifications"
+                count={certs?.length ?? null}
+                action={
+                    <Link href="/admin/certifications/new">
+                        <Button size="sm" className="flex items-center gap-1.5"><Plus size={13} /> new certification</Button>
+                    </Link>
+                }
+            />
 
             {certs === null ? (
-                <p className="font-mono text-sm text-(--text-muted)">loading...</p>
+                <LoadingLine />
             ) : certs.length === 0 ? (
-                <p className="font-mono text-sm text-(--text-muted)">no published certifications yet.</p>
+                <EmptyState icon={<Award size={28} />} message="no published certifications yet." />
             ) : (
                 <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                     {certs.map((cert) => (
-                        <div key={cert.id} className="flex items-center justify-between px-4 py-3">
-                            <span className="font-mono text-sm text-(--text-primary) truncate">
-                                {cert.name}
-                            </span>
-                            <div className="flex items-center gap-3 shrink-0">
-                                <Link
-                                    href={`/admin/certifications/${cert.id}/edit`}
-                                    className="font-mono text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors"
-                                >
-                                    edit
-                                </Link>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    disabled={deletingId === cert.id}
-                                    onClick={() => { void handleDelete(cert.id, cert.name) }}
-                                >
-                                    {deletingId === cert.id ? '...' : 'delete'}
-                                </Button>
-                            </div>
-                        </div>
+                        <AdminListRow
+                            key={cert.id}
+                            title={cert.name}
+                            actions={
+                                <AdminRowActions
+                                    editHref={`/admin/certifications/${cert.id}/edit`}
+                                    onDelete={() => setPendingDelete(cert)}
+                                    deleting={deletingId === cert.id}
+                                />
+                            }
+                        />
                     ))}
                 </div>
             )}
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                title="Delete certification?"
+                message={pendingDelete ? `"${pendingDelete.name}" will be permanently removed. This can't be undone.` : ''}
+                onConfirm={() => { void confirmDelete() }}
+                onCancel={() => setPendingDelete(null)}
+            />
         </div>
     )
 }
