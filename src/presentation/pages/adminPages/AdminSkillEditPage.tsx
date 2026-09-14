@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminNotFound } from '../atoms/AdminNotFound'
+import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
+import { useEffect, useState } from 'react'
+import { AdminNotFound } from '../../atoms/AdminNotFound'
+import { LoadingLine } from '../../atoms/LoadingLine'
 import { AdminSkillFormPage } from './AdminSkillFormPage'
 
 // =============================================================================

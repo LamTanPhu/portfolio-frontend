@@ -1,5 +1,5 @@
 // app/admin/(protected)/education/[id]/edit/page.tsx
-import { AdminEducationEditPage } from '@/src/presentation/pages/AdminEducationEditPage'
+import { AdminEducationEditPage } from '@/src/presentation/pages/adminPages/AdminEducationEditPage'
 
 interface Params {
     id: string

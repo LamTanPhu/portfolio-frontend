@@ -1,20 +1,20 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { ScrollText, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { StatusBadge } from '../atoms/StatusBadge'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { AdminListRow } from '../molecules/AdminListRow'
-import { AdminRowActions } from '../molecules/AdminRowActions'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { GetAllBlogsQuery } from '@/src/application/use-cases/queries/blog/GetAllBlogsQuery'
-import { DeleteBlogCommand } from '@/src/application/use-cases/commands/blog/DeleteBlogCommand'
 import type { BlogSummaryDTO } from '@/src/application/dtos/blog/BlogSummaryDTO'
+import { DeleteBlogCommand } from '@/src/application/use-cases/commands/blog/DeleteBlogCommand'
+import { GetAllBlogsQuery } from '@/src/application/use-cases/queries/blog/GetAllBlogsQuery'
+import { Plus, ScrollText } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { StatusBadge } from '../../atoms/StatusBadge'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminListRow } from '../../molecules/AdminListRow'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { AdminRowActions } from '../../molecules/AdminRowActions'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminBlogListPage — Page
@@ -29,20 +29,22 @@ export function AdminBlogListPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<BlogSummaryDTO | null>(null)
 
-    const refresh = useCallback(async () => {
+    useEffect(() => {
         if (!accessToken) return
-        try {
-            const result = await GetAllBlogsQuery.create().execute(accessToken)
-            setPosts(result)
-        } catch {
-            toast.show('Failed to load posts.', 'error')
-        }
+        let ignore = false
+
+        void (async () => {
+            try {
+                const result = await GetAllBlogsQuery.create().execute(accessToken)
+                if (!ignore) setPosts(result)
+            } catch {
+                if (!ignore) toast.show('Failed to load posts.', 'error')
+            }
+        })()
+
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accessToken])
-
-    useEffect(() => {
-        void refresh()
-    }, [refresh])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return

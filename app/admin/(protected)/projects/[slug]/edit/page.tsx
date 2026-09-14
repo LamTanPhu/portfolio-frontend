@@ -2,9 +2,9 @@
 // Server Component — fetches via the existing public loadProjectBySlug.
 // Only reaches published projects (see AdminProjectFormPage's note on
 // VisibilityWarning) since GET /projects/:slug only ever resolves those.
-import { notFound } from 'next/navigation'
-import { AdminProjectFormPage } from '@/src/presentation/pages/AdminProjectFormPage'
 import { loadProjectBySlug } from '@/src/application/use-cases/queries/project/loadProjectBySlug'
+import { AdminProjectFormPage } from '@/src/presentation/pages/adminPages/AdminProjectFormPage'
+import { notFound } from 'next/navigation'
 
 interface Params {
     slug: string

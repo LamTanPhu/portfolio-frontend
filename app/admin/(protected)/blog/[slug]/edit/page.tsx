@@ -2,9 +2,9 @@
 // Server Component — fetches via the existing public loadBlogBySlug (the
 // backend's GET /blogs/:slug doesn't filter by isPublished, so this works
 // for drafts too), passes the result into the client form.
-import { notFound } from 'next/navigation'
-import { AdminBlogFormPage } from '@/src/presentation/pages/AdminBlogFormPage'
 import { loadBlogBySlug } from '@/src/application/use-cases/queries/blog/loadBlogBySlug'
+import { AdminBlogFormPage } from '@/src/presentation/pages/adminPages/AdminBlogFormPage'
+import { notFound } from 'next/navigation'
 
 interface Params {
     slug: string

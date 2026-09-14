@@ -1,5 +1,5 @@
 // app/admin/(protected)/certifications/[id]/edit/page.tsx
-import { AdminCertificationEditPage } from '@/src/presentation/pages/AdminCertificationEditPage'
+import { AdminCertificationEditPage } from '@/src/presentation/pages/adminPages/AdminCertificationEditPage'
 
 interface Params {
     id: string

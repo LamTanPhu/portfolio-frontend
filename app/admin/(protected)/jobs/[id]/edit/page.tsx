@@ -1,5 +1,5 @@
 // app/admin/(protected)/jobs/[id]/edit/page.tsx
-import { AdminJobEditPage } from '@/src/presentation/pages/AdminJobEditPage'
+import { AdminJobEditPage } from '@/src/presentation/pages/adminPages/AdminJobEditPage'
 
 interface Params {
     id: string

@@ -1,16 +1,16 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import { Inbox, Mail, Globe, ChevronDown, ChevronRight, Trash2, Loader2 } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { GetContactMessagesQuery } from '@/src/application/use-cases/queries/contact/GetContactMessagesQuery'
-import { DeleteContactMessageCommand } from '@/src/application/use-cases/commands/contact/DeleteContactMessageCommand'
 import type { ContactMessageDTO } from '@/src/application/dtos/ContactMessageDTO'
+import { DeleteContactMessageCommand } from '@/src/application/use-cases/commands/contact/DeleteContactMessageCommand'
+import { GetContactMessagesQuery } from '@/src/application/use-cases/queries/contact/GetContactMessagesQuery'
+import { ChevronDown, ChevronRight, Globe, Inbox, Loader2, Mail, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 const PAGE_SIZE = 20
 
@@ -24,41 +24,43 @@ export function AdminContactListPage() {
     const { accessToken } = useAuth()
     const toast = useToast()
 
-    const [messages, setMessages]     = useState<ContactMessageDTO[]>([])
+    // `messages === null` doubles as the initial-load flag — same pattern as
+    // the other list pages, one fewer state variable than a separate
+    // `loading` boolean.
+    const [messages, setMessages]     = useState<ContactMessageDTO[] | null>(null)
     const [total, setTotal]           = useState<number | null>(null)
     const [nextCursor, setNextCursor] = useState<number | null>(null)
-    const [loading, setLoading]       = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [expandedId, setExpandedId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<ContactMessageDTO | null>(null)
 
-    const loadFirstPage = useCallback(async () => {
+    useEffect(() => {
         if (!accessToken) return
-        setLoading(true)
-        try {
-            const page = await GetContactMessagesQuery.create().execute(accessToken, undefined, PAGE_SIZE)
-            setMessages(page.items)
-            setNextCursor(page.nextCursor)
-            setTotal(page.total)
-        } catch {
-            toast.show('Failed to load messages.', 'error')
-        } finally {
-            setLoading(false)
-        }
+        let ignore = false
+
+        void (async () => {
+            try {
+                const page = await GetContactMessagesQuery.create().execute(accessToken, undefined, PAGE_SIZE)
+                if (ignore) return
+                setMessages(page.items)
+                setNextCursor(page.nextCursor)
+                setTotal(page.total)
+            } catch {
+                if (!ignore) toast.show('Failed to load messages.', 'error')
+            }
+        })()
+
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accessToken])
-
-    useEffect(() => {
-        void loadFirstPage()
-    }, [loadFirstPage])
 
     async function loadMore() {
         if (!accessToken || nextCursor === null) return
         setLoadingMore(true)
         try {
             const page = await GetContactMessagesQuery.create().execute(accessToken, nextCursor, PAGE_SIZE)
-            setMessages((prev) => [...prev, ...page.items])
+            setMessages((prev) => [...(prev ?? []), ...page.items])
             setNextCursor(page.nextCursor)
         } catch {
             toast.show('Failed to load more messages.', 'error')
@@ -74,7 +76,7 @@ export function AdminContactListPage() {
         setDeletingId(target.id)
         try {
             await DeleteContactMessageCommand.create().execute(target.id, accessToken)
-            setMessages((prev) => prev.filter((m) => m.id !== target.id))
+            setMessages((prev) => prev?.filter((m) => m.id !== target.id) ?? null)
             setTotal((prev) => (prev !== null ? prev - 1 : prev))
             toast.show(`Deleted message from ${target.name}.`, 'success')
         } catch {
@@ -92,7 +94,7 @@ export function AdminContactListPage() {
                 count={total}
             />
 
-            {loading ? (
+            {messages === null ? (
                 <LoadingLine />
             ) : messages.length === 0 ? (
                 <EmptyState icon={<Inbox size={28} />} message="no messages yet." />

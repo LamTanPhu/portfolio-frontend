@@ -1,6 +1,6 @@
 // app/admin/login/page.tsx
+import { AdminLoginPage } from '@/src/presentation/pages/adminPages/AdminLoginPage'
 import type { Metadata } from 'next'
-import { AdminLoginPage } from '@/src/presentation/pages/AdminLoginPage'
 
 export const metadata: Metadata = {
     title:  'Admin Login',

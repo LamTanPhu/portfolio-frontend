@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
 import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminNotFound } from '../atoms/AdminNotFound'
+import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
+import { useEffect, useState } from 'react'
+import { AdminNotFound } from '../../atoms/AdminNotFound'
+import { LoadingLine } from '../../atoms/LoadingLine'
 import { AdminSocialFormPage } from './AdminSocialFormPage'
 
 interface Props {

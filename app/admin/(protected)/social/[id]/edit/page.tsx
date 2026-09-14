@@ -1,5 +1,5 @@
 // app/admin/(protected)/social/[id]/edit/page.tsx
-import { AdminSocialEditPage } from '@/src/presentation/pages/AdminSocialEditPage'
+import { AdminSocialEditPage } from '@/src/presentation/pages/adminPages/AdminSocialEditPage'
 
 interface Params {
     id: string

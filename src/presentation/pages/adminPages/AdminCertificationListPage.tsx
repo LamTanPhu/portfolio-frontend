@@ -1,19 +1,19 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { Award, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { AdminListRow } from '../molecules/AdminListRow'
-import { AdminRowActions } from '../molecules/AdminRowActions'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
-import { DeleteCertificationCommand } from '@/src/application/use-cases/commands/certification/DeleteCertificationCommand'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
+import { DeleteCertificationCommand } from '@/src/application/use-cases/commands/certification/DeleteCertificationCommand'
+import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
+import { Award, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminListRow } from '../../molecules/AdminListRow'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { AdminRowActions } from '../../molecules/AdminRowActions'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminCertificationListPage — Page
@@ -29,18 +29,19 @@ export function AdminCertificationListPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<CertificationDTO | null>(null)
 
-    const refresh = useCallback(async () => {
-        try {
-            setCerts(await loadCertifications())
-        } catch {
-            toast.show('Failed to load certifications.', 'error')
-        }
+    useEffect(() => {
+        let ignore = false
+        void (async () => {
+            try {
+                const result = await loadCertifications()
+                if (!ignore) setCerts(result)
+            } catch {
+                if (!ignore) toast.show('Failed to load certifications.', 'error')
+            }
+        })()
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        void refresh()
-    }, [refresh])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return

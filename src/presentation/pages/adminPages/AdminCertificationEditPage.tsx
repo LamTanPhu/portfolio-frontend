@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminNotFound } from '../atoms/AdminNotFound'
+import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
+import { useEffect, useState } from 'react'
+import { AdminNotFound } from '../../atoms/AdminNotFound'
+import { LoadingLine } from '../../atoms/LoadingLine'
 import { AdminCertificationFormPage } from './AdminCertificationFormPage'
 
 interface Props {

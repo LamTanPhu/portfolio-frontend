@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminNotFound } from '../atoms/AdminNotFound'
+import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
+import { useEffect, useState } from 'react'
+import { AdminNotFound } from '../../atoms/AdminNotFound'
+import { LoadingLine } from '../../atoms/LoadingLine'
 import { AdminJobFormPage } from './AdminJobFormPage'
 
 interface Props {

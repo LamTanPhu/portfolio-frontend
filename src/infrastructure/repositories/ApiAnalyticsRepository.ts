@@ -2,6 +2,7 @@ import type { IAnalyticsWriteRepository } from '../../domain/repositories/analyt
 import type { IAnalyticsReadRepository } from '../../domain/repositories/analytics/IAnalyticsReadRepository'
 import type { IApiClient } from '../../application/ports/IApiClient'
 import type { PageViewDTO } from '../../application/dtos/PageViewDTO'
+import type { ProjectViewDTO } from '../../application/dtos/ProjectViewDTO'
 
 // =============================================================================
 // ApiAnalyticsRepository
@@ -9,13 +10,14 @@ import type { PageViewDTO } from '../../application/dtos/PageViewDTO'
 // trackProjectView    — POST /analytics/project-view/:id
 // trackResumeDownload — POST /analytics/resume-download
 // getPageViews        — GET  /analytics/page-views          (admin only)
+// getProjectViews     — GET  /analytics/project-views/:id   (admin only)
 //
 // The three track* methods swallow errors — a tracking ping failing
 // (network blip, ad blocker, backend hiccup) must never surface to the
 // visitor or break the page. This mirrors the backend's own framing of
-// these as "fire-and-forget" endpoints. getPageViews is admin-only reading
-// of real data, so it does NOT swallow errors — a failed fetch there should
-// surface to the admin UI like any other admin query.
+// these as "fire-and-forget" endpoints. getPageViews/getProjectViews are
+// admin-only reads of real data, so they do NOT swallow errors — a failed
+// fetch there should surface to the admin UI like any other admin query.
 // =============================================================================
 export class ApiAnalyticsRepository implements IAnalyticsWriteRepository, IAnalyticsReadRepository {
     constructor(private readonly client: IApiClient) {}
@@ -46,5 +48,9 @@ export class ApiAnalyticsRepository implements IAnalyticsWriteRepository, IAnaly
 
     async getPageViews(accessToken: string): Promise<PageViewDTO[]> {
         return this.client.get<PageViewDTO[]>('/analytics/page-views', 0, { accessToken })
+    }
+
+    async getProjectViews(projectId: number, accessToken: string): Promise<ProjectViewDTO> {
+        return this.client.get<ProjectViewDTO>(`/analytics/project-views/${projectId}`, 0, { accessToken })
     }
 }

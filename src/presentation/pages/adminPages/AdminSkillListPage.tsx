@@ -1,20 +1,20 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { Tags, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { Badge } from '../atoms/Badge'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { AdminListRow } from '../molecules/AdminListRow'
-import { AdminRowActions } from '../molecules/AdminRowActions'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
-import { DeleteSkillCommand } from '@/src/application/use-cases/commands/skill/DeleteSkillCommand'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
+import { DeleteSkillCommand } from '@/src/application/use-cases/commands/skill/DeleteSkillCommand'
+import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
+import { Plus, Tags } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Badge } from '../../atoms/Badge'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminListRow } from '../../molecules/AdminListRow'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { AdminRowActions } from '../../molecules/AdminRowActions'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminSkillListPage — Page
@@ -30,19 +30,19 @@ export function AdminSkillListPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<SkillDTO | null>(null)
 
-    const refresh = useCallback(async () => {
-        try {
-            const result = await loadSkills()
-            setSkills(result)
-        } catch {
-            toast.show('Failed to load skills.', 'error')
-        }
+    useEffect(() => {
+        let ignore = false
+        void (async () => {
+            try {
+                const result = await loadSkills()
+                if (!ignore) setSkills(result)
+            } catch {
+                if (!ignore) toast.show('Failed to load skills.', 'error')
+            }
+        })()
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        void refresh()
-    }, [refresh])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return

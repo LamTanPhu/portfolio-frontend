@@ -1,19 +1,19 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { Briefcase, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { AdminListRow } from '../molecules/AdminListRow'
-import { AdminRowActions } from '../molecules/AdminRowActions'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
-import { DeleteJobCommand } from '@/src/application/use-cases/commands/job/DeleteJobCommand'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
+import { DeleteJobCommand } from '@/src/application/use-cases/commands/job/DeleteJobCommand'
+import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
+import { Briefcase, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminListRow } from '../../molecules/AdminListRow'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { AdminRowActions } from '../../molecules/AdminRowActions'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminJobListPage — Page
@@ -28,18 +28,19 @@ export function AdminJobListPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<JobDTO | null>(null)
 
-    const refresh = useCallback(async () => {
-        try {
-            setJobs(await loadJobs())
-        } catch {
-            toast.show('Failed to load jobs.', 'error')
-        }
+    useEffect(() => {
+        let ignore = false
+        void (async () => {
+            try {
+                const result = await loadJobs()
+                if (!ignore) setJobs(result)
+            } catch {
+                if (!ignore) toast.show('Failed to load jobs.', 'error')
+            }
+        })()
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        void refresh()
-    }, [refresh])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return

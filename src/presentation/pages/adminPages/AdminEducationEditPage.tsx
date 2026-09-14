@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { loadEducation } from '@/src/application/use-cases/queries/education/loadEducation'
 import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminNotFound } from '../atoms/AdminNotFound'
+import { loadEducation } from '@/src/application/use-cases/queries/education/loadEducation'
+import { useEffect, useState } from 'react'
+import { AdminNotFound } from '../../atoms/AdminNotFound'
+import { LoadingLine } from '../../atoms/LoadingLine'
 import { AdminEducationFormPage } from './AdminEducationFormPage'
 
 interface Props {

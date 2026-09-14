@@ -1,19 +1,19 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { Share2, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
-import { Button } from '../atoms/Button'
-import { EmptyState } from '../atoms/EmptyState'
-import { LoadingLine } from '../atoms/LoadingLine'
-import { AdminPageHeader } from '../molecules/AdminPageHeader'
-import { AdminListRow } from '../molecules/AdminListRow'
-import { AdminRowActions } from '../molecules/AdminRowActions'
-import { ConfirmDialog } from '../molecules/ConfirmDialog'
-import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
-import { DeleteSocialAccountCommand } from '@/src/application/use-cases/commands/social/DeleteSocialAccountCommand'
 import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
+import { DeleteSocialAccountCommand } from '@/src/application/use-cases/commands/social/DeleteSocialAccountCommand'
+import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
+import { Plus, Share2 } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Button } from '../../atoms/Button'
+import { EmptyState } from '../../atoms/EmptyState'
+import { LoadingLine } from '../../atoms/LoadingLine'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { AdminListRow } from '../../molecules/AdminListRow'
+import { AdminPageHeader } from '../../molecules/AdminPageHeader'
+import { AdminRowActions } from '../../molecules/AdminRowActions'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminSocialListPage — Page
@@ -28,18 +28,19 @@ export function AdminSocialListPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [pendingDelete, setPendingDelete] = useState<SocialAccountDTO | null>(null)
 
-    const refresh = useCallback(async () => {
-        try {
-            setAccounts(await loadSocialAccounts())
-        } catch {
-            toast.show('Failed to load social accounts.', 'error')
-        }
+    useEffect(() => {
+        let ignore = false
+        void (async () => {
+            try {
+                const result = await loadSocialAccounts()
+                if (!ignore) setAccounts(result)
+            } catch {
+                if (!ignore) toast.show('Failed to load social accounts.', 'error')
+            }
+        })()
+        return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        void refresh()
-    }, [refresh])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return
