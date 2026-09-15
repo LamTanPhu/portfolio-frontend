@@ -1,7 +1,7 @@
 'use client'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
 import { DeleteSkillCommand } from '@/src/application/use-cases/commands/skill/DeleteSkillCommand'
-import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
+import { GetPublishedSkillsQuery } from '@/src/application/use-cases/queries/skill/GetPublishedSkillsQuery'
 import { Plus, Tags } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -34,7 +34,7 @@ export function AdminSkillListPage() {
         let ignore = false
         void (async () => {
             try {
-                const result = await loadSkills()
+                const result = await GetPublishedSkillsQuery.createForAdmin().execute()
                 if (!ignore) setSkills(result)
             } catch {
                 if (!ignore) toast.show('Failed to load skills.', 'error')

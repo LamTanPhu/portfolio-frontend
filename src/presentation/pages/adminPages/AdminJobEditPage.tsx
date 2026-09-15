@@ -1,6 +1,6 @@
 'use client'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
-import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
+import { GetJobsQuery } from '@/src/application/use-cases/queries/job/GetJobsQuery'
 import { useEffect, useState } from 'react'
 import { AdminNotFound } from '../../atoms/AdminNotFound'
 import { LoadingLine } from '../../atoms/LoadingLine'
@@ -16,7 +16,7 @@ export function AdminJobEditPage({ id }: Props) {
 
     useEffect(() => {
         let cancelled = false
-        loadJobs()
+        GetJobsQuery.createForAdmin().execute()
             .then((jobs) => {
                 if (cancelled) return
                 setJob(jobs.find((j) => j.id === id) ?? null)

@@ -1,7 +1,7 @@
 'use client'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
 import { DeleteCertificationCommand } from '@/src/application/use-cases/commands/certification/DeleteCertificationCommand'
-import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
+import { GetCertificationsQuery } from '@/src/application/use-cases/queries/certification/GetCertificationsQuery'
 import { Award, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -33,7 +33,7 @@ export function AdminCertificationListPage() {
         let ignore = false
         void (async () => {
             try {
-                const result = await loadCertifications()
+                const result = await GetCertificationsQuery.createForAdmin().execute()
                 if (!ignore) setCerts(result)
             } catch {
                 if (!ignore) toast.show('Failed to load certifications.', 'error')

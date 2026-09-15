@@ -1,7 +1,7 @@
 'use client'
 import type { JobDTO } from '@/src/application/dtos/job/JobDTO'
 import { DeleteJobCommand } from '@/src/application/use-cases/commands/job/DeleteJobCommand'
-import { loadJobs } from '@/src/application/use-cases/queries/job/loadJobs'
+import { GetJobsQuery } from '@/src/application/use-cases/queries/job/GetJobsQuery'
 import { Briefcase, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -32,7 +32,7 @@ export function AdminJobListPage() {
         let ignore = false
         void (async () => {
             try {
-                const result = await loadJobs()
+                const result = await GetJobsQuery.createForAdmin().execute()
                 if (!ignore) setJobs(result)
             } catch {
                 if (!ignore) toast.show('Failed to load jobs.', 'error')

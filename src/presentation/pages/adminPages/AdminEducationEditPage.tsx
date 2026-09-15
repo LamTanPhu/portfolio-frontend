@@ -1,6 +1,6 @@
 'use client'
 import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
-import { loadEducation } from '@/src/application/use-cases/queries/education/loadEducation'
+import { GetEducationQuery } from '@/src/application/use-cases/queries/education/GetEducationQuery'
 import { useEffect, useState } from 'react'
 import { AdminNotFound } from '../../atoms/AdminNotFound'
 import { LoadingLine } from '../../atoms/LoadingLine'
@@ -16,7 +16,7 @@ export function AdminEducationEditPage({ id }: Props) {
 
     useEffect(() => {
         let cancelled = false
-        loadEducation()
+        GetEducationQuery.createForAdmin().execute()
             .then((records) => {
                 if (cancelled) return
                 setRecord(records.find((r) => r.id === id) ?? null)

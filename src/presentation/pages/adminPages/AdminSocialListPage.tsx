@@ -1,7 +1,7 @@
 'use client'
 import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
 import { DeleteSocialAccountCommand } from '@/src/application/use-cases/commands/social/DeleteSocialAccountCommand'
-import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
+import { GetPublishedSocialAccountsQuery } from '@/src/application/use-cases/queries/social/GetPublishedSocialAccountsQuery'
 import { Plus, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -32,7 +32,7 @@ export function AdminSocialListPage() {
         let ignore = false
         void (async () => {
             try {
-                const result = await loadSocialAccounts()
+                const result = await GetPublishedSocialAccountsQuery.createForAdmin().execute()
                 if (!ignore) setAccounts(result)
             } catch {
                 if (!ignore) toast.show('Failed to load social accounts.', 'error')

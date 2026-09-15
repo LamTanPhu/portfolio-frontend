@@ -11,8 +11,8 @@ import { VSCodeLayout } from '../templates/VSCodeLayout';
 //
 // `socialAccounts` is fetched server-side in app/page.tsx (via
 // loadSocialAccounts()) and mapped into StatusBar's footer links. Spotify
-// now-playing needs no wiring here — NowPlaying already polls the backend
-// directly and renders in every page's StatusBar.
+// now-playing needs no wiring here — NowPlaying polls on its own via
+// useNowPlaying/GetNowPlayingQuery and renders in every page's StatusBar.
 // =============================================================================
 
 function toSocialLink(account: SocialAccountDTO): SocialLink {

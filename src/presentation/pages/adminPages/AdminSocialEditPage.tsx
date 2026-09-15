@@ -1,6 +1,6 @@
 'use client'
 import type { SocialAccountDTO } from '@/src/application/dtos/socialAccount/SocialAccountDTO'
-import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
+import { GetPublishedSocialAccountsQuery } from '@/src/application/use-cases/queries/social/GetPublishedSocialAccountsQuery'
 import { useEffect, useState } from 'react'
 import { AdminNotFound } from '../../atoms/AdminNotFound'
 import { LoadingLine } from '../../atoms/LoadingLine'
@@ -16,7 +16,7 @@ export function AdminSocialEditPage({ id }: Props) {
 
     useEffect(() => {
         let cancelled = false
-        loadSocialAccounts()
+        GetPublishedSocialAccountsQuery.createForAdmin().execute()
             .then((accounts) => {
                 if (cancelled) return
                 setAccount(accounts.find((a) => a.id === id) ?? null)

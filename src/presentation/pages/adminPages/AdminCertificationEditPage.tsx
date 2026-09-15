@@ -1,6 +1,6 @@
 'use client'
 import type { CertificationDTO } from '@/src/application/dtos/certification/CertificationDTO'
-import { loadCertifications } from '@/src/application/use-cases/queries/certification/loadCertification'
+import { GetCertificationsQuery } from '@/src/application/use-cases/queries/certification/GetCertificationsQuery'
 import { useEffect, useState } from 'react'
 import { AdminNotFound } from '../../atoms/AdminNotFound'
 import { LoadingLine } from '../../atoms/LoadingLine'
@@ -16,7 +16,7 @@ export function AdminCertificationEditPage({ id }: Props) {
 
     useEffect(() => {
         let cancelled = false
-        loadCertifications()
+        GetCertificationsQuery.createForAdmin().execute()
             .then((certs) => {
                 if (cancelled) return
                 setCert(certs.find((c) => c.id === id) ?? null)

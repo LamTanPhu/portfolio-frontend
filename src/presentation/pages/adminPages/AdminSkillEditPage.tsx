@@ -1,6 +1,6 @@
 'use client'
 import type { SkillDTO } from '@/src/application/dtos/skill/SkillDTO'
-import { loadSkills } from '@/src/application/use-cases/queries/skill/loadSkills'
+import { GetPublishedSkillsQuery } from '@/src/application/use-cases/queries/skill/GetPublishedSkillsQuery'
 import { useEffect, useState } from 'react'
 import { AdminNotFound } from '../../atoms/AdminNotFound'
 import { LoadingLine } from '../../atoms/LoadingLine'
@@ -23,7 +23,7 @@ export function AdminSkillEditPage({ id }: Props) {
 
     useEffect(() => {
         let cancelled = false
-        loadSkills()
+        GetPublishedSkillsQuery.createForAdmin().execute()
             .then((skills) => {
                 if (cancelled) return
                 setSkill(skills.find((s) => s.id === id) ?? null)

@@ -1,7 +1,7 @@
 'use client'
 import type { EducationDTO } from '@/src/application/dtos/education/EducationDTO'
 import { DeleteEducationCommand } from '@/src/application/use-cases/commands/education/DeleteEducationCommand'
-import { loadEducation } from '@/src/application/use-cases/queries/education/loadEducation'
+import { GetEducationQuery } from '@/src/application/use-cases/queries/education/GetEducationQuery'
 import { GraduationCap, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -33,7 +33,7 @@ export function AdminEducationListPage() {
         let ignore = false
         void (async () => {
             try {
-                const result = await loadEducation()
+                const result = await GetEducationQuery.createForAdmin().execute()
                 if (!ignore) setRecords(result)
             } catch {
                 if (!ignore) toast.show('Failed to load education records.', 'error')
