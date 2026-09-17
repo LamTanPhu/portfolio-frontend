@@ -1,10 +1,18 @@
 'use client'
-import { useState }       from 'react'
+/* eslint-disable react-hooks/set-state-in-effect -- same rule quirk
+   AdminAnalyticsPage documents: setting a loading flag synchronously before
+   an async fetch kicked off by a dependency change (here, the debounced
+   search query) is the standard pattern, not the "manually syncing state"
+   case this rule is meant to catch. */
+import { useEffect, useState } from 'react'
 import { VSCodeLayout }   from '../templates/VSCodeLayout'
 import { BlogCard }       from '../molecules/BlogCard'
 import { BlogPreview }    from '../molecules/BlogPreview'
 import { ActiveFilterTab } from '../molecules/ActiveFilterTab'
 import { BlogSidebar } from '../organisms/BlogSidebar'
+import { SearchInput } from '../atoms/SearchInput'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { SearchBlogsQuery } from '@/src/application/use-cases/queries/blog/SearchBlogsQuery'
 import type { BlogSummaryDTO } from '@/src/application/dtos/blog/BlogSummaryDTO'
 
 // =============================================================================
@@ -71,6 +79,47 @@ export function BlogPage({ posts }: Props) {
     const [selectedTags,    setSelectedTags]    = useState<string[]>([])
     const [selectedPost,    setSelectedPost]    = useState<Post | null>(null)
 
+    // Backend full-text search (GET /blogs/search) — separate from the tag
+    // filter below, which only ever filters the already-fetched `allPosts`.
+    // Debounced so we're not firing a request per keystroke (the endpoint is
+    // also throttled server-side at 60 req/min).
+    const [searchQuery, setSearchQuery]   = useState('')
+    const debouncedQuery                  = useDebouncedValue(searchQuery, 300)
+    const isSearching                     = debouncedQuery.trim().length > 0
+    const [searchResults, setSearchResults] = useState<Post[]>([])
+    const [searchLoading, setSearchLoading] = useState(false)
+    const [searchError,   setSearchError]   = useState<string | null>(null)
+
+    useEffect(() => {
+        const trimmed = debouncedQuery.trim()
+        if (trimmed.length === 0) {
+            // Nothing to do — sourcePosts below only reads searchResults/
+            // searchError while isSearching is true, so stale values here
+            // are simply never rendered until the next real search.
+            return
+        }
+
+        let cancelled = false
+        setSearchLoading(true)
+        setSearchError(null)
+
+        SearchBlogsQuery.create().execute(trimmed)
+            .then((dtos) => {
+                if (cancelled) return
+                setSearchResults(dtos.map(toPost))
+            })
+            .catch(() => {
+                if (cancelled) return
+                setSearchError('Search failed — check the backend is reachable.')
+                setSearchResults([])
+            })
+            .finally(() => {
+                if (!cancelled) setSearchLoading(false)
+            })
+
+        return () => { cancelled = true }
+    }, [debouncedQuery])
+
     function handleTagToggle(tag: string) {
         // strip leading # if present
         const clean = tag.startsWith('#') ? tag.slice(1) : tag
@@ -83,10 +132,15 @@ export function BlogPage({ posts }: Props) {
         setSelectedTags([])
     }
 
+    // While searching, the source list is the backend's search results
+    // (already ranked/matched server-side); otherwise it's every post.
+    // Tag selection still narrows either one client-side.
+    const sourcePosts = isSearching ? searchResults : allPosts
+
     // Union filter — posts matching ANY selected tag
     const filtered = selectedTags.length === 0
-        ? allPosts
-        : allPosts.filter((p) =>
+        ? sourcePosts
+        : sourcePosts.filter((p) =>
             p.tags.some((t) => selectedTags.includes(t))
         )
 
@@ -105,6 +159,11 @@ export function BlogPage({ posts }: Props) {
             {/* Post list */}
             <div className="flex flex-col w-72 shrink-0 border-r border-(--border-muted) overflow-hidden">
 
+            {/* Search box */}
+            <div className="px-3 py-2.5 border-b border-(--border-muted) shrink-0">
+                <SearchInput value={searchQuery} onChange={setSearchQuery} />
+            </div>
+
             {/* Active filter tab */}
             <ActiveFilterTab
                 selected={selectedTags.map((t) => `#${t}`)}
@@ -114,18 +173,26 @@ export function BlogPage({ posts }: Props) {
             {/* Post count */}
             <div className="px-4 py-2 border-b border-(--border-subtle) shrink-0">
                 <span className="font-mono text-[11px] text-(--text-muted)">
-                {`// ${filtered.length} post${filtered.length !== 1 ? 's' : ''}`}
+                {isSearching && searchLoading
+                    ? '// searching...'
+                    : `// ${filtered.length} post${filtered.length !== 1 ? 's' : ''}`}
                 </span>
             </div>
 
             {/* Post cards */}
             <div className="flex flex-col overflow-y-auto flex-1">
-                {filtered.length === 0 ? (
+                {isSearching && searchError ? (
+                <div className="flex items-center justify-center flex-1 p-4">
+                    <p className="font-mono text-xs text-red-500 text-center">{searchError}</p>
+                </div>
+                ) : filtered.length === 0 && !(isSearching && searchLoading) ? (
                 <div className="flex items-center justify-center flex-1 p-4">
                     <p className="font-mono text-xs text-(--text-muted) text-center">
-                    {allPosts.length === 0
-                        ? '// no posts published yet'
-                        : <>{'// no posts match'}<br />selected tags</>}
+                    {isSearching
+                        ? <>{'// no results for'}<br />&quot;{debouncedQuery.trim()}&quot;</>
+                        : allPosts.length === 0
+                            ? '// no posts published yet'
+                            : <>{'// no posts match'}<br />selected tags</>}
                     </p>
                 </div>
                 ) : (

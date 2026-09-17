@@ -37,4 +37,12 @@ export class ApiBlogRepository implements IBlogReadRepository {
     const dtos = await this.client.get<BlogSummaryDTO[]>('/blogs/admin', 0, { accessToken })
     return dtos.map(BlogMapper.toDomainSummary)
   }
+
+  // revalidate: 0 — every distinct query is effectively its own cache entry
+  // on the client too (Next's fetch cache), so there's little to gain from
+  // ISR here and it keeps results from going stale mid-search.
+  async search(query: string): Promise<BlogSummary[]> {
+    const dtos = await this.client.get<BlogSummaryDTO[]>(`/blogs/search?q=${encodeURIComponent(query)}`, 0)
+    return dtos.map(BlogMapper.toDomainSummary)
+  }
 }

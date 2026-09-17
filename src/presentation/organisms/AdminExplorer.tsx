@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
     LayoutGrid, ScrollText, FolderCode, Tags, GraduationCap,
     Briefcase, Award, Share2, Inbox, BarChart3, ShieldAlert,
-    ChevronRight, ChevronDown, Folder, FolderOpen,
+    UserCog, ChevronRight, ChevronDown, Folder, FolderOpen,
 } from 'lucide-react'
 
 // =============================================================================
@@ -40,6 +40,7 @@ const BOTTOM_FILES: FileItem[] = [
     { href: '/admin/contact',   label: 'inbox.ts',     icon: <Inbox size={14} /> },
     { href: '/admin/analytics', label: 'analytics.ts', icon: <BarChart3 size={14} /> },
     { href: '/admin/audit',     label: 'audit.log',    icon: <ShieldAlert size={14} /> },
+    { href: '/admin/profile',   label: 'profile.ts',   icon: <UserCog size={14} /> },
 ]
 
 function isActive(pathname: string, href: string): boolean {
