@@ -131,10 +131,10 @@ export function ContactPage({ socialAccounts }: Props) {
 
     return (
         <VSCodeLayout activeTab="contact" sidebarItems={sidebarItems}>
-        <div className="flex h-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:h-full lg:overflow-hidden">
 
             {/* ── Left — form panel ────────────────────────────── */}
-            <section className="flex-1 flex items-center justify-center p-10 overflow-y-auto">
+            <section className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10 lg:overflow-y-auto">
             {submitted ? (
                 <ContactSuccess onReset={handleReset} />
             ) : (
@@ -159,7 +159,7 @@ export function ContactPage({ socialAccounts }: Props) {
             </section>
 
             {/* ── Right — live code preview ─────────────────────── */}
-            <section className="w-[45%] shrink-0 overflow-hidden">
+            <section className="w-full lg:w-[45%] shrink-0 lg:overflow-hidden">
             <LiveCodePreview
                 name={submitted ? '' : name}
                 email={submitted ? '' : email}

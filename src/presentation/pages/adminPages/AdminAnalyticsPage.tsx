@@ -86,7 +86,7 @@ export function AdminAnalyticsPage() {
         projectViews && projectViews.length > 0 ? Math.max(...projectViews.map((p) => p.totalViews)) : 0
 
     return (
-        <div className="max-w-3xl mx-auto p-8 flex flex-col gap-10">
+        <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-10">
             <div>
                 <AdminPageHeader icon={<BarChart3 size={16} />} title="page-views" count={views?.length ?? null} />
 
@@ -110,7 +110,7 @@ export function AdminAnalyticsPage() {
                                     style={{ width: `${maxCount > 0 ? (view.count / maxCount) * 100 : 0}%` }}
                                     aria-hidden
                                 />
-                                <span className="relative font-mono text-sm text-(--text-primary) truncate">{view.route}</span>
+                                <span className="relative min-w-0 flex-1 font-mono text-sm text-(--text-primary) truncate">{view.route}</span>
                                 <div className="relative flex items-center gap-8 shrink-0">
                                     <span className="font-mono text-sm text-(--accent-teal) tabular-nums">{view.count}</span>
                                     <span className="font-mono text-[11px] text-(--text-muted) w-24 text-right">
@@ -155,7 +155,7 @@ export function AdminAnalyticsPage() {
                                     }}
                                     aria-hidden
                                 />
-                                <span className="relative font-mono text-sm text-(--text-primary) truncate">
+                                <span className="relative min-w-0 flex-1 font-mono text-sm text-(--text-primary) truncate">
                                     {project.name}
                                 </span>
                                 <div className="relative flex items-center gap-8 shrink-0">

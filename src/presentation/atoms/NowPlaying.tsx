@@ -12,7 +12,7 @@ export function NowPlaying() {
 
   if (!track?.isPlaying) {
     return (
-      <span className="font-mono text-[11px] text-(--text-muted)">
+      <span className="font-mono text-[11px] text-(--text-muted) truncate">
         ♪ Not playing
       </span>
     )
@@ -24,7 +24,7 @@ export function NowPlaying() {
       target="_blank"
       rel="noopener noreferrer"
       title={`${track.title} — ${track.artist}`}
-      className="font-mono text-[11px] text-(--text-muted) hover:text-(--text-primary) transition-colors duration-150"
+      className="font-mono text-[11px] text-(--text-muted) hover:text-(--text-primary) transition-colors duration-150 truncate"
     >
       ♪ {track.title} — {track.artist}
     </a>

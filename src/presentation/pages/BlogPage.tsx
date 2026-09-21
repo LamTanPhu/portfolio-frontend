@@ -4,7 +4,7 @@
    an async fetch kicked off by a dependency change (here, the debounced
    search query) is the standard pattern, not the "manually syncing state"
    case this rule is meant to catch. */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { VSCodeLayout }   from '../templates/VSCodeLayout'
 import { BlogCard }       from '../molecules/BlogCard'
 import { BlogPreview }    from '../molecules/BlogPreview'
@@ -149,15 +149,25 @@ export function BlogPage({ posts }: Props) {
         ? selectedPost
         : null
 
+    // Below lg, list and preview stack vertically instead of sitting
+    // side by side, so picking a post from a long list wouldn't otherwise
+    // visibly do anything until the user scrolls down manually.
+    const previewRef = useRef<HTMLElement>(null)
+    useEffect(() => {
+        if (!visiblePost) return
+        if (window.matchMedia('(min-width: 1024px)').matches) return
+        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, [visiblePost])
+
     return (
         <VSCodeLayout activeTab="blog" showSidebar={false}>
-        <div className="flex h-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:h-full lg:overflow-hidden">
 
             {/* Tag filter sidebar */}
             <BlogSidebar tags={allTags} selected={selectedTags} onChange={handleTagToggle} />
 
             {/* Post list */}
-            <div className="flex flex-col w-72 shrink-0 border-r border-(--border-muted) overflow-hidden">
+            <div className="flex flex-col w-full lg:w-72 shrink-0 border-b lg:border-b-0 lg:border-r border-(--border-muted) lg:overflow-hidden">
 
             {/* Search box */}
             <div className="px-3 py-2.5 border-b border-(--border-muted) shrink-0">
@@ -180,7 +190,7 @@ export function BlogPage({ posts }: Props) {
             </div>
 
             {/* Post cards */}
-            <div className="flex flex-col overflow-y-auto flex-1">
+            <div className="flex flex-col lg:overflow-y-auto flex-1">
                 {isSearching && searchError ? (
                 <div className="flex items-center justify-center flex-1 p-4">
                     <p className="font-mono text-xs text-red-500 text-center">{searchError}</p>
@@ -213,7 +223,7 @@ export function BlogPage({ posts }: Props) {
             </div>
 
             {/* Preview panel */}
-            <section className="flex-1 overflow-hidden bg-[rgba(1,13,24,0.3)] glow-bg">
+            <section ref={previewRef} className="w-full lg:flex-1 lg:overflow-hidden bg-[rgba(1,13,24,0.3)] glow-bg">
             <BlogPreview post={visiblePost} />
             </section>
 

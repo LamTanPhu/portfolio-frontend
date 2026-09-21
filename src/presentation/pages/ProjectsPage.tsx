@@ -42,21 +42,21 @@ export function ProjectsPage({ projects }: Props) {
 
     return (
         <VSCodeLayout activeTab="projects" showSidebar={false}>
-            <div className="flex h-full overflow-hidden">
+            <div className="flex flex-col lg:flex-row lg:h-full lg:overflow-hidden">
 
                 {/* Sidebar */}
                 <ProjectsSidebar selected={selected} onChange={handleToggle} />
 
                 {/* Main content */}
-                <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex flex-col flex-1 lg:overflow-hidden">
 
                 {/* Active filter tab */}
                 <ActiveFilterTab selected={selected} onClear={handleClear} />
 
                 {/* Project grid */}
-                <div className="flex-1 overflow-y-auto p-6 glow-bg">
+                <div className="flex-1 lg:overflow-y-auto p-4 sm:p-6 glow-bg">
                     {filtered.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center justify-center h-40 lg:h-full">
                         <p className="font-mono text-sm text-(--text-muted)">
                         {projects.length === 0
                             ? '// no projects published yet'

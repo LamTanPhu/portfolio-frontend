@@ -10,7 +10,7 @@ interface Props {
 
 export function ContactSuccess({ onReset }: Props) {
     return (
-        <div className="flex flex-col items-center justify-center gap-4 h-full text-center px-8">
+        <div className="flex flex-col items-center justify-center gap-4 lg:h-full text-center px-4 sm:px-8">
             <h2 className="font-mono text-2xl text-(--text-primary)">
                 Thank you! 🤘
             </h2>

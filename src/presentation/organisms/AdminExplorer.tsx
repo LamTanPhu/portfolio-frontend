@@ -73,7 +73,7 @@ export function AdminExplorer() {
     const aboutHasActive = ABOUT_CONTENT_FILES.some((f) => isActive(pathname, f.href))
 
     return (
-        <aside className="w-60 shrink-0 flex flex-col border-r border-(--border-muted) bg-(--bg-sidebar) overflow-y-auto">
+        <aside className="w-full lg:w-60 shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-(--border-muted) bg-(--bg-sidebar) max-h-64 lg:max-h-none overflow-y-auto">
             <header className="px-4 py-2 border-b border-(--border-muted) shrink-0">
                 <span className="font-mono text-[11px] text-(--text-muted) uppercase tracking-widest">
                     Explorer

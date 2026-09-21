@@ -30,7 +30,7 @@ export function HomePage({ socialAccounts }: Props) {
 
   return (
     <VSCodeLayout activeTab="hello" showSidebar={false} socials={socials}>
-      <div className="flex items-center justify-center h-full px-8 md:px-16 lg:px-24">
+      <div className="flex items-center justify-center lg:h-full px-4 sm:px-8 md:px-16 lg:px-24 py-10 lg:py-0">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 w-full max-w-6xl">
 
           {/* ── Left — identity block ─────────────────────────── */}
@@ -64,7 +64,7 @@ export function HomePage({ socialAccounts }: Props) {
               </header>
 
               {/* code body */}
-              <div className="p-5 font-mono text-sm leading-relaxed">
+              <div className="p-5 font-mono text-sm leading-relaxed overflow-x-auto">
                 <CodeLine><Kw>const </Kw><Co>developer</Co><Pl> = {'{'}</Pl></CodeLine>
                 <CodeLine indent={1}><Pr>name</Pr><Pl>:      </Pl><St>&quot;Lam Tan Phu&quot;</St><Pl>,</Pl></CodeLine>
                 <CodeLine indent={1}><Pr>role</Pr><Pl>:      </Pl><St>&quot;Full-stack Developer&quot;</St><Pl>,</Pl></CodeLine>
@@ -100,7 +100,7 @@ export function HomePage({ socialAccounts }: Props) {
           </section>
 
           {/* ── Right — Snake game ────────────────────────────── */}
-          <div className="shrink-0">
+          <div className="w-full max-w-[336px] sm:max-w-none sm:w-auto sm:shrink-0">
             <SnakeGame />
           </div>
 

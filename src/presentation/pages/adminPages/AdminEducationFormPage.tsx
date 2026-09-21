@@ -68,7 +68,7 @@ export function AdminEducationFormPage(props: Props) {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-8">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader
                 icon={<GraduationCap size={16} />}
                 title={props.mode === 'create' ? 'new-education' : 'edit-education'}
@@ -78,7 +78,7 @@ export function AdminEducationFormPage(props: Props) {
                 <FormField label="degreeName" value={degreeName} onChange={setDegreeName} placeholder="Bachelor of Software Engineering" />
                 <FormField label="instituteName" value={instituteName} onChange={setInstituteName} placeholder="FPT University" />
                 <FormField label="instituteUrl" value={instituteUrl} onChange={setInstituteUrl} placeholder="https://... (optional)" />
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <FormField label="startedAt" type="date" value={startedAt} onChange={setStartedAt} />
                     <FormField label="endedAt" type="date" value={endedAt} onChange={setEndedAt} placeholder="leave blank if ongoing" />
                 </div>

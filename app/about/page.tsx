@@ -11,6 +11,17 @@ export const metadata: Metadata = {
     title:       'About',
     description: 'Background, skills, education, and work experience of Lam Tan Phu — Software Engineer.',
     alternates:  { canonical: `${SITE_URL}/about` },
+    openGraph: {
+        title:       'About — Lam Tan Phu',
+        description: 'Background, skills, education, and work experience of Lam Tan Phu — Software Engineer.',
+        url:         `${SITE_URL}/about`,
+        type:        'website',
+    },
+    twitter: {
+        card:        'summary',
+        title:       'About — Lam Tan Phu',
+        description: 'Background, skills, education, and work experience of Lam Tan Phu — Software Engineer.',
+    },
 }
 
 export default async function Page() {

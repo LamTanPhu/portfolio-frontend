@@ -8,6 +8,17 @@ export const metadata: Metadata = {
     title:       'Blog',
     description: 'Technical articles and notes from Lam Tan Phu on software engineering, architecture, and development.',
     alternates:  { canonical: `${SITE_URL}/blog` },
+    openGraph: {
+        title:       'Blog — Lam Tan Phu',
+        description: 'Technical articles and notes from Lam Tan Phu on software engineering, architecture, and development.',
+        url:         `${SITE_URL}/blog`,
+        type:        'website',
+    },
+    twitter: {
+        card:        'summary',
+        title:       'Blog — Lam Tan Phu',
+        description: 'Technical articles and notes from Lam Tan Phu on software engineering, architecture, and development.',
+    },
 }
 
 export default async function Page() {

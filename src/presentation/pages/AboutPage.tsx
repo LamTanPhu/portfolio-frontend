@@ -83,7 +83,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
 
   return (
     <VSCodeLayout activeTab="about" showSidebar={false}>
-      <div className="flex h-full overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:h-full lg:overflow-hidden">
 
         {/* Activity bar — leftmost icon strip */}
         <ActivityBar active={activePanel} onChange={setActivePanel} />
@@ -98,7 +98,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
         />
 
         {/* ── Editor panel ─────────────────────────────────── */}
-        <section className="w-[45%] flex flex-col border-r border-(--border-muted) overflow-hidden bg-[rgba(1,13,24,0.4)]">
+        <section className="w-full lg:w-[45%] flex flex-col border-b lg:border-b-0 lg:border-r border-(--border-muted) lg:overflow-hidden bg-[rgba(1,13,24,0.4)]">
 
           {/* Editor tab */}
           <header className="flex items-center justify-between shrink-0 border-b border-(--border-muted) bg-(--bg-tab-bar)">
@@ -112,7 +112,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
           </header>
 
           {/* Code + line numbers */}
-          <div className="flex overflow-y-auto flex-1">
+          <div className="flex lg:overflow-y-auto flex-1">
             <div className="flex flex-col pt-6 pb-6 px-4 shrink-0 select-none border-r border-(--border-subtle) bg-[rgba(1,13,24,0.3)]">
               {BIO_LINES.map((_, i) => (
                 <span key={i} className="font-mono text-sm text-(--text-muted) leading-7 text-right min-w-6">
@@ -120,7 +120,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
                 </span>
               ))}
             </div>
-            <div className="flex flex-col pt-6 pb-6 px-8 overflow-x-auto">
+            <div className="flex flex-col pt-6 pb-6 px-4 sm:px-8 overflow-x-auto">
               {BIO_LINES.map((line, i) => (
                 <span key={i} className="font-mono text-sm text-(--text-comment) leading-7 whitespace-pre">
                   {line}
@@ -132,7 +132,7 @@ export function AboutPage({ skills, education, jobs, certifications }: Props) {
         </section>
 
         {/* ── Snippet showcase ─────────────────────────────── */}
-        <section className="flex-1 flex flex-col gap-5 p-6 overflow-y-auto">
+        <section className="flex-1 flex flex-col gap-5 p-4 sm:p-6 lg:overflow-y-auto">
           <p className="font-mono text-xs text-(--text-comment) shrink-0">
             {'// Code snippet showcase:'}
           </p>

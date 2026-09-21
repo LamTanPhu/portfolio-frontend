@@ -47,8 +47,8 @@ export function ProjectDetailPage({ project }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(project)) }}
             />
-            <div className="flex flex-col h-full overflow-y-auto glow-bg">
-                <article className="flex flex-col w-full max-w-3xl mx-auto p-8">
+            <div className="flex flex-col lg:h-full overflow-y-auto glow-bg">
+                <article className="flex flex-col w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
 
                     <Link
                         href="/projects"

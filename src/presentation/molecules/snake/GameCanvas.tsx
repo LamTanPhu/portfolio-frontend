@@ -20,12 +20,12 @@ interface Props {
 
 export function GameCanvas({ canvasRef, width, height, phase, onStart, onReset }: Props) {
     return (
-        <section className="relative rounded-xl overflow-hidden border border-(--border-muted) bg-[rgba(1,13,24,0.8)] shadow-[inset_0_2px_12px_rgba(0,0,0,0.4)]">
+        <section className="relative rounded-xl overflow-hidden border border-(--border-muted) bg-[rgba(1,13,24,0.8)] shadow-[inset_0_2px_12px_rgba(0,0,0,0.4)] w-full sm:w-auto" style={{ maxWidth: width }}>
             <canvas
                 ref={canvasRef}
                 width={width}
                 height={height}
-                className="block"
+                className="block w-full h-auto"
             />
 
         {/* Idle — press start hint + button overlaid at bottom */}

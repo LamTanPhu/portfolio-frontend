@@ -22,7 +22,7 @@ interface Props {
 export function BlogPreview({ post }: Props) {
     if (!post) {
         return (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-40 lg:h-full">
                 <p className="font-mono text-sm text-(--text-muted)">
                     {'// select a post to preview'}
                 </p>
@@ -31,7 +31,7 @@ export function BlogPreview({ post }: Props) {
     }
 
     return (
-        <article className="flex flex-col h-full p-8 overflow-y-auto">
+        <article className="flex flex-col lg:h-full p-6 lg:p-8 lg:overflow-y-auto">
 
         {/* Editor tab style header */}
         <header className="flex flex-col gap-3 pb-6 border-b border-(--border-muted) mb-6">

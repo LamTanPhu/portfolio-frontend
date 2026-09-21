@@ -119,7 +119,7 @@ export function LiveCodePreview({ name, email, message }: Props) {
     ]
 
     return (
-        <section className="flex flex-col h-full border-l border-(--border-muted) bg-[rgba(1,13,24,0.4)] overflow-hidden">
+        <section className="flex flex-col lg:h-full border-t lg:border-t-0 lg:border-l border-(--border-muted) bg-[rgba(1,13,24,0.4)] lg:overflow-hidden">
 
         {/* Minimize button — decorative */}
         <div className="flex justify-end px-3 py-2 shrink-0">
@@ -127,7 +127,7 @@ export function LiveCodePreview({ name, email, message }: Props) {
         </div>
 
         {/* Code */}
-        <div className="flex flex-1 overflow-y-auto">
+        <div className="flex flex-1 lg:overflow-y-auto">
 
             {/* Line numbers */}
             <div className="flex flex-col pt-2 pb-6 px-4 shrink-0 select-none border-r border-(--border-subtle)">

@@ -99,11 +99,11 @@ export function AdminProfilePage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-8">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader icon={<UserCog size={16} />} title="profile" />
 
             <form onSubmit={(e) => { void handleSubmit(e) }} className="flex flex-col gap-5">
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <FormField label="firstname" value={firstname} onChange={setFirstname} placeholder="Tấn Phú" />
                     <FormField label="lastname" value={lastname} onChange={setLastname} placeholder="Lâm" />
                 </div>

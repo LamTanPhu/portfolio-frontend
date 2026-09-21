@@ -39,15 +39,15 @@ export function VSCodeLayout({
   socials,
 }: Props) {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-(--bg-surface) text-(--text-primary)">
+    <div className="flex flex-col min-h-dvh lg:h-dvh lg:overflow-hidden bg-(--bg-surface) text-(--text-primary)">
 
       <TabBar tabs={TABS} activeId={activeTab} ownerName="lam-tan-phu" />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
         {showSidebar && (
           <Sidebar ownerName="lam-tan-phu" items={sidebarItems} />
         )}
-        <main className="flex-1 overflow-y-auto glow-bg">
+        <main className="flex-1 lg:overflow-y-auto glow-bg">
           {children}
         </main>
       </div>

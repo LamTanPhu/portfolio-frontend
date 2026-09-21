@@ -9,7 +9,7 @@ interface Props {
 
 export function AdminPageHeader({ icon, title, count, action }: Props) {
     return (
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-3">
                 <span className="flex items-center justify-center w-8 h-8 border border-(--border-muted) text-(--accent-teal) bg-(--bg-elevated)">
                     {icon}

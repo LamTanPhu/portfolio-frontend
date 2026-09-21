@@ -28,7 +28,7 @@ export function TabBar({ tabs, activeId, ownerName }: Props) {
     <div className="flex items-stretch min-h-10 shrink-0 border-b border-(--border-subtle) bg-(--bg-tab-bar)">
 
       {/* Owner name — wide, prominent, not a footnote */}
-      <div className="flex items-center px-10 min-w-52 border-r border-(--border-muted)">
+      <div className="flex items-center px-4 lg:px-10 min-w-0 lg:min-w-52 border-r border-(--border-muted)">
         <span className="font-mono text-sm text-(--text-primary) tracking-widest whitespace-nowrap">
           {ownerName}
         </span>

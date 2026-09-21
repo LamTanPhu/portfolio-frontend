@@ -71,7 +71,7 @@ export function AdminCertificationFormPage(props: Props) {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-8">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader
                 icon={<Award size={16} />}
                 title={props.mode === 'create' ? 'new-certification' : 'edit-certification'}
@@ -80,7 +80,7 @@ export function AdminCertificationFormPage(props: Props) {
             <form onSubmit={(e) => { void handleSubmit(e) }} className="flex flex-col gap-5">
                 <FormField label="name" value={name} onChange={setName} placeholder="AWS Certified Solutions Architect" />
                 <FormField label="url" value={url} onChange={setUrl} placeholder="https://..." />
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <FormField label="startDate" type="date" value={startDate} onChange={setStartDate} />
                     <FormField label="endDate" type="date" value={endDate} onChange={setEndDate} placeholder="leave blank if no expiry" />
                 </div>

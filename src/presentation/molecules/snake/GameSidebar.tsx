@@ -18,7 +18,7 @@ interface Props {
 
 export function GameSidebar({ eaten, onSkip }: Props) {
     return (
-        <aside className="flex flex-col justify-between p-4 gap-4 min-w-40">
+        <aside className="flex flex-col justify-between p-4 gap-4 w-full sm:w-auto sm:min-w-40">
 
         {/* Top — controls */}
         <section className="flex flex-col gap-3">

@@ -12,7 +12,7 @@ interface Props {
 
 export function ProjectsSidebar({ selected, onChange }: Props) {
     return (
-        <aside className="w-56 shrink-0 flex flex-col border-r border-(--border-muted) bg-(--bg-sidebar) overflow-y-auto">
+        <aside className="w-full lg:w-56 shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-(--border-muted) bg-(--bg-sidebar) lg:overflow-y-auto">
 
             {/* Header */}
             <header className="flex items-center gap-2 px-4 py-2.5 border-b border-(--border-muted) shrink-0">

@@ -47,7 +47,7 @@ interface Props {
 
 export function TechFilterList({ selected, onChange }: Props) {
     return (
-        <div className="flex flex-col px-2 py-2 gap-0.5">
+        <div className="flex flex-row flex-wrap gap-1 px-3 py-2 lg:flex-col lg:flex-nowrap lg:gap-0.5 lg:px-2">
             {TECHS.map((tech) => (
                 <TechCheckbox
                 key={tech.label}

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import {
     ScrollText, FolderCode, Tags, GraduationCap, Briefcase,
-    Award, Share2, Inbox, BarChart3, ShieldAlert,
+    Award, Share2, Inbox, BarChart3, ShieldAlert, UserCog,
 } from 'lucide-react'
 
 interface Section {
@@ -23,6 +23,7 @@ const SECTIONS: Section[] = [
     { href: '/admin/contact',        label: 'contact',        desc: 'messages from visitors',      icon: <Inbox size={18} /> },
     { href: '/admin/analytics',      label: 'analytics',      desc: 'page view stats',             icon: <BarChart3 size={18} /> },
     { href: '/admin/audit',          label: 'audit',          desc: 'recent admin activity',       icon: <ShieldAlert size={18} /> },
+    { href: '/admin/profile',        label: 'profile',        desc: 'your account settings',       icon: <UserCog size={18} /> },
 ]
 
 // =============================================================================
@@ -33,7 +34,7 @@ const SECTIONS: Section[] = [
 // =============================================================================
 export function AdminDashboardPage() {
     return (
-        <div className="max-w-4xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
             <h1 className="font-mono text-lg text-(--text-primary) mb-1">
                 <span className="text-(--text-muted)">_</span>admin
             </h1>

@@ -77,7 +77,7 @@ export function AdminSkillFormPage(props: Props) {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-8">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader
                 icon={<Tags size={16} />}
                 title={props.mode === 'create' ? 'new-skill' : 'edit-skill'}

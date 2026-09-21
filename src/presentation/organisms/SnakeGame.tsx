@@ -192,7 +192,7 @@ export function SnakeGame({ onSkip }: Props) {
       <div className="absolute bottom-3 right-3 z-0 pointer-events-none"><Screw /></div>
 
       {/* Game area — padding keeps content clear of screws */}
-      <div className="flex gap-0 p-6 relative z-10">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-center sm:items-stretch p-4 sm:p-6 relative z-10 w-full sm:w-auto">
         <GameCanvas
           canvasRef={canvasRef}
           width={COLS * CELL}

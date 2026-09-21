@@ -156,7 +156,7 @@ export function AboutSidebar({ active, skills, education, jobs, certifications }
     const groups = panelData[active]
 
     return (
-        <aside className="w-56 shrink-0 flex flex-col border-r border-(--border-muted) bg-(--bg-sidebar) overflow-y-auto">
+        <aside className="w-full lg:w-56 shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-(--border-muted) bg-(--bg-sidebar) max-h-72 lg:max-h-none overflow-y-auto">
 
         {/* Panel label */}
         <header className="px-4 py-2 border-b border-(--border-muted) shrink-0">

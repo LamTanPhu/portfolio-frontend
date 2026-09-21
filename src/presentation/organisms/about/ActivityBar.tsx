@@ -27,7 +27,7 @@ interface Props {
 
 export function ActivityBar({ active, onChange }: Props) {
     return (
-        <div className="flex flex-col items-center w-12 shrink-0 border-r border-(--border-muted) bg-(--bg-sidebar) py-2 gap-1">
+        <div className="flex flex-row lg:flex-col items-center justify-center lg:justify-start w-full lg:w-12 shrink-0 border-b lg:border-b-0 lg:border-r border-(--border-muted) bg-(--bg-sidebar) px-2 py-1.5 lg:px-0 lg:py-2 gap-1">
         {ITEMS.map((item) => (
             <button
             key={item.id}
@@ -36,7 +36,7 @@ export function ActivityBar({ active, onChange }: Props) {
             className={[
                 'flex items-center justify-center w-10 h-10 rounded-sm transition-colors duration-150',
                 active === item.id
-                ? 'text-(--text-primary) bg-(--bg-elevated) border-l-2 border-(--accent-teal)'
+                ? 'text-(--text-primary) bg-(--bg-elevated) border-b-2 lg:border-b-0 lg:border-l-2 border-(--accent-teal)'
                 : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-elevated)',
             ].join(' ')}
             >

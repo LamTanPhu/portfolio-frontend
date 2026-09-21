@@ -57,7 +57,18 @@ body {
   background-color: var(--bg-surface);
   color: var(--text-primary);
   font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* The "VS Code app" shell (fixed-height sidebar/tab/status bars with
+   internally-scrolling panels) only makes sense once there's enough width
+   for it. Below lg, every page instead stacks into a single scrollable
+   column, so the body itself needs to scroll. */
+@media (min-width: 1024px) {
+  body {
+    overflow: hidden;
+  }
 }
 
 #__next,
@@ -133,6 +144,16 @@ main {
   cursor:           pointer;
   background-color: var(--bg-tab-inactive);
   color:            var(--text-muted);
+}
+
+/* Below lg, the full 80px horizontal padding times 5 tabs plus the owner
+   name block forces far more horizontal scroll than a phone screen can
+   reasonably absorb — tighten it up. Desktop keeps the original spacing. */
+@media (max-width: 1023px) {
+  .nav-tab {
+    padding:   10px 16px;
+    font-size: 12px;
+  }
 }
 
 .nav-tab:hover {

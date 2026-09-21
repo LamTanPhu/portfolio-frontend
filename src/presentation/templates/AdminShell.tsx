@@ -38,7 +38,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
     if (status !== 'authenticated') {
         return (
-            <div className="flex items-center justify-center h-screen bg-(--bg-surface)">
+            <div className="flex items-center justify-center min-h-dvh bg-(--bg-surface)">
                 <div className="flex items-center gap-2">
                     <span className="font-mono text-sm text-(--text-muted)">loading</span>
                     <span className="w-2 h-4 bg-(--accent-teal) animate-pulse" aria-hidden />
@@ -49,11 +49,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
     return (
         <ToastProvider>
-            <div className="flex flex-col h-screen bg-(--bg-surface) text-(--text-primary)">
+            <div className="flex flex-col min-h-dvh lg:h-dvh lg:overflow-hidden bg-(--bg-surface) text-(--text-primary)">
                 <AdminNav onLogout={() => { void logout().then(() => router.replace('/admin/login')) }} />
-                <div className="flex flex-1 overflow-hidden">
+                <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
                     <AdminExplorer />
-                    <main className="flex-1 overflow-y-auto glow-bg">
+                    <main className="flex-1 lg:overflow-y-auto glow-bg">
                         {children}
                     </main>
                 </div>

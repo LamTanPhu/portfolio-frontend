@@ -13,9 +13,9 @@ export function ActiveFilterTab({ selected, onClear }: Props) {
     if (selected.length === 0) return null
 
     return (
-        <div className="flex items-center border-b border-(--border-muted) bg-(--bg-tab-bar) px-0 shrink-0">
-            <div className="flex items-center gap-2 px-5 py-2.5 border-r border-(--border-muted) bg-(--bg-tab-active)">
-                <span className="font-mono text-xs text-(--text-primary)">
+        <div className="flex items-center max-w-full overflow-x-auto border-b border-(--border-muted) bg-(--bg-tab-bar) px-0 shrink-0">
+            <div className="flex items-center gap-2 px-5 py-2.5 border-r border-(--border-muted) bg-(--bg-tab-active) shrink-0">
+                <span className="font-mono text-xs text-(--text-primary) whitespace-nowrap">
                 {selected.join('; ')}
                 </span>
                 <button

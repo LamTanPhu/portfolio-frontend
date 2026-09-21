@@ -73,7 +73,7 @@ export function AdminAuditPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto p-8">
+        <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader icon={<ShieldAlert size={16} />} title="audit-log" count={total} />
 
             {entries === null ? (
@@ -85,12 +85,12 @@ export function AdminAuditPage() {
                     <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                         {entries.map((entry) => (
                             <div key={entry.id} className="flex items-center justify-between px-4 py-2.5 gap-3 hover:bg-(--bg-elevated) transition-colors duration-100">
-                                <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
                                     <MethodPill method={entry.method} />
-                                    <span className="font-mono text-sm text-(--text-primary) truncate">
+                                    <span className="min-w-0 flex-1 font-mono text-sm text-(--text-primary) truncate">
                                         {entry.route}
                                     </span>
-                                    <span className="font-mono text-[11px] text-(--text-muted) truncate">
+                                    <span className="hidden sm:inline shrink-0 max-w-[35%] font-mono text-[11px] text-(--text-muted) truncate">
                                         {entry.entityType}{entry.entityId ? `#${entry.entityId}` : ''}
                                     </span>
                                 </div>

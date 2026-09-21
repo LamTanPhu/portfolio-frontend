@@ -87,7 +87,7 @@ export function AdminContactListPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto p-8">
+        <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
             <AdminPageHeader
                 icon={<Inbox size={16} />}
                 title="contact-messages"
@@ -114,11 +114,11 @@ export function AdminContactListPage() {
                                             {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                                         </span>
                                         <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-mono text-sm text-(--text-primary) truncate">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="min-w-0 flex-1 font-mono text-sm text-(--text-primary) truncate">
                                                     {msg.name}
                                                 </span>
-                                                <span className="font-mono text-xs text-(--text-muted) truncate">
+                                                <span className="shrink-0 max-w-[45%] font-mono text-xs text-(--text-muted) truncate">
                                                     {msg.email}
                                                 </span>
                                             </div>
