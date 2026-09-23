@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ContactForm } from '../molecules/ContactForm'
 import { ContactSuccess } from '../molecules/ContactSuccess'
 import { LiveCodePreview } from '../molecules/LiveCodePreview'
+import { SnakeCaptchaGate } from '../organisms/SnakeCaptchaGate'
 import type { SidebarItem } from '../organisms/Sidebar'
 import { VSCodeLayout } from '../templates/VSCodeLayout'
 
@@ -61,6 +62,7 @@ export function ContactPage({ socialAccounts }: Props) {
     const [email,           setEmail]           = useState('')
     const [message,         setMessage]         = useState('')
     const [turnstileToken,  setTurnstileToken]  = useState<string | null>(null)
+    const [snakeProofToken, setSnakeProofToken] = useState<string | null>(null)
     const [errors,          setErrors]          = useState<FormErrors>({})
     const [submitting,      setSubmitting]      = useState(false)
     const [submitted,       setSubmitted]       = useState(false)
@@ -78,6 +80,7 @@ export function ContactPage({ socialAccounts }: Props) {
 
     async function handleSubmit() {
         if (!validate()) return
+        if (!snakeProofToken) return // shouldn't happen — the gate blocks getting here without one
         setSubmitting(true)
         try {
             const result = await submitContactAction({
@@ -85,6 +88,7 @@ export function ContactPage({ socialAccounts }: Props) {
                 email,
                 message,
                 turnstileToken: turnstileToken!,
+                snakeProofToken,
             })
 
             if (result.success) {
@@ -92,16 +96,22 @@ export function ContactPage({ socialAccounts }: Props) {
             } else {
                 // We don't know which field the backend's message maps to
                 // (400s can be name/email/message length violations, 429 is
-                // rate limiting, 5xx is a server failure) — surface it as a
-                // form-level message rather than guessing a field.
+                // rate limiting, or either anti-bot check failing, 5xx is a
+                // server failure) — surface it as a form-level message
+                // rather than guessing a field.
                 setErrors({ message: result.error })
-                // A rejected/expired token can't be reused — force a fresh
-                // challenge on retry.
+                // Neither token can safely be assumed reusable after any
+                // failure — force fresh ones on retry, same reasoning as
+                // Turnstile's already had: simpler and fails safe, even
+                // though it occasionally means replaying the game for an
+                // unrelated failure (e.g. a backend validation error).
                 setTurnstileToken(null)
+                setSnakeProofToken(null)
             }
         } catch {
             setErrors({ message: 'Could not reach the server. Please check your connection and try again.' })
             setTurnstileToken(null)
+            setSnakeProofToken(null)
         } finally {
             setSubmitting(false)
         }
@@ -112,6 +122,7 @@ export function ContactPage({ socialAccounts }: Props) {
         setEmail('')
         setMessage('')
         setTurnstileToken(null)
+        setSnakeProofToken(null)
         setErrors({})
         setSubmitted(false)
     }
@@ -137,6 +148,8 @@ export function ContactPage({ socialAccounts }: Props) {
             <section className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10 lg:overflow-y-auto">
             {submitted ? (
                 <ContactSuccess onReset={handleReset} />
+            ) : !snakeProofToken ? (
+                <SnakeCaptchaGate onVerified={setSnakeProofToken} />
             ) : (
                 <ContactForm
                 name={name}

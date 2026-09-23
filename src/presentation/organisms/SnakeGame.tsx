@@ -20,12 +20,16 @@ type Pos   = { x: number; y: number }
 type Phase = 'idle' | 'playing' | 'won' | 'lost'
 
 interface State {
-  snake:   Pos[]
-  dir:     Dir
-  nextDir: Dir
-  food:    Pos[]
-  eaten:   number
-  phase:   Phase
+  snake:     Pos[]
+  dir:       Dir
+  nextDir:   Dir
+  food:      Pos[]
+  eaten:     number
+  phase:     Phase
+  // Only used by SnakeCaptchaGate (reported to the backend on win) — the
+  // homepage's decorative instance computes these too, harmlessly unused.
+  moveCount: number
+  startedAt: number | null
 }
 
 function randPos(exclude: Pos[]): Pos {
@@ -44,7 +48,10 @@ function initFood(snake: Pos[]): Pos[] {
 
 function initState(): State {
   const snake = [{ x: 4, y: 7 }, { x: 3, y: 7 }, { x: 2, y: 7 }]
-  return { snake, dir: 'RIGHT', nextDir: 'RIGHT', food: initFood(snake), eaten: 0, phase: 'idle' }
+  return {
+    snake, dir: 'RIGHT', nextDir: 'RIGHT', food: initFood(snake), eaten: 0, phase: 'idle',
+    moveCount: 0, startedAt: null,
+  }
 }
 
 type Action =
@@ -57,11 +64,11 @@ const OPPOSITE: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGH
 
 function reducer(s: State, a: Action): State {
   switch (a.type) {
-    case 'START': return { ...s, phase: 'playing' }
+    case 'START': return { ...s, phase: 'playing', startedAt: Date.now() }
     case 'RESET': return initState()
     case 'TURN': {
       if (a.dir === OPPOSITE[s.dir]) return s
-      return { ...s, nextDir: a.dir }
+      return { ...s, nextDir: a.dir, moveCount: s.moveCount + 1 }
     }
     case 'TICK': {
       if (s.phase !== 'playing') return s
@@ -90,8 +97,19 @@ function reducer(s: State, a: Action): State {
   }
 }
 
+export interface SnakeWinResult {
+  eaten:      number
+  durationMs: number
+  moveCount:  number
+}
+
 interface Props {
   onSkip?: () => void
+  // Fires exactly once per win, even if this component re-renders with a
+  // new onWin reference while still in the 'won' phase (see the guard ref
+  // below) — important since SnakeCaptchaGate's onWin calls a network
+  // request that must not fire twice for one win.
+  onWin?: (result: SnakeWinResult) => void
 }
 
 function Screw() {
@@ -102,10 +120,26 @@ function Screw() {
   )
 }
 
-export function SnakeGame({ onSkip }: Props) {
+export function SnakeGame({ onSkip, onWin }: Props) {
   const [state, dispatch] = useReducer(reducer, undefined, initState)
   const canvasRef         = useRef<HTMLCanvasElement>(null)
   const tickRef           = useRef<ReturnType<typeof setInterval> | null>(null)
+  const wonNotifiedRef    = useRef(false)
+
+  // Notify on win — guarded by wonNotifiedRef so a re-render that changes
+  // onWin's identity (e.g. an inline arrow function in the parent) can't
+  // cause a duplicate report while phase stays 'won'.
+  useEffect(() => {
+    if (state.phase !== 'won') {
+      wonNotifiedRef.current = false
+      return
+    }
+    if (wonNotifiedRef.current) return
+    wonNotifiedRef.current = true
+
+    const durationMs = state.startedAt !== null ? Date.now() - state.startedAt : 0
+    onWin?.({ eaten: state.eaten, durationMs, moveCount: state.moveCount })
+  }, [state.phase, state.eaten, state.moveCount, state.startedAt, onWin])
 
   // Tick loop
   useEffect(() => {
@@ -204,6 +238,7 @@ export function SnakeGame({ onSkip }: Props) {
         <GameSidebar
           eaten={state.eaten}
           onSkip={onSkip}
+          onTurn={(dir) => dispatch({ type: 'TURN', dir })}
         />
       </div>
     </article>

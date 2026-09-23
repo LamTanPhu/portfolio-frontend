@@ -11,6 +11,14 @@ export const RESUME_URL = process.env.NEXT_PUBLIC_RESUME_URL ?? '/resume.pdf'
 // NEXT_PUBLIC_SITE_URL in production (e.g. https://lamtanphu.dev).
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
+// Looped ambient background track (see AmbientAudioContext) — muted
+// autoplay on load, low default volume, visitor-controlled from there. No
+// file ships in this repo — drop a royalty-free/CC-licensed, seamlessly
+// loopable track at public/ambient.mp3 (pixabay.com/music has plenty with
+// no attribution required), or set NEXT_PUBLIC_AMBIENT_AUDIO_URL to point
+// at one hosted elsewhere, before this plays anything.
+export const AMBIENT_AUDIO_URL = process.env.NEXT_PUBLIC_AMBIENT_AUDIO_URL ?? '/ambient.mp3'
+
 // Cloudflare Turnstile site key (public — pairs with TURNSTILE_SECRET_KEY on
 // the backend, which does the actual verification). Falls back to Cloudflare's
 // official "always passes" test key so local dev works without setup —

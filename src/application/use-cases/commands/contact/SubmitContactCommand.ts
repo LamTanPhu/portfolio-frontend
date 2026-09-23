@@ -19,10 +19,11 @@ import { ApiContactRepository } from '../../../../infrastructure/repositories/Ap
 // etc., this performs a write, so it has no business running during render.
 // =============================================================================
 export interface SubmitContactInput {
-    name:           string
-    email:          string
-    message:        string
-    turnstileToken: string
+    name:            string
+    email:           string
+    message:         string
+    turnstileToken:  string
+    snakeProofToken: string
 }
 
 export class SubmitContactCommand {

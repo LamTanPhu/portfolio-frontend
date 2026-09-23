@@ -4,6 +4,7 @@ import { jetbrainsMono } from '../lib/fonts'
 import { PageViewTracker } from '@/src/presentation/organisms/PageViewTracker'
 import { AuthProvider } from '@/src/presentation/context/AuthContext'
 import { ThemeProvider } from '@/src/presentation/context/ThemeContext'
+import { AmbientAudioProvider } from '@/src/presentation/context/AmbientAudioContext'
 import { SITE_URL } from '@/lib/constants'
 import './globals.css'
 
@@ -27,8 +28,10 @@ export default function RootLayout({
       <body className={`${jetbrainsMono.variable} font-mono antialiased`}>
         <AuthProvider>
           <ThemeProvider>
-            <PageViewTracker />
-            {children}
+            <AmbientAudioProvider>
+              <PageViewTracker />
+              {children}
+            </AmbientAudioProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

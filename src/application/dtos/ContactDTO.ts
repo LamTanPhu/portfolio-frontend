@@ -9,10 +9,11 @@
 
 // Sent to POST /contact. Mirrors backend SubmitContactDto exactly.
 export interface SubmitContactRequestDTO {
-    name:           string
-    email:          string
-    message:        string
-    turnstileToken: string
+    name:            string
+    email:           string
+    message:         string
+    turnstileToken:  string
+    snakeProofToken: string
 }
 
 // Returned from POST /contact on success (HTTP 201).

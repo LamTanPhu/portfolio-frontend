@@ -16,10 +16,11 @@
 // structurally harder to make.
 // =============================================================================
 export interface ContactSubmission {
-    name:           string
-    email:          string
-    message:        string
-    turnstileToken: string
+    name:            string
+    email:           string
+    message:         string
+    turnstileToken:  string
+    snakeProofToken: string
 }
 
 export interface IContactWriteRepository {
