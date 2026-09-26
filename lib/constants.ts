@@ -11,13 +11,19 @@ export const RESUME_URL = process.env.NEXT_PUBLIC_RESUME_URL ?? '/resume.pdf'
 // NEXT_PUBLIC_SITE_URL in production (e.g. https://lamtanphu.dev).
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
-// Looped ambient background track (see AmbientAudioContext) — muted
+// Shuffled ambient background playlist (see AmbientAudioContext) — muted
 // autoplay on load, low default volume, visitor-controlled from there. No
-// file ships in this repo — drop a royalty-free/CC-licensed, seamlessly
-// loopable track at public/ambient.mp3 (pixabay.com/music has plenty with
-// no attribution required), or set NEXT_PUBLIC_AMBIENT_AUDIO_URL to point
-// at one hosted elsewhere, before this plays anything.
-export const AMBIENT_AUDIO_URL = process.env.NEXT_PUBLIC_AMBIENT_AUDIO_URL ?? '/ambient.mp3'
+// files ship in this repo — drop 3 royalty-free/CC-licensed tracks at
+// public/ambient-1.mp3, ambient-2.mp3, ambient-3.mp3 (pixabay.com/music has
+// plenty with no attribution required), or set the NEXT_PUBLIC_AMBIENT_
+// TRACK_n_URL vars to point at ones hosted elsewhere. Name the actual files
+// descriptively — the track picker's display names come straight from
+// these filenames (e.g. "lofi-coffee-shop.mp3" shows as "Lofi Coffee Shop").
+export const AMBIENT_TRACK_URLS: readonly string[] = [
+    process.env.NEXT_PUBLIC_AMBIENT_TRACK_1_URL ?? '/ambient-1.mp3',
+    process.env.NEXT_PUBLIC_AMBIENT_TRACK_2_URL ?? '/ambient-2.mp3',
+    process.env.NEXT_PUBLIC_AMBIENT_TRACK_3_URL ?? '/ambient-3.mp3',
+]
 
 // Cloudflare Turnstile site key (public — pairs with TURNSTILE_SECRET_KEY on
 // the backend, which does the actual verification). Falls back to Cloudflare's
