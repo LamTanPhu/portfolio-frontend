@@ -210,8 +210,16 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// Inert stand-in for trees rendered OUTSIDE the provider (Next's
+// /_global-error and other error shells replace the root layout, so no
+// provider is mounted there). Shared chrome like StatusBar can then render
+// without crashing; the controls simply do nothing.
+const noop = () => {}
+const INERT_VALUE: AmbientAudioContextValue = {
+  tracks: [], currentIndex: 0, isPlaying: false, volume: 0, isMuted: true,
+  togglePlayPause: noop, selectTrack: noop, setVolume: noop, toggleMute: noop,
+}
+
 export function useAmbientAudio(): AmbientAudioContextValue {
-  const ctx = useContext(AmbientAudioContext)
-  if (!ctx) throw new Error('useAmbientAudio must be used within AmbientAudioProvider')
-  return ctx
+  return useContext(AmbientAudioContext) ?? INERT_VALUE
 }
