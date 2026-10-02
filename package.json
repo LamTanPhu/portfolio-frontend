@@ -14,7 +14,7 @@
     "@marsidev/react-turnstile": "^1.6.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.48.0",
-    "next": "^16.2.6",
+    "next": "^16.3.8",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
@@ -27,7 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^10",
     "eslint-config-next": "^16.3.6",
-    "javascript-obfuscator": "^5.6.0",
+    "javascript-obfuscator": "^5.8.1",
     "tailwindcss": "^4.3.3",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "@typescript/native": "npm:typescript@^7.0.2",
@@ -37,7 +37,7 @@
     "postcss": "^8.5.10"
   },
   "allowScripts": {
-    "sharp@0.34.5": true,
-    "unrs-resolver@1.11.1": true
+    "sharp@0.35.4": true,
+    "unrs-resolver@1.12.2": true
   }
 }
