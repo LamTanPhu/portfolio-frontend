@@ -35,13 +35,21 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Pages prerender against the live API, so the backend must be reachable
-      # from the runner. Set these under Settings > Secrets and variables >
-      # Actions > Variables (not secrets: NEXT_PUBLIC_* ships in the bundle).
+      # Pages prerender against the API at build time. Until a real backend
+      # is deployed, a tiny stub on :3001 answers every request with `[]` so
+      # the build can complete. Production builds (Vercel) don't use this.
+      # Once NEXT_PUBLIC_API_URL is set under Settings > Secrets and
+      # variables > Actions > Variables, the stub is skipped.
+      - name: Start stub API
+        if: ${{ vars.NEXT_PUBLIC_API_URL == '' }}
+        run: |
+          node -e "require('http').createServer((q,r)=>{r.writeHead(200,{'Content-Type':'application/json'});r.end('[]')}).listen(3001)" &
+          sleep 1
+          curl -sf http://localhost:3001/api/projects
+
       - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-          
