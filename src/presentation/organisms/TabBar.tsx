@@ -1,9 +1,10 @@
 'use client'
 import { NavTab } from '../atoms/NavTab'
+import { ResumeDownloadButton } from '../atoms/ResumeDownloadButton'
 
 // =============================================================================
 // TabBar — Organism
-// Owner name prominent far left, _contact-me pushed far right.
+// Owner name prominent far left, resume button + _contact-me pushed far right.
 // =============================================================================
 
 export interface Tab {
@@ -45,6 +46,11 @@ export function TabBar({ tabs, activeId, ownerName }: Props) {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* Resume — always visible, on every page */}
+      <div className="flex items-center px-2 sm:px-4 border-l border-(--border-muted)">
+        <ResumeDownloadButton variant="button" />
+      </div>
 
       {/* Contact tab — far right */}
       <div className="flex items-stretch border-l border-(--border-muted)">
