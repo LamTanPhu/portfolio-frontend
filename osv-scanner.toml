@@ -1,0 +1,23 @@
+# Read automatically by OSV-Scanner (the workflow scans ./package-lock.json
+# from the repo root, so this file sits next to it).
+#
+# braces <= 3.0.3 — stack-exhaustion DoS on deeply nested glob patterns.
+#   * No patched release exists yet (3.0.3 is the latest on npm).
+#   * Reached only through dev tooling:
+#       eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch > braces
+#     It is not part of the shipped site (`npm audit --omit=dev` is clean) and
+#     the only glob patterns it ever sees are the ones in this repo's own config.
+#
+# ignoreUntil makes this exception expire on its own: after that date the scan
+# goes red again, which is the cue to check whether a fixed release exists.
+# When one does, bump it (Dependabot will normally open the PR) and delete this entry.
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2026-11-15
+reason = "No patched braces release exists; dev-tooling only (eslint-config-next chain), not shipped."
+
+[[IgnoredVulns]]
+id = "CVE-2026-93687"
+ignoreUntil = 2026-11-15
+reason = "Same advisory as GHSA-vfj7-8cjw-p6xm (listed under its CVE alias)."
