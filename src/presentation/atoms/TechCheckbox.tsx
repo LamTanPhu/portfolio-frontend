@@ -31,8 +31,8 @@ export function TechCheckbox({ label, icon, checked, onChange }: Props) {
             )}
         </span>
 
-        {/* Tech icon */}
-        <span className={[
+        {/* Tech icon — decorative: the label text names the checkbox */}
+        <span aria-hidden="true" className={[
             'text-base transition-colors duration-100',
             checked ? 'text-(--text-primary)' : 'text-(--text-muted) group-hover:text-(--text-primary)',
         ].join(' ')}>

@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 // =============================================================================
 // Select — Atom
 // Same visual language as FormField (underscore-prefixed label, bordered
@@ -20,14 +22,19 @@ interface Props {
 
 export function Select({ label, value, onChange, options, error }: Props) {
     const hasError = Boolean(error)
+    const id = useId()
+    const errorId = `${id}-error`
 
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-sm text-(--text-muted)">
+            <label htmlFor={id} className="font-mono text-sm text-(--text-muted)">
                 _{label}:
             </label>
 
             <select
+                id={id}
+                aria-invalid={hasError || undefined}
+                aria-describedby={hasError ? errorId : undefined}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 className={[
@@ -46,7 +53,7 @@ export function Select({ label, value, onChange, options, error }: Props) {
             </select>
 
             {hasError && (
-                <p className="font-mono text-xs text-red-500">{error}</p>
+                <p id={errorId} className="font-mono text-xs text-red-500">{error}</p>
             )}
         </div>
     )

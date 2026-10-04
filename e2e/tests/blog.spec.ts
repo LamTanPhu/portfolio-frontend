@@ -47,6 +47,7 @@ test.describe('blog', () => {
         await page.goto('/blog/no-such-post')
 
         await expect(page.getByRole('heading', { level: 1 })).toContainText('Cannot resolve module')
-        await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+        // Next renders this tag twice for notFound(); one is enough for crawlers.
+        await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
     })
 })

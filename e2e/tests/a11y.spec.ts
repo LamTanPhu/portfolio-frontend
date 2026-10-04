@@ -14,16 +14,9 @@ test.describe('accessibility (axe, serious + critical only)', () => {
         })
     }
 
-    // KNOWN ISSUE (found by reading the code, not yet run): FormField renders
-    // <label> without htmlFor/id and the name/email inputs have no
-    // aria-label, so form inputs have no accessible name. Fix FormField
-    // (associate label and control) and remove the .fixme.
-    test.fixme('contact form inputs have accessible names', async ({ page }) => {
-        await page.goto('/contact')
-        await expectNoSeriousA11yViolations(page)
-    })
-
-    test.fixme('admin login password field has an accessible name', async ({ page }) => {
+    // The contact form sits behind the snake game, so its labels are checked in the
+    // FormField / ContactPage unit tests instead.
+    test('admin login page has no serious violations (password field has an accessible name)', async ({ page }) => {
         await page.goto('/admin/login')
         await expectNoSeriousA11yViolations(page)
     })

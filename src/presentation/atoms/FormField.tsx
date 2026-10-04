@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 // =============================================================================
 // FormField — Atom
 // Label with underscore prefix, input or textarea, error state.
@@ -27,6 +29,10 @@ type Props = InputProps | TextareaProps
 export function FormField(props: Props) {
     const { label, value, onChange, error, placeholder } = props
     const hasError = Boolean(error)
+    // Ties the <label> to its control so the control has an accessible name.
+    const id = useId()
+    const errorId = `${id}-error`
+    const a11y = { id, 'aria-invalid': hasError || undefined, 'aria-describedby': hasError ? errorId : undefined }
 
     const baseClass = [
         'w-full bg-[rgba(1,13,24,0.6)] font-mono text-sm text-(--text-primary)',
@@ -41,7 +47,7 @@ export function FormField(props: Props) {
         <div className="flex flex-col gap-1.5">
 
         {/* Label */}
-        <label className="font-mono text-sm text-(--text-muted)">
+        <label htmlFor={id} className="font-mono text-sm text-(--text-muted)">
             _{label}:
         </label>
 
@@ -49,6 +55,7 @@ export function FormField(props: Props) {
         <div className="relative">
             {props.as === 'textarea' ? (
             <textarea
+                {...a11y}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder ?? `your ${label} here ...`}
@@ -57,6 +64,7 @@ export function FormField(props: Props) {
             />
             ) : (
             <input
+                {...a11y}
                 type={(props as InputProps).type ?? 'text'}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -75,7 +83,7 @@ export function FormField(props: Props) {
 
         {/* Error message */}
         {hasError && (
-            <p className="font-mono text-xs text-red-500">{error}</p>
+            <p id={errorId} className="font-mono text-xs text-red-500">{error}</p>
         )}
 
         </div>

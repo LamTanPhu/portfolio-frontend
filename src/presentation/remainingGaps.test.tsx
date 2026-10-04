@@ -80,6 +80,50 @@ describe('FormField', () => {
     })
 })
 
+describe('label association (accessible names)', () => {
+    it('FormField: the input can be found by its label text and typed into', async () => {
+        const onChange = vi.fn()
+        render(<FormField label="name" value="" onChange={onChange} />)
+
+        await userEvent.type(screen.getByLabelText('_name:'), 'A')
+
+        expect(onChange).toHaveBeenCalledWith('A')
+    })
+
+    it('FormField: textareas are labelled too, and two fields never share an id', () => {
+        render(<><FormField label="one" value="" onChange={() => {}} /><FormField as="textarea" label="two" value="" onChange={() => {}} /></>)
+
+        const one = screen.getByLabelText('_one:'); const two = screen.getByLabelText('_two:')
+        expect(two.tagName).toBe('TEXTAREA')
+        expect(one.id).not.toBe(two.id)
+    })
+
+    it('FormField: an error marks the control invalid and links the message to it', () => {
+        render(<FormField label="email" value="" onChange={() => {}} error="Wrong email address" />)
+
+        const input = screen.getByLabelText('_email:')
+        expect(input).toHaveAttribute('aria-invalid', 'true')
+        expect(input).toHaveAccessibleDescription('Wrong email address')
+    })
+
+    it('FormField: without an error there is no aria-invalid or description', () => {
+        render(<FormField label="email" value="" onChange={() => {}} />)
+
+        const input = screen.getByLabelText('_email:')
+        expect(input).not.toHaveAttribute('aria-invalid')
+        expect(input).not.toHaveAttribute('aria-describedby')
+    })
+
+    it('Select: the dropdown is labelled and an error is announced', () => {
+        render(<Select label="category" value="a" onChange={() => {}} options={[{ value: 'a', label: 'Alpha' }]} error="Pick one" />)
+
+        const select = screen.getByLabelText('_category:')
+        expect(select.tagName).toBe('SELECT')
+        expect(select).toHaveAttribute('aria-invalid', 'true')
+        expect(select).toHaveAccessibleDescription('Pick one')
+    })
+})
+
 describe('MethodPill', () => {
     it.each([['GET', 'accent-blue'], ['POST', 'accent-teal'], ['PATCH', 'amber'], ['PUT', 'amber'], ['DELETE', 'red']])('colours %s', (method, cls) => {
         render(<MethodPill method={method} />)

@@ -48,7 +48,7 @@ test.describe('admin', () => {
     test('creates a skill and sees it in the list', async ({ page }) => {
         await loginAsAdmin(page)
         await page.goto('/admin/skills')
-        await expect(page.getByText('TypeScript')).toBeVisible()
+        await expect(page.getByText('TypeScript', { exact: true })).toBeVisible()
 
         await page.getByRole('link', { name: /new skill/ }).click()
         await page.getByPlaceholder('React').fill('Playwright')
@@ -56,19 +56,20 @@ test.describe('admin', () => {
         await page.getByRole('button', { name: 'save' }).click()
 
         await expect(page).toHaveURL(/\/admin\/skills$/)
-        await expect(page.getByText('Playwright')).toBeVisible()
+        // exact: the success toast also contains the word, and would match too
+        await expect(page.getByText('Playwright', { exact: true })).toBeVisible()
     })
 
     test('deletes a skill after confirming', async ({ page }) => {
         await loginAsAdmin(page)
         await page.goto('/admin/skills')
-        await expect(page.getByText('PostgreSQL')).toBeVisible()
+        await expect(page.getByText('PostgreSQL', { exact: true })).toBeVisible()
 
         await page.getByTitle('delete').last().click()
         await expect(page.getByRole('alertdialog')).toContainText('Delete skill?')
         await page.getByRole('alertdialog').getByRole('button', { name: 'delete' }).click()
 
-        await expect(page.getByText('PostgreSQL')).toHaveCount(0)
+        await expect(page.getByText('PostgreSQL', { exact: true })).toHaveCount(0)
     })
 
     test('the login password field is the only credential asked for', async ({ page }) => {
