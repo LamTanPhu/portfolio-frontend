@@ -37,6 +37,8 @@ export default defineConfig({
             include: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
             exclude: ['**/*.test.{ts,tsx}', 'src/test/**', 'src/**/dtos/**', 'src/domain/repositories/**'],
             reporter: ['text-summary', 'html', 'lcov'],
+            // `npm run test:coverage` fails if any of these drops.
+            thresholds: { statements: 90, branches: 90, functions: 90, lines: 90 },
         },
     },
 })

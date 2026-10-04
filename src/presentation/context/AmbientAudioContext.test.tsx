@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, render, renderHook, screen } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -144,4 +144,75 @@ describe('AmbientAudioProvider', () => {
         expect(afterFirst).toBeGreaterThan(0)
         expect(play.mock.calls.length).toBe(afterFirst) // listener removed itself
     })
+
+    describe('playlist behaviour', () => {
+        const audio = (container: HTMLElement) => container.querySelector('audio') as HTMLAudioElement
+        const titles = (r: { current: { tracks: Array<{ title: string }> } }) => r.current.tracks.map((t) => t.title)
+
+        it('plays every track once (a shuffled queue) before reshuffling', () => {
+            const { result, container } = render2()
+            const seen = new Set<number>([result.current.currentIndex])
+
+            act(() => { fireEvent.ended(audio(container)) })
+            seen.add(result.current.currentIndex)
+            act(() => { fireEvent.ended(audio(container)) })
+            seen.add(result.current.currentIndex)
+
+            expect([...seen].sort()).toEqual([0, 1, 2]) // three distinct tracks across the first cycle
+        })
+
+        it('never repeats the track that just finished when the queue reshuffles', () => {
+            const { result, container } = render2()
+
+            for (let i = 0; i < 30; i++) {
+                const before = result.current.currentIndex
+                act(() => { fireEvent.ended(audio(container)) })
+                expect(result.current.currentIndex).not.toBe(before)
+            }
+        })
+
+        it('swaps the first two queue entries when a reshuffle would repeat the finished track', () => {
+            const { result, container } = render2()
+            // Drain the first cycle (initial pick + two more), then force the next shuffle to start with the current track.
+            act(() => { fireEvent.ended(audio(container)) })
+            act(() => { fireEvent.ended(audio(container)) })
+            const current = result.current.currentIndex
+            vi.spyOn(Math, 'random').mockReturnValue(0.999999) // Fisher–Yates with this value is the identity shuffle [0,1,2]
+            const identityStartsWithCurrent = current === 0
+
+            act(() => { fireEvent.ended(audio(container)) })
+
+            if (identityStartsWithCurrent) expect(result.current.currentIndex).toBe(1)
+            else expect(result.current.currentIndex).toBe(0)
+        })
+
+        it('the <audio> element points at the current track and updates when the track changes', () => {
+            const { result, container } = render2()
+
+            act(() => result.current.selectTrack(1))
+
+            expect(audio(container).getAttribute('src')).toBe('/rain_on_window.mp3')
+            expect(titles(result)[1]).toBe('Rain On Window')
+        })
+
+        it('applies volume and mute to the audio element', () => {
+            const { result, container } = render2()
+
+            act(() => result.current.setVolume(0.7))
+            expect(audio(container).volume).toBe(0.7)
+            act(() => result.current.toggleMute())
+            expect(audio(container).muted).toBe(true)
+        })
+
+        it('swallows playback rejections (autoplay blocked by the browser)', () => {
+            vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.reject(new Error('NotAllowedError')))
+
+            expect(() => render2()).not.toThrow()
+        })
+    })
 })
+
+function render2() {
+    const r = renderHook(() => useAmbientAudio(), { wrapper })
+    return { result: r.result, container: document.body }
+}
