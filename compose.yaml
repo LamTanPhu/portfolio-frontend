@@ -1,0 +1,45 @@
+# Portfolio Frontend — single-service stack (Next.js, `next start`).
+# Usage:   docker compose --env-file .env.docker up -d --build
+# Needs:   .env.docker  (copy from .env.docker.example)
+#
+# `--env-file` matters: NEXT_PUBLIC_* are BUILD args, so compose must read them
+# for interpolation (a plain `env_file:` only feeds the running container).
+
+name: portfolio-frontend
+
+services:
+  web:
+    build:
+      context: .
+      target: runtime
+      # Linux-only, only if your API is on THIS machine at localhost:3001:
+      # the build prerenders against the API, and `localhost` inside a build is the build container.
+      # network: host
+      args:
+        NODE_VERSION: ${NODE_VERSION:-26}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        NEXT_PUBLIC_RESUME_URL: ${NEXT_PUBLIC_RESUME_URL:-}
+        NEXT_PUBLIC_AMBIENT_TRACK_1_URL: ${NEXT_PUBLIC_AMBIENT_TRACK_1_URL:-}
+        NEXT_PUBLIC_AMBIENT_TRACK_2_URL: ${NEXT_PUBLIC_AMBIENT_TRACK_2_URL:-}
+        NEXT_PUBLIC_AMBIENT_TRACK_3_URL: ${NEXT_PUBLIC_AMBIENT_TRACK_3_URL:-}
+        BUILD_WITH_MOCK_API: ${BUILD_WITH_MOCK_API:-false}
+    image: portfolio-web:local
+    restart: unless-stopped
+    init: true                          # proper signal handling / zombie reaping
+    # Host bind: loopback by default. Set WEB_BIND=0.0.0.0 in .env.docker (or your shell) to expose on LAN.
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    # Linux-only alternative for a backend running on THIS machine at localhost:3001:
+    # the baked-in API URL `localhost:3001` must also resolve from inside the
+    # container (server-side rendering / ISR calls the API). Host networking does that.
+    # Replace the `ports:` block above with:
+    # network_mode: host
+    # Hardening
+    # No `read_only: true` (unlike the backend): ISR rewrites prerendered pages
+    # under .next/ at runtime, so that directory must stay writable.
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 768m
+    pids_limit: 200
