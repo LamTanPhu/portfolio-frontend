@@ -32,8 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-# ...except the committed templates
-!.env.docker.example
 
 # vercel
 .vercel
@@ -47,3 +45,6 @@ next-env.d.ts
 /playwright-report
 /test-results
 /.lighthouseci
+
+# keep the committed template for Docker settings (real .env.docker stays ignored)
+!.env.docker.example

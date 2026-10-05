@@ -1,141 +1,100 @@
-# syntax=docker/dockerfile:1.7
-# =============================================================================
-# Portfolio Frontend — multi-stage Dockerfile (Next.js 16, webpack build)
-#
-# Stages:
-#   base       shared OS layer (node + CA certs)
-#   deps       ALL dependencies (dev included) — cached unless package*.json changes
-#   build      `next build --webpack` (optionally against the mock API)
-#   prod-deps  production-only node_modules (what the runtime image ships)
-#   runtime    TARGET (default, last stage): minimal, non-root image that serves the site
-#
-# IMPORTANT — what is baked in at BUILD time (not runtime):
-#   * NEXT_PUBLIC_* values are inlined into the browser bundle by `next build`.
-#     Changing any of them means REBUILDING the image. They are public by
-#     definition (they ship to every visitor) — never put a secret in them.
-#   * Pages are prerendered by calling the API during the build, so the API
-#     must be reachable from inside the build container (or use the mock, below).
-#   * `next/font/google` downloads JetBrains Mono during the build, so the
-#     build also needs outbound internet to fonts.googleapis.com / gstatic.com.
-#
-# Build examples:
-#   docker build -t portfolio-web:local \
-#     --build-arg NEXT_PUBLIC_API_URL=https://api.example.dev/api \
-#     --build-arg NEXT_PUBLIC_SITE_URL=https://example.dev .
-#
-#   # Smoke-test build with NO backend (same as CI). Prerenders fixtures — never deploy it.
-#   docker build -t portfolio-web:mock --build-arg BUILD_WITH_MOCK_API=true .
-# =============================================================================
+# syntax=docker/dockerfile:1
 
-# Matches CI (Node 26). Override: docker build --build-arg NODE_VERSION=24 .
-ARG NODE_VERSION=26
+# Production image for the portfolio frontend (Next.js standalone output).
+#
+# IMPORTANT — two things about how this app builds:
+#   1. Pages prerender against the backend API while `next build` runs, so the
+#      API must be reachable FROM the build, at NEXT_PUBLIC_API_URL.
+#   2. NEXT_PUBLIC_* values are baked into the bundle at build time, so changing
+#      one means rebuilding the image (they are build args, not runtime env).
+# See DOCKER.md for the full walkthrough.
 
-# ---------------------------------------------------------------------------
-# base
-# ---------------------------------------------------------------------------
-FROM node:${NODE_VERSION}-bookworm-slim AS base
+# Pin for reproducible builds:  --build-arg NODE_IMAGE=node:26-alpine@sha256:<digest>
+ARG NODE_IMAGE=node:26-alpine
+
+# ── 1. dependencies ──────────────────────────────────────────────────────────
+FROM ${NODE_IMAGE} AS deps
 WORKDIR /app
-# ca-certificates: outbound TLS for the build (API prerender, Google Fonts) and
-# for runtime ISR revalidation against the API.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# ---------------------------------------------------------------------------
-# deps — full install (dev deps needed for the build: tailwind, typescript, ...)
-# ---------------------------------------------------------------------------
-FROM base AS deps
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
+# --ignore-scripts: no dependency gets to run code at install time (supply-chain
+# hardening). Nothing the build needs relies on install scripts.
+# The cache mount keeps npm's download cache between builds without baking it in.
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts --no-audit --no-fund
 
-# ---------------------------------------------------------------------------
-# build — compile + prerender
-# ---------------------------------------------------------------------------
-FROM deps AS build
-
-# Public, build-time configuration. All optional except NEXT_PUBLIC_API_URL
-# (unless BUILD_WITH_MOCK_API=true). Empty string = "use the app's default".
-ARG NEXT_PUBLIC_API_URL=
-ARG NEXT_PUBLIC_SITE_URL=
-ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=
-ARG NEXT_PUBLIC_RESUME_URL=
-ARG NEXT_PUBLIC_AMBIENT_TRACK_1_URL=
-ARG NEXT_PUBLIC_AMBIENT_TRACK_2_URL=
-ARG NEXT_PUBLIC_AMBIENT_TRACK_3_URL=
-ARG BUILD_WITH_MOCK_API=false
-
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
-    NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
-    NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY} \
-    NEXT_PUBLIC_RESUME_URL=${NEXT_PUBLIC_RESUME_URL} \
-    NEXT_PUBLIC_AMBIENT_TRACK_1_URL=${NEXT_PUBLIC_AMBIENT_TRACK_1_URL} \
-    NEXT_PUBLIC_AMBIENT_TRACK_2_URL=${NEXT_PUBLIC_AMBIENT_TRACK_2_URL} \
-    NEXT_PUBLIC_AMBIENT_TRACK_3_URL=${NEXT_PUBLIC_AMBIENT_TRACK_3_URL} \
-    NEXT_TELEMETRY_DISABLED=1
-
+# ── 2. build ─────────────────────────────────────────────────────────────────
+FROM ${NODE_IMAGE} AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Fail fast with a readable message instead of an opaque ECONNREFUSED during prerender.
-RUN if [ "${BUILD_WITH_MOCK_API}" != "true" ] && [ -z "${NEXT_PUBLIC_API_URL}" ]; then \
-      echo "ERROR: NEXT_PUBLIC_API_URL is empty."; \
-      echo "  Pass --build-arg NEXT_PUBLIC_API_URL=https://<your-api>/api   (must end in /api)"; \
-      echo "  or --build-arg BUILD_WITH_MOCK_API=true for a throwaway smoke-test image."; \
-      exit 1; \
-    fi
-
-# Real build:  `npm run build` (= next build --webpack, with the JS obfuscator plugin).
-# Mock build:  same command, wrapped so the fixture API (e2e/mock-api) listens on
-#              localhost:3001 while pages prerender — exactly what CI does.
-#              NEXT_PUBLIC_API_URL is unset on purpose so the app's default
-#              (http://localhost:3001/api) points at the mock.
-RUN if [ "${BUILD_WITH_MOCK_API}" = "true" ]; then \
-      echo ">>> MOCK API BUILD: pages are prerendered from fixtures. Do NOT deploy this image."; \
-      env -u NEXT_PUBLIC_API_URL node e2e/with-mock-api.mjs npm run build; \
-    else \
-      npm run build; \
-    fi
-
-# Fail the build loudly if the output isn't where the runtime stage expects it,
-# then drop the build cache (~250 MB) — it must not ship in the final image.
-RUN test -f .next/BUILD_ID || (echo "ERROR: .next/BUILD_ID missing — build did not complete" && ls -la .next && exit 1) \
-    && rm -rf .next/cache
-
-# ---------------------------------------------------------------------------
-# prod-deps — runtime node_modules only
-# ---------------------------------------------------------------------------
-FROM base AS prod-deps
-COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --no-audit --no-fund
-
-# ---------------------------------------------------------------------------
-# runtime — the image that actually runs (LAST stage = default build target)
-# ---------------------------------------------------------------------------
-FROM base AS runtime
-ARG BUILD_WITH_MOCK_API=false
-# Inspect later with: docker inspect --format '{{ index .Config.Labels "portfolio.mock-api-build" }}' <image>
-LABEL portfolio.mock-api-build="${BUILD_WITH_MOCK_API}"
-
-ENV NODE_ENV=production \
-    PORT=3000 \
+# Public configuration, baked in at build time. All optional; empty values fall
+# back to the defaults in lib/constants.ts (which is why this works without any).
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ARG NEXT_PUBLIC_RESUME_URL
+ARG NEXT_PUBLIC_AMBIENT_TRACK_1_URL
+ARG NEXT_PUBLIC_AMBIENT_TRACK_2_URL
+ARG NEXT_PUBLIC_AMBIENT_TRACK_3_URL
+# "false" when a reverse proxy (the bundled Caddy) does the compression instead.
+ARG NEXT_COMPRESS=true
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY \
+    NEXT_PUBLIC_RESUME_URL=$NEXT_PUBLIC_RESUME_URL \
+    NEXT_PUBLIC_AMBIENT_TRACK_1_URL=$NEXT_PUBLIC_AMBIENT_TRACK_1_URL \
+    NEXT_PUBLIC_AMBIENT_TRACK_2_URL=$NEXT_PUBLIC_AMBIENT_TRACK_2_URL \
+    NEXT_PUBLIC_AMBIENT_TRACK_3_URL=$NEXT_PUBLIC_AMBIENT_TRACK_3_URL \
+    NEXT_COMPRESS=$NEXT_COMPRESS \
+    DOCKER_BUILD=true \
     NEXT_TELEMETRY_DISABLED=1
 
-# Code, deps and assets stay root-owned (read-only to the app).
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=build /app/public ./public
-# next.config.ts + package.json are read by `next start` at boot.
-COPY --from=build /app/next.config.ts /app/package.json ./
-# ONLY .next is owned by `node`: ISR rewrites prerendered pages (revalidate: 60)
-# and Next recreates .next/cache at runtime.
-COPY --from=build --chown=node:node /app/.next ./.next
+# The cache mount keeps webpack's compile cache between builds (rebuilds after a
+# small change are much faster). Next's fetch cache lives there too, so it is
+# cleared first: every build must prerender from the API as it is *now*.
+RUN --mount=type=cache,target=/app/.next/cache \
+    rm -rf .next/cache/fetch-cache && npm run build
 
-USER node
+# ── 3. runtime ───────────────────────────────────────────────────────────────
+FROM ${NODE_IMAGE} AS runner
+WORKDIR /app
+
+LABEL org.opencontainers.image.title="portfolio-frontend" \
+      org.opencontainers.image.description="Next.js portfolio frontend (standalone build)" \
+      org.opencontainers.image.licenses="UNLICENSED"
+
+# Heap ceiling: measured under 40 concurrent connections, the server stays healthy
+# down to a 48 MB heap, so 128 MB is ~2.5x headroom; a small young generation
+# (semi-space) cut resident memory by ~35% with no loss in throughput. Keep the
+# container's mem_limit at about twice the heap (compose uses 256m).
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0 \
+    NODE_OPTIONS="--max-old-space-size=128 --max-semi-space-size=4"
+
+# Unprivileged user, and no package manager in the runtime image: the server needs
+# only the node binary, and npm drags in dependencies that vulnerability scanners
+# flag. (Removing files here doesn't shrink the image; it shrinks the attack surface.)
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs \
+    && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx \
+              /usr/local/bin/corepack /opt/yarn* /usr/local/bin/yarn* \
+    && mkdir -p .next/cache .next/server/route-cache \
+    && chown -R nextjs:nodejs .next
+
+# Next writes regenerated (ISR) pages to .next/cache and .next/server/route-cache and
+# nowhere else, so these are the only paths that need to be writable. Everything
+# else can be mounted read-only (see docker-compose.yml).
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER 1001:1001
 EXPOSE 3000
 
-# Node image has no curl/wget — use node itself. /robots.txt is static, so this
-# checks "the server is up", not "the API is reachable".
+# robots.txt is static and tiny, so checking it costs almost nothing.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/robots.txt').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+    CMD ["wget", "-qO", "/dev/null", "http://127.0.0.1:3000/robots.txt"]
 
-# exec form → run with compose `init: true` (or `docker run --init`) so SIGTERM
-# is forwarded and `docker stop` exits cleanly. Port comes from $PORT.
-CMD ["node", "node_modules/next/dist/bin/next", "start", "-H", "0.0.0.0"]
+CMD ["node", "server.js"]

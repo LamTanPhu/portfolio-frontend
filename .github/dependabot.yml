@@ -10,3 +10,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  # Base images in the Dockerfile (node) and docker-compose.yml (caddy).
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"

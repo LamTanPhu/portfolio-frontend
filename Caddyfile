@@ -1,0 +1,20 @@
+# Reverse proxy for the `proxy` profile in docker-compose.yml.
+# SITE_ADDRESS is a domain (https://, certificates are automatic) or "localhost".
+{$SITE_ADDRESS:localhost} {
+	# Compress here instead of in Node (build with NEXT_COMPRESS=false).
+	encode zstd gzip
+
+	reverse_proxy web:3000 {
+		health_uri /robots.txt
+		health_interval 30s
+		health_timeout 5s
+	}
+
+	# Don't advertise the proxy. The security headers (CSP, HSTS, ...) come from the app.
+	header -Server
+
+	log {
+		output stdout
+		format console
+	}
+}

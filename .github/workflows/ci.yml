@@ -131,3 +131,66 @@ jobs:
 
       - name: Lighthouse CI
         run: npm run lighthouse
+
+  # Keeps the Docker backup path from rotting: builds the production image and
+  # boots it. The mock API stands in for the backend (the build prerenders
+  # against it), reached via --network=host so `localhost` means this runner.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Start mock API
+        run: |
+          node e2e/mock-api/server.mjs &
+          for i in $(seq 1 30); do curl -sf http://localhost:3001/__health && break; sleep 1; done
+
+      - name: Build image
+        run: docker build --network=host --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001/api -t portfolio-frontend .
+
+      # Same restrictions as docker-compose.yml: read-only filesystem, no capabilities,
+      # writable tmpfs only where Next regenerates pages. If the app ever needs to
+      # write somewhere else, this step fails instead of production.
+      - name: Run image (hardened) and smoke test
+        run: |
+          docker run -d --name web --network host \
+            --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+            --tmpfs /app/.next/cache:rw,noexec,nosuid,uid=1001,gid=1001,size=32m \
+            --tmpfs /app/.next/server/route-cache:rw,noexec,nosuid,uid=1001,gid=1001,size=32m \
+            portfolio-frontend
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/ > /dev/null && break; sleep 1; done
+          curl -sf http://localhost:3000/projects | grep -q portfolio-site
+          curl -sf http://localhost:3000/sitemap.xml > /dev/null
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/no-such-page)" = 404
+          headers=$(curl -sI http://localhost:3000/)
+          echo "$headers" | grep -qi '^content-security-policy:'
+          echo "$headers" | grep -qi '^x-frame-options: DENY'
+          echo "$headers" | grep -qi '^x-content-type-options: nosniff'
+          ! echo "$headers" | grep -qi '^x-powered-by:'
+          test "$(docker exec web id -u)" = 1001   # runs as the unprivileged user
+          for i in $(seq 1 12); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' web)
+            [ "$status" = healthy ] && break
+            sleep 5
+          done
+          echo "container health: $status"
+          test "$status" = healthy
+
+      # Report-only for now (continue-on-error): flags fixable HIGH/CRITICAL
+      # vulnerabilities in the final image. Remove continue-on-error to make it blocking.
+      - name: Scan image for vulnerabilities
+        continue-on-error: true
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 portfolio-frontend
+
+      - name: Container logs
+        if: ${{ always() }}
+        run: docker logs web || true

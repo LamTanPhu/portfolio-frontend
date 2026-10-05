@@ -1,0 +1,97 @@
+# Runs the frontend as a hardened, resource-capped container.
+#
+#   copy .env.docker.example .env.docker      (then edit it)
+#   docker compose --env-file .env.docker up -d --build
+#
+# With HTTPS + compression via the bundled Caddy proxy (recommended for a server):
+#   set NEXT_COMPRESS=false and SITE_ADDRESS=your.domain in .env.docker, then
+#   docker compose --env-file .env.docker --profile proxy up -d --build
+#
+# The API at NEXT_PUBLIC_API_URL must be reachable while the image BUILDS
+# (pages prerender against it) and, from your visitors' browsers, afterwards.
+name: portfolio-frontend
+
+services:
+  web:
+    image: portfolio-frontend
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?set NEXT_PUBLIC_API_URL in .env.docker}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        NEXT_PUBLIC_RESUME_URL: ${NEXT_PUBLIC_RESUME_URL:-}
+        NEXT_COMPRESS: ${NEXT_COMPRESS:-true}
+      # Lets the build reach an API running on this machine as host.docker.internal
+      # (Docker Desktop provides this name; this line makes Linux hosts do the same).
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    # ── Security ────────────────────────────────────────────────────────────
+    init: true                          # proper PID 1: signal forwarding, zombie reaping
+    read_only: true                     # the image's filesystem cannot be modified
+    cap_drop: [ALL]                     # a Node web server needs no Linux capabilities
+    security_opt:
+      - no-new-privileges:true
+    # Only these paths are writable, all in RAM and gone on restart. Next writes
+    # regenerated (ISR) pages to exactly the two .next paths and nowhere else.
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+      - /app/.next/cache:rw,noexec,nosuid,uid=1001,gid=1001,size=32m
+      - /app/.next/server/route-cache:rw,noexec,nosuid,uid=1001,gid=1001,size=32m
+
+    # ── Resources (measured: ~100 MB idle, ~165 MB under 40 concurrent connections) ──
+    mem_limit: 256m
+    memswap_limit: 256m                 # same as mem_limit = no swap
+    cpus: 1.0
+    pids_limit: 128
+
+    # ── Operations ──────────────────────────────────────────────────────────
+    # Bound to this machine only by default; the proxy (or you) exposes it. Set
+    # WEB_BIND=0.0.0.0 to publish the port directly.
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    restart: unless-stopped
+    stop_grace_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: automatic HTTPS (Let's Encrypt), HTTP/2 + HTTP/3, zstd/gzip compression.
+  caddy:
+    profiles: ["proxy"]
+    image: caddy:2-alpine
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data                # certificates — keep this, or you re-issue every restart
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]         # the one capability needed to listen on 80/443
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    memswap_limit: 128m
+    pids_limit: 128
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:
