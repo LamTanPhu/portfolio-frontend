@@ -32,6 +32,11 @@ describe('BlogMapper', () => {
             expect(BlogMapper.toDomainSummary(blogSummaryDTO({ excerpt: null })).excerpt).toBeNull()
         })
 
+        it('keeps updatedAt when the backend provides it, and null when it does not', () => {
+            expect(BlogMapper.toDomainSummary(blogSummaryDTO({ updatedAt: '2025-03-02T11:00:00.000Z' })).updatedAt?.toISOString()).toBe('2025-03-02T11:00:00.000Z')
+            expect(BlogMapper.toDomainSummary(blogSummaryDTO()).updatedAt).toBeNull()
+        })
+
         it('does not carry post content (list view never loads it)', () => {
             const summary = BlogMapper.toDomainSummary(blogDetailDTO({ content: 'secret body' }))
 
@@ -46,7 +51,18 @@ describe('BlogMapper', () => {
             expect(blog).toBeInstanceOf(Blog)
             expect(blog.content).toBe('Body')
             expect(blog.updatedAt).toBeInstanceOf(Date)
-            expect(blog.updatedAt.toISOString()).toBe('2025-03-02T11:00:00.000Z')
+            expect(blog.updatedAt?.toISOString()).toBe('2025-03-02T11:00:00.000Z')
+        })
+
+        // Regression: the real backend sends NO updatedAt for blog posts. The mapper used to
+        // build `new Date(undefined)` (an Invalid Date) which later threw on .toISOString().
+        it('accepts a post without updatedAt (what the backend actually sends) and keeps it null', () => {
+            const dto = blogDetailDTO()
+            expect(dto).not.toHaveProperty('updatedAt')
+
+            const blog = BlogMapper.toDomain(dto)
+
+            expect(blog.updatedAt).toBeNull()
         })
 
         it('keeps publishedAt as null for a draft', () => {

@@ -222,6 +222,9 @@ describe('ContactPage — submitting', () => {
 
         // Form is replaced by the gate because neither token is reusable...
         expect(await screen.findByRole('button', { name: 'pass the snake gate' })).toBeInTheDocument()
+        // ...and the visitor is told WHY straight away, without having to replay the game to find out.
+        expect(screen.getByRole('alert')).toHaveTextContent('Too many messages sent.')
+        expect(screen.getByRole('alert')).toHaveTextContent(/not sent/i)
 
         await passGate()
         // ...the typed text survives, the server's reason is shown, and a fresh Turnstile is required.
@@ -236,9 +239,29 @@ describe('ContactPage — submitting', () => {
         await readyToSubmit()
 
         await userEvent.click(submitButton())
+
+        expect(await screen.findByRole('alert')).toHaveTextContent(/could not reach the server/i)
         await passGate()
 
         expect(screen.getByText(/could not reach the server/i)).toBeInTheDocument()
+    })
+
+    it('shows no error panel on a fresh visit to the gate', () => {
+        render(<ContactPage socialAccounts={[]} />)
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('the gate-side error disappears once the gate is passed (the form then shows it next to the message)', async () => {
+        submitContactAction.mockResolvedValue({ success: false, error: 'Too many messages sent.' })
+        await readyToSubmit()
+        await userEvent.click(submitButton())
+        await screen.findByRole('alert')
+
+        await passGate()
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+        expect(screen.getAllByText('Too many messages sent.')).toHaveLength(1)
     })
 })
 

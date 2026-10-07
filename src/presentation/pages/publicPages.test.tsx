@@ -355,6 +355,13 @@ describe('BlogPostPage', () => {
         })
     })
 
+    it('omits dateModified when the backend sends no updatedAt (rather than inventing one)', () => {
+        render(<BlogPostPage post={blogDetailDTO({ title: 'T', slug: 't' })} />)
+
+        expect(jsonLd()).not.toHaveProperty('dateModified')
+        expect(jsonLd().datePublished).toBeTruthy()
+    })
+
     it('omits description and keywords from the JSON-LD when the post has neither', () => {
         render(<BlogPostPage post={blogDetailDTO({ excerpt: null, tags: [], publishedAt: null, createdAt: '2025-02-10T12:00:00.000Z' })} />)
 

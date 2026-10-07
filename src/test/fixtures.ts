@@ -20,7 +20,7 @@ export const blogSummaryDTO = (o: Partial<BlogSummaryDTO> = {}): BlogSummaryDTO 
     isPublished: true,
     publishedAt: '2025-03-01T10:00:00.000Z',
     createdAt: '2025-02-28T09:00:00.000Z',
-    updatedAt: '2025-03-02T11:00:00.000Z',
+    // no updatedAt: the real backend does not send one for blog posts
     ...o,
 })
 

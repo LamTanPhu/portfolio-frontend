@@ -43,11 +43,19 @@ test.describe('blog', () => {
         await expect(page.getByText('Hooks let you use state in function components.')).toBeVisible()
     })
 
-    test('an unknown post slug shows the 404 page and is marked noindex', async ({ page }) => {
-        await page.goto('/blog/no-such-post')
+    // Regression: used to answer HTTP 200 (see projects.spec.ts).
+    test('an unknown post slug is a real HTTP 404, shows the 404 page and is marked noindex', async ({ page }) => {
+        const response = await page.goto('/blog/no-such-post')
 
+        expect(response?.status()).toBe(404)
         await expect(page.getByRole('heading', { level: 1 })).toContainText('Cannot resolve module')
         // Next renders this tag twice for notFound(); one is enough for crawlers.
         await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
+    })
+
+    test('a known post is still HTTP 200', async ({ page }) => {
+        const response = await page.goto('/blog/react-hooks-deep-dive')
+
+        expect(response?.status()).toBe(200)
     })
 })

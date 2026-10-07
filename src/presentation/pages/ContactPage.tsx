@@ -149,7 +149,19 @@ export function ContactPage({ socialAccounts }: Props) {
             {submitted ? (
                 <ContactSuccess onReset={handleReset} />
             ) : !snakeProofToken ? (
-                <SnakeCaptchaGate onVerified={setSnakeProofToken} />
+                <div className="flex flex-col items-center w-full">
+                    {/* After a failed send the form is replaced by the gate (both anti-bot
+                        tokens are single-use), so say why — don't make them replay to find out. */}
+                    {errors.message && (
+                        <div role="alert" className="w-full max-w-sm text-center border border-red-500/40 rounded-lg p-3 mt-2">
+                            <p className="font-mono text-xs text-red-500">{errors.message}</p>
+                            <p className="font-mono text-[11px] text-(--text-muted) mt-1">
+                                {'// your message was not sent — what you typed is kept, beat the game again to retry'}
+                            </p>
+                        </div>
+                    )}
+                    <SnakeCaptchaGate onVerified={setSnakeProofToken} />
+                </div>
             ) : (
                 <ContactForm
                 name={name}

@@ -298,7 +298,7 @@ describe('submitContactAction', () => {
 describe('sitemap', () => {
     it('lists the static pages, then every project and post with its last-modified date', async () => {
         get('/projects', [projectSummaryDTO({ slug: 'alpha', updatedAt: '2025-01-12T08:30:00.000Z' })])
-        get('/blogs', [blogSummaryDTO({ slug: 'hello', createdAt: '2025-02-28T09:00:00.000Z', updatedAt: '2025-03-02T11:00:00.000Z' })])
+        get('/blogs', [blogSummaryDTO({ slug: 'hello', publishedAt: '2025-03-02T11:00:00.000Z' })])
 
         const map = await sitemap()
 
@@ -308,9 +308,22 @@ describe('sitemap', () => {
         ])
         expect(map[0].priority).toBe(1)
         expect(map[5]).toMatchObject({ lastModified: '2025-01-12T08:30:00.000Z', changeFrequency: 'monthly', priority: 0.6 })
-        // Characterisation: the blog list use case has no updatedAt for summaries and
-        // substitutes createdAt, so an edited post still shows its creation date here.
-        expect(map[6]).toMatchObject({ lastModified: '2025-02-28T09:00:00.000Z' })
+        expect(map[6]).toMatchObject({ lastModified: '2025-03-02T11:00:00.000Z' })
+    })
+
+    it('blog lastModified: updatedAt if the backend sends one, else the publish date, else the creation date', async () => {
+        get('/projects', [])
+        get('/blogs', [
+            blogSummaryDTO({ slug: 'edited', publishedAt: '2025-03-01T00:00:00.000Z', createdAt: '2025-02-01T00:00:00.000Z', updatedAt: '2025-04-01T00:00:00.000Z' }),
+            blogSummaryDTO({ slug: 'published', publishedAt: '2025-03-01T00:00:00.000Z', createdAt: '2025-02-01T00:00:00.000Z' }),
+            blogSummaryDTO({ slug: 'draft', isPublished: false, publishedAt: null, createdAt: '2025-02-01T00:00:00.000Z' }),
+        ])
+
+        const byUrl = Object.fromEntries((await sitemap()).map((e) => [e.url, e.lastModified]))
+
+        expect(byUrl[`${SITE_URL}/blog/edited`]).toBe('2025-04-01T00:00:00.000Z')
+        expect(byUrl[`${SITE_URL}/blog/published`]).toBe('2025-03-01T00:00:00.000Z')
+        expect(byUrl[`${SITE_URL}/blog/draft`]).toBe('2025-02-01T00:00:00.000Z')
     })
 
     it('still returns the static pages when the API is down (the build must not fail)', async () => {

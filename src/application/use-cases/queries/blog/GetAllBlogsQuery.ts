@@ -29,7 +29,7 @@ export class GetAllBlogsQuery {
       isPublished: b.isPublished,
       publishedAt: b.publishedAt?.toISOString() ?? null,
       createdAt:   b.createdAt.toISOString(),
-      updatedAt:   b.createdAt.toISOString(), // BlogSummary has no updatedAt, fallback to createdAt — same as GetPublishedBlogsQuery
+      updatedAt:   b.updatedAt?.toISOString(),
     }))
   }
 }

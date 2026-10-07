@@ -16,8 +16,16 @@ export function useProjects() {
 
   useEffect(() => {
     window.fetch(`${API_URL}/projects`)
-      .then((r) => r.json())
-      .then((data: ProjectSummaryDTO[]) => { setProjects(data); setLoading(false) })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((data: unknown) => {
+        // An error body or an unexpected shape must not end up in state as the project list.
+        if (!Array.isArray(data)) throw new Error('unexpected response')
+        setProjects(data as ProjectSummaryDTO[])
+        setLoading(false)
+      })
       .catch(() => { setError('Failed to load projects'); setLoading(false) })
   }, [])
 

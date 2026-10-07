@@ -16,7 +16,7 @@ vi.mock('@/src/presentation/templates/VSCodeLayout', () => ({
 
 import ErrorPage from '../error'
 import GlobalError from '../global-error'
-import Loading from '../loading'
+import AdminLoading from '../admin/(protected)/loading'
 import NotFound, { metadata as notFoundMetadata } from '../not-found'
 import RootLayout, { metadata as layoutMetadata } from '../layout'
 import OgImage, { alt, contentType, size } from '../opengraph-image'
@@ -78,7 +78,7 @@ describe('global-error.tsx (root error boundary)', () => {
     })
 })
 
-describe('not-found.tsx and loading.tsx', () => {
+describe('not-found.tsx and the admin loading boundary', () => {
     it('the 404 page explains the problem and links home, inside the site chrome', () => {
         render(<NotFound />)
 
@@ -88,11 +88,19 @@ describe('not-found.tsx and loading.tsx', () => {
         expect(notFoundMetadata.title).toBe('404')
     })
 
-    it('the loading page shows a loading indicator inside the site chrome', () => {
-        render(<Loading />)
+    it('admin pages that render on the server show a loading indicator while they load', () => {
+        render(<AdminLoading />)
 
         expect(screen.getByText('loading')).toBeInTheDocument()
-        expect(screen.getByTestId('layout')).toBeInTheDocument()
+    })
+
+    // Regression: a root app/loading.tsx makes Next send "200 OK" before a page can call
+    // notFound(), which turned every unknown /projects/x and /blog/x into a soft 404.
+    it('there is no root loading boundary (it would turn real 404s into HTTP 200)', async () => {
+        const { existsSync } = await import('node:fs')
+        const { resolve } = await import('node:path')
+
+        expect(existsSync(resolve(__dirname, '../loading.tsx'))).toBe(false)
     })
 })
 

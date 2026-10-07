@@ -19,6 +19,7 @@ export class BlogMapper {
       dto.isPublished,
       dto.publishedAt ? new Date(dto.publishedAt) : null,
       new Date(dto.createdAt),
+      dto.updatedAt ? new Date(dto.updatedAt) : null,
     )
   }
 
@@ -33,7 +34,7 @@ export class BlogMapper {
       dto.isPublished,
       dto.publishedAt ? new Date(dto.publishedAt) : null,
       new Date(dto.createdAt),
-      new Date(dto.updatedAt),
+      dto.updatedAt ? new Date(dto.updatedAt) : null,
     )
   }
 }

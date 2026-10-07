@@ -23,7 +23,7 @@ export class GetBlogBySlugQuery {
             isPublished: blog.isPublished,
             publishedAt: blog.publishedAt?.toISOString() ?? null,
             createdAt:   blog.createdAt.toISOString(),
-            updatedAt:   blog.updatedAt.toISOString(),
+            updatedAt:   blog.updatedAt?.toISOString(),
         }
     }
 }

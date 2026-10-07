@@ -19,15 +19,20 @@ test.describe('projects', () => {
         await expect(page.getByText('The site you are looking at.')).toBeVisible()
     })
 
-    // Characterisation: unknown slugs render the 404 page but respond with HTTP
-    // 200 (the loading.tsx boundary streams the status before notFound() runs).
-    // The page carries <meta name="robots" content="noindex">, so search engines
-    // skip it. If the status ever becomes a real 404, change this to expect 404.
-    test('an unknown project slug shows the 404 page and is marked noindex', async ({ page }) => {
-        await page.goto('/projects/no-such-project')
+    // Regression: this used to answer HTTP 200 (a root loading.tsx made Next send the status
+    // before notFound() ran). Search engines must see a real 404.
+    test('an unknown project slug is a real HTTP 404, shows the 404 page and is marked noindex', async ({ page }) => {
+        const response = await page.goto('/projects/no-such-project')
 
+        expect(response?.status()).toBe(404)
         await expect(page.getByRole('heading', { level: 1 })).toContainText('Cannot resolve module')
         // Next renders this tag twice for notFound(); one is enough for crawlers.
         await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
+    })
+
+    test('a known project is still HTTP 200', async ({ page }) => {
+        const response = await page.goto('/projects/portfolio-site')
+
+        expect(response?.status()).toBe(200)
     })
 })

@@ -300,6 +300,26 @@ describe('useProjects', () => {
         expect(result.current.error).toBeNull()
     })
 
+    it('reports an error for an HTTP error response instead of storing its body as the project list', async () => {
+        server.use(http.get(`${API_URL}/projects`, () => HttpResponse.json({ message: 'Internal server error' }, { status: 500 })))
+
+        const { result } = renderHook(() => useProjects())
+
+        await waitFor(() => expect(result.current.loading).toBe(false))
+        expect(result.current.error).toBe('Failed to load projects')
+        expect(result.current.projects).toEqual([])
+    })
+
+    it('reports an error when a 200 response is not a list', async () => {
+        server.use(http.get(`${API_URL}/projects`, () => HttpResponse.json({ items: [] })))
+
+        const { result } = renderHook(() => useProjects())
+
+        await waitFor(() => expect(result.current.loading).toBe(false))
+        expect(result.current.error).toBe('Failed to load projects')
+        expect(result.current.projects).toEqual([])
+    })
+
     it('reports an error when the request cannot be made or parsed', async () => {
         server.use(http.get(`${API_URL}/projects`, () => HttpResponse.text('not json', { status: 200 })))
 

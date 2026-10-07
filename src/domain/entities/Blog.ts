@@ -12,6 +12,7 @@ export class BlogSummary {
     public readonly isPublished: boolean,
     public readonly publishedAt: Date | null,
     public readonly createdAt:   Date,
+    public readonly updatedAt:   Date | null = null,
   ) {}
 }
 
@@ -30,6 +31,6 @@ export class Blog {
     public readonly isPublished: boolean,
     public readonly publishedAt: Date | null,
     public readonly createdAt:   Date,
-    public readonly updatedAt:   Date,
+    public readonly updatedAt:   Date | null,
   ) {}
 }

@@ -274,6 +274,29 @@ describe('blog use cases', () => {
         expect(post).toMatchObject({ slug: 'draft', publishedAt: null })
     })
 
+    // Regression for a bug only the real backend would have shown: its blog responses carry
+    // no updatedAt, and the use case used to call .toISOString() on an Invalid Date (RangeError),
+    // which would have broken every blog post page and the build.
+    it('loadBlogBySlug and loadBlogs work with the backend\'s real shape (no updatedAt)', async () => {
+        route('get', '/blogs/real', json(blogDetailDTO({ slug: 'real' })))
+        route('get', '/blogs', json([blogSummaryDTO({ slug: 'real' })]))
+
+        const post = await loadBlogBySlug('real')
+        const list = await loadBlogs()
+
+        expect(post).toMatchObject({ slug: 'real' })
+        expect(post?.updatedAt).toBeUndefined()
+        expect(list[0].updatedAt).toBeUndefined()
+    })
+
+    it('passes updatedAt through when the backend does send it', async () => {
+        route('get', '/blogs/edited', json(blogDetailDTO({ slug: 'edited', updatedAt: '2025-03-02T11:00:00.000Z' })))
+        route('get', '/blogs', json([blogSummaryDTO({ slug: 'edited', updatedAt: '2025-03-02T11:00:00.000Z' })]))
+
+        expect((await loadBlogBySlug('edited'))?.updatedAt).toBe('2025-03-02T11:00:00.000Z')
+        expect((await loadBlogs())[0].updatedAt).toBe('2025-03-02T11:00:00.000Z')
+    })
+
     it('loadBlogBySlug returns null for a 404', async () => {
         route('get', '/blogs/missing', status(404))
 

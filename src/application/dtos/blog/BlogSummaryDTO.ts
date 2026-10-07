@@ -12,5 +12,7 @@ export interface BlogSummaryDTO {
     isPublished: boolean
     publishedAt: string | null
     createdAt:   string
-    updatedAt:   string
+    // The backend's blog responses do NOT include updatedAt today (list or detail).
+    // Optional so the frontend works either way, and lights up if the backend adds it.
+    updatedAt?:  string
 }

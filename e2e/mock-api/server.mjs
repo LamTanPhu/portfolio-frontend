@@ -41,9 +41,9 @@ const baseFixtures = () => ({
         { id: 2, name: 'Snake Game', slug: 'snake-game', description: 'A tiny canvas snake game.', techStack: ['TypeScript'], repoUrl: null, liveUrl: 'https://example.dev/snake', thumbnailUrl: null, isPublished: true, isOpenSource: false, createdAt: iso('2025-02-01T12:00:00Z'), updatedAt: iso('2025-02-02T12:00:00Z') },
     ],
     blogs: [
-        { id: 1, title: 'React Hooks Deep Dive', slug: 'react-hooks-deep-dive', content: 'Hooks let you use state in function components.', excerpt: 'All about hooks.', tags: ['react', 'frontend'], isPublished: true, publishedAt: iso('2025-03-01T12:00:00Z'), createdAt: iso('2025-02-28T12:00:00Z'), updatedAt: iso('2025-03-02T12:00:00Z') },
-        { id: 2, title: 'NestJS Guards Explained', slug: 'nestjs-guards-explained', content: 'Guards decide whether a request may proceed.', excerpt: 'Protecting routes.', tags: ['nestjs', 'backend'], isPublished: true, publishedAt: iso('2025-03-05T12:00:00Z'), createdAt: iso('2025-03-04T12:00:00Z'), updatedAt: iso('2025-03-06T12:00:00Z') },
-        { id: 3, title: 'Testing Next.js Apps', slug: 'testing-nextjs-apps', content: 'Test the behaviour users see.', excerpt: 'Tests that matter.', tags: ['react', 'testing'], isPublished: true, publishedAt: iso('2025-03-10T12:00:00Z'), createdAt: iso('2025-03-09T12:00:00Z'), updatedAt: iso('2025-03-11T12:00:00Z') },
+        { id: 1, title: 'React Hooks Deep Dive', slug: 'react-hooks-deep-dive', content: 'Hooks let you use state in function components.', excerpt: 'All about hooks.', tags: ['react', 'frontend'], isPublished: true, publishedAt: iso('2025-03-01T12:00:00Z'), createdAt: iso('2025-02-28T12:00:00Z') },
+        { id: 2, title: 'NestJS Guards Explained', slug: 'nestjs-guards-explained', content: 'Guards decide whether a request may proceed.', excerpt: 'Protecting routes.', tags: ['nestjs', 'backend'], isPublished: true, publishedAt: iso('2025-03-05T12:00:00Z'), createdAt: iso('2025-03-04T12:00:00Z') },
+        { id: 3, title: 'Testing Next.js Apps', slug: 'testing-nextjs-apps', content: 'Test the behaviour users see.', excerpt: 'Tests that matter.', tags: ['react', 'testing'], isPublished: true, publishedAt: iso('2025-03-10T12:00:00Z'), createdAt: iso('2025-03-09T12:00:00Z') },
     ],
     profile: { id: 1, firstname: 'Phu', lastname: 'Lam', email: 'phu@example.dev', aboutme: 'Software engineer.', lastLogin: null },
 })
