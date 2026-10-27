@@ -21,7 +21,7 @@
     "@marsidev/react-turnstile": "^1.6.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.55.0",
-    "next": "^16.4.0",
+    "next": "^16.4.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
