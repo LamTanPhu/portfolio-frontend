@@ -18,6 +18,42 @@ const originOf = (url?: string): string | undefined => {
 const apiOrigin = originOf(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api");
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const isHttps = siteUrl.startsWith("https://");
+
+/**
+ * Same-origin API proxy (optional; used when the frontend and backend live on
+ * different free-tier hosts, e.g. Vercel + Render).
+ *
+ * The backend's refresh cookie is SameSite=Strict, so it is only sent on
+ * same-site requests. Browsers therefore call /api/* on THIS origin and Next
+ * forwards it to API_PROXY_TARGET. Unset (local dev, tests, Docker) = no proxy.
+ *
+ * Read at build time, so set it in the build environment. Validated so a typo
+ * fails the build instead of silently proxying somewhere unintended:
+ *  - must be an absolute URL; only its origin is kept (no stray path or slash),
+ *  - must be https, except for loopback addresses (local testing).
+ * The destination host is fixed at build time and never derived from a request,
+ * so the proxy can't be pointed at another host.
+ */
+const apiProxyTarget = ((): string | undefined => {
+  const raw = process.env.API_PROXY_TARGET?.trim();
+  if (!raw) return undefined;
+
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`API_PROXY_TARGET must be an absolute URL such as https://my-api.onrender.com (got "${raw}")`);
+  }
+
+  const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  const isAllowed = url.protocol === "https:" || (url.protocol === "http:" && isLoopback);
+  if (!isAllowed) {
+    throw new Error(`API_PROXY_TARGET must use https (http is only allowed for localhost). Got "${raw}"`);
+  }
+
+  return url.origin;
+})();
+
 const ambientOrigins = [1, 2, 3]
   .map((n) => originOf(process.env[`NEXT_PUBLIC_AMBIENT_TRACK_${n}_URL`]))
   .filter((o): o is string => Boolean(o));
@@ -29,7 +65,8 @@ const ambientOrigins = [1, 2, 3]
  *    to Cloudflare Turnstile.
  *  - style 'unsafe-inline': React inline style attributes.
  *  - img https:: project thumbnails and album art come from arbitrary hosts.
- *  - connect: this site, the API (read from NEXT_PUBLIC_API_URL) and Turnstile.
+ *  - connect: this site, the API (read from NEXT_PUBLIC_API_URL; a relative
+ *    '/api' needs no entry because it is this site) and Turnstile.
  */
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -101,6 +138,16 @@ const nextConfig: NextConfig = {
   // Docker-only hardening and slimming (see the `docker` const above). Spread in
   // so Vercel and plain `npm run build` get exactly the config they had before.
   ...(isDocker && dockerConfig),
+
+  /**
+   * Forward /api/* to the backend when API_PROXY_TARGET is set (see above). The
+   * backend's global prefix is "api", so the path maps one-to-one. Filesystem
+   * routes win over this rewrite; the app has none under /api.
+   */
+  async rewrites() {
+    if (!apiProxyTarget) return [];
+    return [{ source: "/api/:path*", destination: `${apiProxyTarget}/api/:path*` }];
+  },
 
   /**
    * Compiler optimizations for production.

@@ -48,3 +48,5 @@ next-env.d.ts
 
 # keep the committed template for Docker settings (real .env.docker stays ignored)
 !.env.docker.example
+# ...and for the general (non-Docker) template
+!.env.example

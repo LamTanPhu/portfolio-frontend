@@ -3,7 +3,39 @@
 // (''), and `??` only falls back on null/undefined, so '' would slip through
 // and break things like `new URL(SITE_URL)` in app/layout.tsx.
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+// Backend base URL, resolved separately for the two places this code runs:
+//
+//   Browser  NEXT_PUBLIC_API_URL (inlined at build time). In production this is
+//            the relative path '/api': the browser only ever talks to the
+//            frontend's own origin, and next.config.ts rewrites /api/* to the
+//            backend (see API_PROXY_TARGET there). That keeps the backend's
+//            SameSite=Strict refresh cookie first-party, which a cross-site
+//            call from e.g. *.vercel.app to *.onrender.com could never do.
+//
+//   Server   API_URL, falling back to NEXT_PUBLIC_API_URL. SSR, ISR, build-time
+//            prerendering and Server Actions call the backend directly (no
+//            extra proxy hop), so this must be an absolute http(s) URL.
+//
+// Both default to the local backend, so dev, tests and the e2e mock API need no
+// configuration. Trailing slashes are dropped so paths join cleanly.
+const DEFAULT_API_URL = 'http://localhost:3001/api'
+
+const stripTrailingSlashes = (url: string): string => url.replace(/\/+$/, '')
+
+const browserApiUrl = stripTrailingSlashes(process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL)
+const serverApiUrl = stripTrailingSlashes(process.env.API_URL || browserApiUrl)
+
+// Fail at build/boot with a clear message rather than at request time with
+// "Failed to parse URL". console.* is stripped from production builds, so a
+// warning here would never be seen.
+if (typeof window === 'undefined' && !/^https?:\/\//i.test(serverApiUrl)) {
+    throw new Error(
+        `The server cannot call a relative API URL ("${serverApiUrl}"). ` +
+            'Set API_URL to the absolute backend URL, e.g. https://my-api.onrender.com/api',
+    )
+}
+
+export const API_URL = typeof window === 'undefined' ? serverApiUrl : browserApiUrl
 
 // Resume PDF served for the "download resume" link on the About page and
 // tracked via POST /analytics/resume-download. No file ships in this repo —

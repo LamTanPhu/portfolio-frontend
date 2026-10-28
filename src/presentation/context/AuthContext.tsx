@@ -14,10 +14,15 @@ import { LogoutCommand } from '@/src/application/use-cases/commands/auth/LogoutC
 // is simply unauthenticated — expected for anyone who isn't the admin, not
 // an error worth surfacing.
 //
-// middleware.ts does a coarse, cookie-presence-only check to keep obviously
-// logged-out visitors off /admin/* without hitting the API; this context is
-// the real gate — anything behind it should treat `status` as the source
-// of truth, not the middleware redirect alone.
+// There is deliberately no middleware.ts gate: the refresh cookie belongs to
+// the API (path /api/auth, httpOnly, SameSite=Strict), so the frontend server
+// never sees it and could not check it. In production the browser reaches the
+// API through this site's own /api path (see lib/constants.ts and the rewrite
+// in next.config.ts), which is what keeps that cookie first-party.
+//
+// AdminShell only decides what to *show* from `status`; it is UX, not
+// security. The backend's JwtAuthGuard is what actually protects every admin
+// route, so a forged client-side state still gets 401s.
 // =============================================================================
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
 

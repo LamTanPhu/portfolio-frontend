@@ -25,6 +25,7 @@ export default defineConfig({
         // Set before any module is imported, so lib/constants.ts picks these up.
         env: {
             NEXT_PUBLIC_API_URL: 'http://localhost:3001/api',
+            API_URL: 'http://localhost:3001/api',
             NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
             NEXT_PUBLIC_RESUME_URL: '/resume.pdf',
             NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
