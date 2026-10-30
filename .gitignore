@@ -50,3 +50,5 @@ next-env.d.ts
 !.env.docker.example
 # ...and for the general (non-Docker) template
 !.env.example
+# ...and for the optional Jenkins lab
+!jenkins/.env.example

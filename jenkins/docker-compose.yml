@@ -1,0 +1,38 @@
+# Local Jenkins lab. Start only when you want it:
+#   cd jenkins && cp .env.example .env   (then set a password)
+#   docker compose up -d --build
+# Stop:   docker compose down        Remove all data: docker compose down -v
+name: portfolio-jenkins
+
+services:
+  jenkins:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: node:26-bookworm-slim
+        PLAYWRIGHT_VERSION: "1.64.0"
+    image: portfolio-jenkins:local
+    container_name: portfolio-jenkins
+    restart: "no"            # on demand, not at every boot
+    init: true               # reaps zombie processes left by browsers
+    shm_size: 1gb            # Chromium needs more shared memory than Docker's 64 MB default
+    mem_limit: 4g            # lower it if your machine is short on RAM
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Loopback only: Jenkins is never exposed to your network. No agent port.
+      - "127.0.0.1:8080:8080"
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?Set JENKINS_ADMIN_PASSWORD in jenkins/.env}
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Xmx1g
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  jenkins_home:

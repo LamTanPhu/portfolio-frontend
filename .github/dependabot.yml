@@ -16,3 +16,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  # Base images in jenkins/Dockerfile (Jenkins LTS and the Node copy-source).
+  - package-ecosystem: "docker"
+    directory: "/jenkins"
+    schedule:
+      interval: "weekly"
