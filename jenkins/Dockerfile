@@ -24,6 +24,13 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends libatomic1 \
  && rm -rf /var/lib/apt/lists/*
 
+# Node 26 ships npm 11.20, which bundles brace-expansion 5.0.9 (known DoS). The
+# latest 11.x bundles the fixed 5.0.12. Same major as GitHub CI, so behaviour
+# is unchanged. (It still bundles undici 6.29.0, one patch short of the fix;
+# nothing more to do until npm ships a newer one.) Must run after libatomic1.
+RUN npm install -g npm@11 --no-audit --no-fund \
+ && rm -rf /root/.npm
+
 # System libraries Chromium needs (root-only). Keep the version in line with
 # @playwright/test in package.json. The browser binary is NOT installed here;
 # the pipeline downloads it into the persistent Jenkins volume.
