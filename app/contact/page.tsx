@@ -1,7 +1,7 @@
 // app/contact/page.tsx
 import type { Metadata } from 'next'
 import { ContactPage } from '@/src/presentation/pages/ContactPage'
-import { loadSocialAccounts } from '@/src/application/use-cases/queries/social/loadSocialAccounts'
+import { loadPublicSocialAccounts } from '@/src/application/use-cases/queries/social/loadPublicSocialAccounts'
 import { SITE_URL } from '@/lib/constants'
 
 export const metadata: Metadata = {
@@ -22,6 +22,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-    const socialAccounts = await loadSocialAccounts()
+    const socialAccounts = await loadPublicSocialAccounts()
     return <ContactPage socialAccounts={socialAccounts} />
 }

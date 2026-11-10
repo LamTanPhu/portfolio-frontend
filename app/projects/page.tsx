@@ -1,7 +1,7 @@
 // app/projects/page.tsx
 import type { Metadata } from 'next'
 import { ProjectsPage } from '@/src/presentation/pages/ProjectsPage'
-import { loadProjects } from '@/src/application/use-cases/queries/project/loadProjects'
+import { loadPublicProjects } from '@/src/application/use-cases/queries/project/loadPublicProjects'
 import { SITE_URL } from '@/lib/constants'
 
 export const metadata: Metadata = {
@@ -22,6 +22,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-    const projects = await loadProjects()
+    const projects = await loadPublicProjects()
     return <ProjectsPage projects={projects} />
 }

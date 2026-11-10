@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { loadProjects } from '@/src/application/use-cases/queries/project/loadProjects'
-import { loadBlogs }    from '@/src/application/use-cases/queries/blog/loadBlogs'
+import { loadPublicProjects } from '@/src/application/use-cases/queries/project/loadPublicProjects'
+import { loadPublicBlogs }    from '@/src/application/use-cases/queries/blog/loadPublicBlogs'
 import { SITE_URL }     from '@/lib/constants'
 
 // =============================================================================
@@ -19,8 +19,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
 
     const [projects, posts] = await Promise.all([
-        loadProjects().catch(() => []),
-        loadBlogs().catch(() => []),
+        loadPublicProjects().catch(() => []),
+        loadPublicBlogs().catch(() => []),
     ])
 
     const projectRoutes: MetadataRoute.Sitemap = projects.map((p) => ({

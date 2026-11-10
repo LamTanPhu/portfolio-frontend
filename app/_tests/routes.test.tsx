@@ -7,6 +7,12 @@ import {
 } from '@/src/test/fixtures'
 import { server } from '@/src/test/msw/server'
 
+// The public routes fall back to data/api-snapshot.json when the backend fails.
+// These tests are about the live behaviour (errors propagate, 404s are 404s), so
+// pin an empty snapshot: with nothing to fall back to, the original error
+// surfaces. The fallback itself is covered in snapshotFallback.test.tsx.
+vi.mock('@/data/api-snapshot.json', () => ({ default: { generatedAt: null, entries: {} } }))
+
 import { AdminAnalyticsPage } from '@/src/presentation/pages/adminPages/AdminAnalyticsPage'
 import { AdminAuditPage } from '@/src/presentation/pages/adminPages/AdminAuditPage'
 import { AdminBlogFormPage } from '@/src/presentation/pages/adminPages/AdminBlogFormPage'

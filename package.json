@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "snapshot": "node scripts/snapshot.mjs",
     "build:mock": "node e2e/with-mock-api.mjs npm run build",
     "test:e2e": "node e2e/with-mock-api.mjs npm run build && playwright test",
     "test:e2e:only": "playwright test",

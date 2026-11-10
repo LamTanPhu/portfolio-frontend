@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HomePage } from "@/src/presentation/pages/HomePage";
-import { loadSocialAccounts } from "@/src/application/use-cases/queries/social/loadSocialAccounts"
+import { loadPublicSocialAccounts } from "@/src/application/use-cases/queries/social/loadPublicSocialAccounts"
 import { SITE_URL } from "@/lib/constants"
 
 const description = "Software Engineer & Portfolio — Lam Tan Phu. Full-stack development, backend systems, and game development."
@@ -22,6 +22,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const socialAccounts = await loadSocialAccounts()
+  const socialAccounts = await loadPublicSocialAccounts()
   return <HomePage socialAccounts={socialAccounts} />
 }

@@ -2,8 +2,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { BlogPostPage } from '@/src/presentation/pages/BlogPostPage'
-import { loadBlogBySlug } from '@/src/application/use-cases/queries/blog/loadBlogBySlug'
-import { loadBlogs } from '@/src/application/use-cases/queries/blog/loadBlogs'
+import { loadPublicBlogBySlug } from '@/src/application/use-cases/queries/blog/loadPublicBlogBySlug'
+import { loadPublicBlogs } from '@/src/application/use-cases/queries/blog/loadPublicBlogs'
 import { SITE_URL } from '@/lib/constants'
 
 interface Params {
@@ -13,7 +13,7 @@ interface Params {
 // Pre-render every published post at build time — see rationale in
 // app/projects/[slug]/page.tsx.
 export async function generateStaticParams(): Promise<Params[]> {
-    const posts = await loadBlogs()
+    const posts = await loadPublicBlogs()
     return posts.map((p) => ({ slug: p.slug }))
 }
 
@@ -21,7 +21,7 @@ export async function generateMetadata(
     { params }: { params: Promise<Params> },
 ): Promise<Metadata> {
     const { slug } = await params
-    const post = await loadBlogBySlug(slug)
+    const post = await loadPublicBlogBySlug(slug)
 
     if (!post) return { title: 'Post not found' }
 
@@ -51,7 +51,7 @@ export async function generateMetadata(
 
 export default async function Page({ params }: { params: Promise<Params> }) {
     const { slug } = await params
-    const post = await loadBlogBySlug(slug)
+    const post = await loadPublicBlogBySlug(slug)
 
     if (!post) notFound()
 

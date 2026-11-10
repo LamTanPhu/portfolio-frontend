@@ -2,8 +2,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ProjectDetailPage } from '@/src/presentation/pages/ProjectDetailPage'
-import { loadProjectBySlug } from '@/src/application/use-cases/queries/project/loadProjectBySlug'
-import { loadProjects } from '@/src/application/use-cases/queries/project/loadProjects'
+import { loadPublicProjectBySlug } from '@/src/application/use-cases/queries/project/loadPublicProjectBySlug'
+import { loadPublicProjects } from '@/src/application/use-cases/queries/project/loadPublicProjects'
 import { SITE_URL } from '@/lib/constants'
 
 interface Params {
@@ -15,7 +15,7 @@ interface Params {
 // Next's fallback behavior; revalidation is handled by the underlying
 // fetch's `next.revalidate` (see httpClient.ts) either way.
 export async function generateStaticParams(): Promise<Params[]> {
-    const projects = await loadProjects()
+    const projects = await loadPublicProjects()
     return projects.map((p) => ({ slug: p.slug }))
 }
 
@@ -23,7 +23,7 @@ export async function generateMetadata(
     { params }: { params: Promise<Params> },
 ): Promise<Metadata> {
     const { slug } = await params
-    const project = await loadProjectBySlug(slug)
+    const project = await loadPublicProjectBySlug(slug)
 
     if (!project) return { title: 'Project not found' }
 
@@ -52,7 +52,7 @@ export async function generateMetadata(
 
 export default async function Page({ params }: { params: Promise<Params> }) {
     const { slug } = await params
-    const project = await loadProjectBySlug(slug)
+    const project = await loadPublicProjectBySlug(slug)
 
     if (!project) notFound()
 

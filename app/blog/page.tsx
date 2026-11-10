@@ -1,7 +1,7 @@
 // app/blog/page.tsx
 import type { Metadata } from 'next'
 import { BlogPage } from '@/src/presentation/pages/BlogPage'
-import { loadBlogs } from '@/src/application/use-cases/queries/blog/loadBlogs'
+import { loadPublicBlogs } from '@/src/application/use-cases/queries/blog/loadPublicBlogs'
 import { SITE_URL } from '@/lib/constants'
 
 export const metadata: Metadata = {
@@ -22,6 +22,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-    const posts = await loadBlogs()
+    const posts = await loadPublicBlogs()
     return <BlogPage posts={posts} />
 }
