@@ -1,7 +1,15 @@
 {
-  "generatedAt": null,
+  "generatedAt": "2026-11-10T02:12:47.971Z",
   "entries": {
-    "/about/skills": [],
+    "/about/skills": [
+      {
+        "id": 1,
+        "name": "TypeScript",
+        "imageUrl": "https://cdn.example.com/ts.svg",
+        "category": "frontend",
+        "isPublic": true
+      }
+    ],
     "/about/education": [],
     "/about/jobs": [],
     "/about/certifications": [],
