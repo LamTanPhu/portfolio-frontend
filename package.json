@@ -43,7 +43,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.1.1",
     "eslint": "^10",
-    "eslint-config-next": "^16.4.3",
+    "eslint-config-next": "^16.4.6",
     "javascript-obfuscator": "^5.10.1",
     "jsdom": "^31.0.1",
     "msw": "^2.15.0",
