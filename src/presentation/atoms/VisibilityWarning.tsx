@@ -2,9 +2,9 @@ import { TriangleAlert } from 'lucide-react'
 
 // =============================================================================
 // VisibilityWarning — Atom
-// Skill/Education/Job/Certification/SocialAccount/Project only expose a
+// Skill/Education/Job/Certification/SocialAccount only expose a
 // public-filtered list endpoint on this backend (no admin "show everything"
-// route, unlike Blog's /blogs/admin). Turning this checkbox off removes the
+// route, unlike Blog's /blogs/admin and Project's /projects/admin). Turning this checkbox off removes the
 // item from every list the admin UI can query — there's currently no way to
 // find it again to re-publish or delete it short of the database directly.
 // This warning is the honest way to expose the toggle anyway rather than

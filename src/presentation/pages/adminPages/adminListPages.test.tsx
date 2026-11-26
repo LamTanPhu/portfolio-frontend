@@ -80,10 +80,10 @@ const cases: Case[] = [
     },
     {
         name: 'projects', Page: AdminProjectListPage, heading: 'projects', newHref: '/admin/projects/new',
-        emptyMessage: 'no published projects yet.', loadError: 'Failed to load projects.', dialogTitle: 'Delete project?',
-        listPath: '/projects', items: [projectSummaryDTO({ id: 1, name: 'Alpha', slug: 'alpha' }), projectSummaryDTO({ id: 2, name: 'Beta', slug: 'beta', isPublished: false })],
+        emptyMessage: 'no projects yet.', loadError: 'Failed to load projects.', dialogTitle: 'Delete project?',
+        listPath: '/projects/admin', items: [projectSummaryDTO({ id: 1, name: 'Alpha', slug: 'alpha' }), projectSummaryDTO({ id: 2, name: 'Beta', slug: 'beta', isPublished: false })],
         rowTitles: ['Alpha', 'Beta'], deleteLabel: 'Alpha', deletePath: (id) => `/projects/${id}`,
-        editHrefs: ['/admin/projects/alpha/edit', '/admin/projects/beta/edit'],
+        editHrefs: ['/admin/projects/alpha/edit', '/admin/projects/beta/edit'], needsToken: true,
     },
     {
         name: 'blog posts', Page: AdminBlogListPage, heading: 'blog-posts', newHref: '/admin/blog/new',

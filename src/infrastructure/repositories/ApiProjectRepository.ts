@@ -12,6 +12,9 @@ import { ProjectMapper } from '../mappers/ProjectMapper'
 //
 // findPublished — GET /projects       → ProjectSummaryDTO[] → ProjectSummary[]
 // findBySlug    — GET /projects/:slug → ProjectDTO           → Project
+//                 (published projects only — a draft is a 404)
+// findAllAdmin  — GET /projects/admin → every project incl. drafts (JWT)
+// findBySlugAdmin — GET /projects/admin/:slug → one project incl. drafts (JWT)
 //
 // findBySlug only treats a genuine 404 as "not found" (returns null). Any
 // other failure (network error, 500, etc.) rethrows — a real outage must
@@ -28,6 +31,22 @@ export class ApiProjectRepository implements IProjectReadRepository {
   async findBySlug(slug: string): Promise<Project | null> {
     try {
       const dto = await this.client.get<ProjectDTO>(`/projects/${slug}`)
+      return ProjectMapper.toDomain(dto)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null
+      throw err
+    }
+  }
+
+  async findAllAdmin(accessToken: string): Promise<ProjectSummary[]> {
+    const dtos = await this.client.get<ProjectSummaryDTO[]>('/projects/admin', 0, { accessToken })
+    return dtos.map(ProjectMapper.toDomainSummary)
+  }
+
+  // revalidate: 0 — an editor must never be handed a cached copy of the row they are about to overwrite.
+  async findBySlugAdmin(slug: string, accessToken: string): Promise<Project | null> {
+    try {
+      const dto = await this.client.get<ProjectDTO>(`/projects/admin/${encodeURIComponent(slug)}`, 0, { accessToken })
       return ProjectMapper.toDomain(dto)
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) return null

@@ -9,7 +9,7 @@ import { VSCodeLayout } from '../templates/VSCodeLayout'
 // =============================================================================
 // ProjectDetailPage — Page
 // Full project view at /projects/[slug]. Server Component — `project` is
-// fetched in app/projects/[slug]/page.tsx via loadProjectBySlug() and
+// fetched in app/projects/[slug]/page.tsx via loadPublicProjectBySlug() and
 // passed in as a prop.
 // =============================================================================
 

@@ -10,6 +10,9 @@ import { ApiError }                 from '../api/httpClient'
 // ApiBlogRepository
 // findPublished — GET /blogs       → BlogSummaryDTO[] → BlogSummary[]
 // findBySlug    — GET /blogs/:slug → BlogDetailDTO    → Blog
+//                 (published posts only — a draft is a 404)
+// findAllAdmin  — GET /blogs/admin → every post incl. drafts (JWT)
+// findBySlugAdmin — GET /blogs/admin/:slug → one post incl. drafts (JWT)
 //
 // findBySlug only treats a genuine 404 as "not found" (returns null). Any
 // other failure (network error, 500, etc.) rethrows — a real outage must
@@ -26,6 +29,18 @@ export class ApiBlogRepository implements IBlogReadRepository {
   async findBySlug(slug: string): Promise<Blog | null> {
     try {
       const dto = await this.client.get<BlogDetailDTO>(`/blogs/${slug}`)
+      return BlogMapper.toDomain(dto)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null
+      throw err
+    }
+  }
+
+  // Same 404 → null / everything else rethrows contract as findBySlug. revalidate: 0 —
+  // an editor must never be handed a cached copy of the row they are about to overwrite.
+  async findBySlugAdmin(slug: string, accessToken: string): Promise<Blog | null> {
+    try {
+      const dto = await this.client.get<BlogDetailDTO>(`/blogs/admin/${encodeURIComponent(slug)}`, 0, { accessToken })
       return BlogMapper.toDomain(dto)
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) return null

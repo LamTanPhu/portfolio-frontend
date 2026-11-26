@@ -8,7 +8,6 @@ import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { Checkbox } from '../../atoms/Checkbox'
 import { FormField } from '../../atoms/FormField'
-import { VisibilityWarning } from '../../atoms/VisibilityWarning'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { AdminFormActions } from '../../molecules/AdminFormActions'
@@ -17,10 +16,9 @@ import { AdminPageHeader } from '../../molecules/AdminPageHeader'
 // =============================================================================
 // AdminProjectFormPage — Page
 // slug is never a field here — server-generated from name, same contract
-// as Blog's title→slug. isPublished carries the same VisibilityWarning as
-// the other about-page resources: no admin "everything" listing exists for
-// projects either, so unpublishing one here removes it from every list this
-// UI can query (though it stays reachable by slug — see the edit route).
+// as Blog's title→slug. No VisibilityWarning here — like Blog, Project has a
+// real admin listing (/projects/admin) and an admin read-by-slug that both
+// include drafts, so unpublishing a project never loses it.
 // =============================================================================
 type Props =
     | { mode: 'create' }
@@ -99,7 +97,6 @@ export function AdminProjectFormPage(props: Props) {
 
                 <Checkbox label="open source" checked={isOpenSource} onChange={setIsOpenSource} />
                 <Checkbox label="published" checked={isPublished} onChange={setIsPublished} />
-                {!isPublished && <VisibilityWarning />}
 
                 <AdminFormActions
                     submitting={submitting}

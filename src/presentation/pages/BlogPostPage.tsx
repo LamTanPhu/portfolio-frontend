@@ -7,7 +7,7 @@ import type { BlogDetailDTO } from '@/src/application/dtos/blog/BlogDetailDTO'
 // =============================================================================
 // BlogPostPage — Page
 // Full post view at /blog/[slug]. Server Component — `post` is fetched in
-// app/blog/[slug]/page.tsx via loadBlogBySlug() and passed in as a prop.
+// app/blog/[slug]/page.tsx via loadPublicBlogBySlug() and passed in as a prop.
 // =============================================================================
 
 function estimateReadingTime(content: string): string {

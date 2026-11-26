@@ -1,10 +1,9 @@
 // app/admin/(protected)/projects/[slug]/edit/page.tsx
-// Server Component — fetches via the existing public loadProjectBySlug.
-// Only reaches published projects (see AdminProjectFormPage's note on
-// VisibilityWarning) since GET /projects/:slug only ever resolves those.
-import { loadProjectBySlug } from '@/src/application/use-cases/queries/project/loadProjectBySlug'
-import { AdminProjectFormPage } from '@/src/presentation/pages/adminPages/AdminProjectFormPage'
-import { notFound } from 'next/navigation'
+// Thin route wrapper. The project is loaded client-side by AdminProjectEditPage
+// through the JWT-guarded GET /projects/admin/:slug — the public
+// GET /projects/:slug 404s on drafts, and a Server Component has no access token
+// to call the admin route.
+import { AdminProjectEditPage } from '@/src/presentation/pages/adminPages/AdminProjectEditPage'
 
 interface Params {
     slug: string
@@ -12,9 +11,5 @@ interface Params {
 
 export default async function Page({ params }: { params: Promise<Params> }) {
     const { slug } = await params
-    const project = await loadProjectBySlug(slug)
-
-    if (!project) notFound()
-
-    return <AdminProjectFormPage mode="edit" project={project} />
+    return <AdminProjectEditPage slug={slug} />
 }

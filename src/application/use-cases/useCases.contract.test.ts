@@ -43,7 +43,7 @@ import { GetNowPlayingQuery } from './queries/analytics/GetNowPlayingQuery'
 import { GetPageViewsQuery } from './queries/analytics/GetPageViewsQuery'
 import { GetProjectViewsQuery } from './queries/analytics/GetProjectViewsQuery'
 import { GetAllBlogsQuery } from './queries/blog/GetAllBlogsQuery'
-import { loadBlogBySlug } from './queries/blog/loadBlogBySlug'
+import { GetBlogForAdminQuery } from './queries/blog/GetBlogForAdminQuery'
 import { loadBlogs } from './queries/blog/loadBlogs'
 import { SearchBlogsQuery } from './queries/blog/SearchBlogsQuery'
 import { IssueSnakeChallengeQuery } from './queries/captcha/IssueSnakeChallengeQuery'
@@ -54,7 +54,8 @@ import { GetEducationQuery } from './queries/education/GetEducationQuery'
 import { loadEducation } from './queries/education/loadEducation'
 import { GetJobsQuery } from './queries/job/GetJobsQuery'
 import { loadJobs } from './queries/job/loadJobs'
-import { loadProjectBySlug } from './queries/project/loadProjectBySlug'
+import { GetAllProjectsQuery } from './queries/project/GetAllProjectsQuery'
+import { GetProjectForAdminQuery } from './queries/project/GetProjectForAdminQuery'
 import { loadProjects } from './queries/project/loadProjects'
 import { GetPublishedSkillsQuery } from './queries/skill/GetPublishedSkillsQuery'
 import { loadSkills } from './queries/skill/loadSkills'
@@ -222,25 +223,57 @@ describe('project use cases', () => {
         expect(result.map((p) => p.name)).toEqual(['Alpha', 'Beta'])
     })
 
-    it('loadProjectBySlug returns the full project with ISO date strings', async () => {
-        route('get', '/projects/alpha', json(projectDTO({ slug: 'alpha', description: 'Long text' })))
+    it('admin list uses /projects/admin with the bearer token and keeps drafts', async () => {
+        const seen = route(
+            'get',
+            '/projects/admin',
+            json([projectSummaryDTO({ id: 1, isPublished: true }), projectSummaryDTO({ id: 2, isPublished: false })]),
+        )
 
-        const project = await loadProjectBySlug('alpha')
+        const result = await GetAllProjectsQuery.create().execute(TOKEN)
 
-        expect(project).toMatchObject({ slug: 'alpha', description: 'Long text' })
+        expect(seen[0].auth).toBe(`Bearer ${TOKEN}`)
+        expect(result.map((p) => p.isPublished)).toEqual([true, false])
+    })
+
+    it('admin read-by-slug uses /projects/admin/:slug with the bearer token and returns the full project', async () => {
+        const seen = route(
+            'get',
+            '/projects/admin/alpha',
+            json(projectDTO({ slug: 'alpha', description: 'Long text', isPublished: false })),
+        )
+
+        const project = await GetProjectForAdminQuery.create().execute('alpha', TOKEN)
+
+        expect(seen[0].auth).toBe(`Bearer ${TOKEN}`)
+        expect(project).toMatchObject({ slug: 'alpha', description: 'Long text', isPublished: false })
         expect(project?.createdAt).toBe('2025-01-10T08:00:00.000Z')
     })
 
-    it('loadProjectBySlug returns null for a 404 (so the page can show notFound())', async () => {
-        route('get', '/projects/missing', status(404))
+    it('admin read-by-slug returns null for a 404 (so the edit page can show "not found")', async () => {
+        route('get', '/projects/admin/missing', status(404))
 
-        await expect(loadProjectBySlug('missing')).resolves.toBeNull()
+        await expect(GetProjectForAdminQuery.create().execute('missing', TOKEN)).resolves.toBeNull()
     })
 
-    it('loadProjectBySlug still throws for server errors (a 500 is not "not found")', async () => {
-        route('get', '/projects/boom', status(500))
+    it('admin read-by-slug still throws for server errors (a 500 is not "not found")', async () => {
+        route('get', '/projects/admin/boom', status(500))
 
-        await expect(loadProjectBySlug('boom')).rejects.toMatchObject({ status: 500 })
+        await expect(GetProjectForAdminQuery.create().execute('boom', TOKEN)).rejects.toMatchObject({ status: 500 })
+    })
+
+    it('admin read-by-slug rejects with 401 when the token is not accepted', async () => {
+        route('get', '/projects/admin/alpha', status(401))
+
+        await expect(GetProjectForAdminQuery.create().execute('alpha', 'bad')).rejects.toMatchObject({ status: 401 })
+    })
+
+    it('admin read-by-slug percent-encodes the slug so it cannot escape the path', async () => {
+        const seen = route('get', '/projects/admin/a%2Fb', json(projectDTO({ slug: 'a-b' })))
+
+        await GetProjectForAdminQuery.create().execute('a/b', TOKEN)
+
+        expect(seen).toHaveLength(1)
     })
 
     it('create / update / delete hit /projects with the bearer token', async () => {
@@ -266,22 +299,23 @@ describe('blog use cases', () => {
         await expect(loadBlogs()).resolves.toMatchObject([{ id: 1, title: 'One' }])
     })
 
-    it('loadBlogBySlug returns the full post, with null publishedAt preserved for drafts', async () => {
-        route('get', '/blogs/draft', json(blogDetailDTO({ slug: 'draft', publishedAt: null, isPublished: false })))
+    it('admin read-by-slug uses /blogs/admin/:slug with the bearer token, with null publishedAt preserved for drafts', async () => {
+        const seen = route('get', '/blogs/admin/draft', json(blogDetailDTO({ slug: 'draft', publishedAt: null, isPublished: false })))
 
-        const post = await loadBlogBySlug('draft')
+        const post = await GetBlogForAdminQuery.create().execute('draft', TOKEN)
 
-        expect(post).toMatchObject({ slug: 'draft', publishedAt: null })
+        expect(seen[0].auth).toBe(`Bearer ${TOKEN}`)
+        expect(post).toMatchObject({ slug: 'draft', publishedAt: null, isPublished: false })
     })
 
     // Regression for a bug only the real backend would have shown: its blog responses carry
     // no updatedAt, and the use case used to call .toISOString() on an Invalid Date (RangeError),
     // which would have broken every blog post page and the build.
-    it('loadBlogBySlug and loadBlogs work with the backend\'s real shape (no updatedAt)', async () => {
-        route('get', '/blogs/real', json(blogDetailDTO({ slug: 'real' })))
+    it('admin read-by-slug and loadBlogs work with the backend\'s real shape (no updatedAt)', async () => {
+        route('get', '/blogs/admin/real', json(blogDetailDTO({ slug: 'real' })))
         route('get', '/blogs', json([blogSummaryDTO({ slug: 'real' })]))
 
-        const post = await loadBlogBySlug('real')
+        const post = await GetBlogForAdminQuery.create().execute('real', TOKEN)
         const list = await loadBlogs()
 
         expect(post).toMatchObject({ slug: 'real' })
@@ -290,23 +324,29 @@ describe('blog use cases', () => {
     })
 
     it('passes updatedAt through when the backend does send it', async () => {
-        route('get', '/blogs/edited', json(blogDetailDTO({ slug: 'edited', updatedAt: '2025-03-02T11:00:00.000Z' })))
+        route('get', '/blogs/admin/edited', json(blogDetailDTO({ slug: 'edited', updatedAt: '2025-03-02T11:00:00.000Z' })))
         route('get', '/blogs', json([blogSummaryDTO({ slug: 'edited', updatedAt: '2025-03-02T11:00:00.000Z' })]))
 
-        expect((await loadBlogBySlug('edited'))?.updatedAt).toBe('2025-03-02T11:00:00.000Z')
+        expect((await GetBlogForAdminQuery.create().execute('edited', TOKEN))?.updatedAt).toBe('2025-03-02T11:00:00.000Z')
         expect((await loadBlogs())[0].updatedAt).toBe('2025-03-02T11:00:00.000Z')
     })
 
-    it('loadBlogBySlug returns null for a 404', async () => {
-        route('get', '/blogs/missing', status(404))
+    it('admin read-by-slug returns null for a 404', async () => {
+        route('get', '/blogs/admin/missing', status(404))
 
-        await expect(loadBlogBySlug('missing')).resolves.toBeNull()
+        await expect(GetBlogForAdminQuery.create().execute('missing', TOKEN)).resolves.toBeNull()
     })
 
-    it('loadBlogBySlug rethrows other failures', async () => {
-        route('get', '/blogs/boom', status(500))
+    it('admin read-by-slug rethrows other failures', async () => {
+        route('get', '/blogs/admin/boom', status(500))
 
-        await expect(loadBlogBySlug('boom')).rejects.toMatchObject({ status: 500 })
+        await expect(GetBlogForAdminQuery.create().execute('boom', TOKEN)).rejects.toMatchObject({ status: 500 })
+    })
+
+    it('admin read-by-slug rejects with 401 when the token is not accepted', async () => {
+        route('get', '/blogs/admin/draft', status(401))
+
+        await expect(GetBlogForAdminQuery.create().execute('draft', 'bad')).rejects.toMatchObject({ status: 401 })
     })
 
     it('admin list uses /blogs/admin with the bearer token', async () => {

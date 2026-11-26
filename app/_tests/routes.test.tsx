@@ -15,6 +15,7 @@ vi.mock('@/data/api-snapshot.json', () => ({ default: { generatedAt: null, entri
 
 import { AdminAnalyticsPage } from '@/src/presentation/pages/adminPages/AdminAnalyticsPage'
 import { AdminAuditPage } from '@/src/presentation/pages/adminPages/AdminAuditPage'
+import { AdminBlogEditPage } from '@/src/presentation/pages/adminPages/AdminBlogEditPage'
 import { AdminBlogFormPage } from '@/src/presentation/pages/adminPages/AdminBlogFormPage'
 import { AdminBlogListPage } from '@/src/presentation/pages/adminPages/AdminBlogListPage'
 import { AdminCertificationEditPage } from '@/src/presentation/pages/adminPages/AdminCertificationEditPage'
@@ -30,6 +31,7 @@ import { AdminJobFormPage } from '@/src/presentation/pages/adminPages/AdminJobFo
 import { AdminJobListPage } from '@/src/presentation/pages/adminPages/AdminJobListPage'
 import { AdminLoginPage } from '@/src/presentation/pages/adminPages/AdminLoginPage'
 import { AdminProfilePage } from '@/src/presentation/pages/adminPages/AdminProfilePage'
+import { AdminProjectEditPage } from '@/src/presentation/pages/adminPages/AdminProjectEditPage'
 import { AdminProjectFormPage } from '@/src/presentation/pages/adminPages/AdminProjectFormPage'
 import { AdminProjectListPage } from '@/src/presentation/pages/adminPages/AdminProjectListPage'
 import { AdminSkillEditPage } from '@/src/presentation/pages/adminPages/AdminSkillEditPage'
@@ -410,36 +412,29 @@ describe('admin route files', () => {
         expect(el.props).toEqual({ id: 12 })
     })
 
-    it('edit project loads the project by slug and opens the form in edit mode', async () => {
-        get('/projects/alpha', projectDTO({ slug: 'alpha', name: 'Alpha' }))
-        const { default: Page } = await import('../admin/(protected)/projects/[slug]/edit/page')
+    // Drafts are 404 on the public routes, and a Server Component has no access
+    // token — so these two routes only hand the slug to a client page that loads
+    // the post/project through the JWT-guarded admin endpoint (see AdminBlogEditPage).
+    it.each([
+        ['project', () => import('../admin/(protected)/projects/[slug]/edit/page'), AdminProjectEditPage],
+        ['blog post', () => import('../admin/(protected)/blog/[slug]/edit/page'), AdminBlogEditPage],
+    ])('edit %s passes the slug from the URL to the client edit page', async (_name, load, Component) => {
+        const el = (await (await load()).default(adminParams({ slug: 'a-draft' }))) as unknown as El
 
-        const el = (await Page(adminParams({ slug: 'alpha' }))) as unknown as El
-
-        expect(el.type).toBe(AdminProjectFormPage)
-        expect(el.props).toMatchObject({ mode: 'edit', project: { slug: 'alpha' } })
+        expect(el.type).toBe(Component)
+        expect(el.props).toEqual({ slug: 'a-draft' })
     })
 
-    it('edit blog post loads the post by slug and opens the form in edit mode', async () => {
-        get('/blogs/hello', blogDetailDTO({ slug: 'hello', title: 'Hello' }))
-        const { default: Page } = await import('../admin/(protected)/blog/[slug]/edit/page')
-
-        const el = (await Page(adminParams({ slug: 'hello' }))) as unknown as El
-
-        expect(el.type).toBe(AdminBlogFormPage)
-        expect(el.props).toMatchObject({ mode: 'edit', post: { slug: 'hello' } })
-    })
-
-    it('editing an unknown project or post is a 404', async () => {
-        server.use(
-            http.get(`${API_URL}/projects/nope`, () => new HttpResponse(null, { status: 404 })),
-            http.get(`${API_URL}/blogs/nope`, () => new HttpResponse(null, { status: 404 })),
-        )
+    it('the edit routes never call the backend themselves (no token on the server)', async () => {
+        const hit = vi.fn()
+        server.use(http.get(`${API_URL}/*`, () => { hit(); return new HttpResponse(null, { status: 500 }) }))
         const projectPage = (await import('../admin/(protected)/projects/[slug]/edit/page')).default
         const blogPage = (await import('../admin/(protected)/blog/[slug]/edit/page')).default
 
-        await expect(projectPage(adminParams({ slug: 'nope' }))).rejects.toMatchObject(NOT_FOUND)
-        await expect(blogPage(adminParams({ slug: 'nope' }))).rejects.toMatchObject(NOT_FOUND)
+        await projectPage(adminParams({ slug: 'x' }))
+        await blogPage(adminParams({ slug: 'x' }))
+
+        expect(hit).not.toHaveBeenCalled()
     })
 
     it('the protected layout wraps everything in the AdminShell', async () => {

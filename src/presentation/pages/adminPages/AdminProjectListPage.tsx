@@ -1,7 +1,7 @@
 'use client'
 import type { ProjectSummaryDTO } from '@/src/application/dtos/project/ProjectSummaryDTO'
 import { DeleteProjectCommand } from '@/src/application/use-cases/commands/project/DeleteProjectCommand'
-import { loadProjects } from '@/src/application/use-cases/queries/project/loadProjects'
+import { GetAllProjectsQuery } from '@/src/application/use-cases/queries/project/GetAllProjectsQuery'
 import { FolderCode, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -18,9 +18,8 @@ import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 
 // =============================================================================
 // AdminProjectListPage — Page
-// Same limitation as the about-page resources: GET /projects only returns
-// published projects (no admin "everything" route like blogs/admin), so
-// this list is limited to projects currently published.
+// Every project including drafts (GET /projects/admin). Client-fetched — needs
+// the access token from AuthContext, which only exists in the browser.
 // =============================================================================
 export function AdminProjectListPage() {
     const { accessToken } = useAuth()
@@ -31,18 +30,21 @@ export function AdminProjectListPage() {
     const [pendingDelete, setPendingDelete] = useState<ProjectSummaryDTO | null>(null)
 
     useEffect(() => {
+        if (!accessToken) return
         let ignore = false
+
         void (async () => {
             try {
-                const result = await loadProjects()
+                const result = await GetAllProjectsQuery.create().execute(accessToken)
                 if (!ignore) setProjects(result)
             } catch {
                 if (!ignore) toast.show('Failed to load projects.', 'error')
             }
         })()
+
         return () => { ignore = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [accessToken])
 
     async function confirmDelete() {
         if (!accessToken || !pendingDelete) return
@@ -76,7 +78,7 @@ export function AdminProjectListPage() {
             {projects === null ? (
                 <LoadingLine />
             ) : projects.length === 0 ? (
-                <EmptyState icon={<FolderCode size={28} />} message="no published projects yet." />
+                <EmptyState icon={<FolderCode size={28} />} message="no projects yet." />
             ) : (
                 <div className="flex flex-col divide-y divide-(--border-muted) border border-(--border-muted)">
                     {projects.map((project) => (

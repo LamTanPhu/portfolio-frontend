@@ -5,9 +5,9 @@ import { GetProjectBySlugQuery } from './GetProjectBySlugQuery'
 
 // =============================================================================
 // loadPublicProjectBySlug
-// Server-only loader for the PUBLIC pages — same as loadProjectBySlug, but reads fall
-// back to data/api-snapshot.json when the backend is down (see SNAPSHOT.md).
-// Admin screens keep using loadProjectBySlug: they must show live data or an error.
+// Server-only loader for the PUBLIC pages. Reads fall back to data/api-snapshot.json
+// when the backend is down (see SNAPSHOT.md). Admin screens do NOT use this: they
+// load drafts through GetProjectForAdminQuery (JWT-guarded, live data or an error).
 // Composition root: wires infrastructure repository to application query.
 // Returns null when no published project matches the slug (query already
 // distinguishes 404 from real failures — see ApiProjectRepository).
